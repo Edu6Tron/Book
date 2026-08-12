@@ -13,9 +13,10 @@ describe("Spiritual Companion local-first content", () => {
     expect(ashwinFestivals.map((festival) => festival.id)).toEqual(["navratri"]);
   });
 
-  it("filters temple directions locally before opening an external map", () => {
-    const mumbaiTemples = filterTemples(temples, "Mumbai", "");
-    expect(mumbaiTemples).toHaveLength(1);
-    expect(mumbaiTemples[0]?.id).toBe("siddhivinayak");
+  it("filters government-source temple records locally without map or GPS access", () => {
+    const puriRecords = filterTemples(temples, "Puri", "Alarnath");
+    expect(puriRecords).toHaveLength(1);
+    expect(puriRecords[0]?.registryId).toBe("3-A.P");
+    expect(puriRecords[0]?.authority).toContain("Odisha Hindu Religious Endowments Department");
   });
 });

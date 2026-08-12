@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, router, useLocalSearchParams } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconCircle, SoftCard } from "@/components/spiritual-ui";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -52,6 +53,16 @@ export default function AartiReaderScreen() {
         <View style={[styles.sourceBox, { borderColor: colors.border }]}>
           <Text style={[styles.sourceLabel, { color: colors.muted }]}>TRADITIONAL SOURCE</Text>
           <Text style={[styles.source, { color: colors.foreground }]}>{item.source}</Text>
+          <View style={styles.sourceActions}>
+            <Pressable onPress={() => { haptic.light(); void WebBrowser.openBrowserAsync(`https://www.google.com/search?q=${encodeURIComponent(`${item.title} ${item.deity} source and meaning`)}`); }} style={({ pressed }) => [styles.knowMoreButton, { borderColor: colors.border, backgroundColor: colors.surface }, pressed && styles.pressed]}>
+              <Text style={[styles.knowMoreText, { color: colors.primary }]}>Know more</Text>
+              <IconSymbol name="chevron.right" size={16} color={colors.primary} />
+            </Pressable>
+            <Pressable onPress={() => { haptic.light(); router.push(`/media-discovery?query=${encodeURIComponent(`${item.title} Aarti`)}` as never); }} style={({ pressed }) => [styles.videoButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}>
+              <Text style={[styles.videoText, { color: colors.background }]}>Discover videos</Text>
+              <IconSymbol name="chevron.right" size={16} color={colors.background} />
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
     </ScreenContainer>
@@ -80,6 +91,11 @@ const styles = StyleSheet.create({
   sourceBox: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 6, paddingTop: 16, gap: 4 },
   sourceLabel: { fontSize: 10, fontWeight: "900", letterSpacing: 1.1 },
   source: { fontSize: 13, lineHeight: 19, fontWeight: "700" },
+  sourceActions: { marginTop: 9, flexDirection: "row", gap: 8 },
+  knowMoreButton: { minHeight: 38, flex: 1, borderRadius: 11, borderWidth: StyleSheet.hairlineWidth, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 4 },
+  knowMoreText: { fontSize: 13, fontWeight: "800" },
+  videoButton: { minHeight: 38, flex: 1.15, borderRadius: 11, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 4 },
+  videoText: { fontSize: 13, fontWeight: "800" },
   errorTitle: { fontSize: 22, fontWeight: "800" },
   backLink: { marginTop: 12, fontSize: 15, fontWeight: "800" },
   pressed: { opacity: 0.74, transform: [{ scale: 0.985 }] },

@@ -25,7 +25,7 @@ export default function AartisScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.header}>
-            <SectionHeading eyebrow="Offline library" title="Aartis for every day" />
+            <SectionHeading eyebrow="Offline library" title="Aartis for every day" actionLabel="Discover new" onAction={() => { haptic.light(); router.push("/media-discovery?query=Hindu%20Aarti" as never); }} />
             <Text style={[styles.subtitle, { color: colors.muted }]}>Your devotional library opens from bundled content, so there is no wait for a connection.</Text>
             <View style={[styles.search, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <IconSymbol name="sliders.horizontal.3" size={19} color={colors.muted} />
@@ -43,6 +43,19 @@ export default function AartisScreen() {
               {aartiCategories.map((item) => <Pill key={item} label={item} selected={category === item} onPress={() => { haptic.selection(); setCategory(item); }} />)}
             </ScrollView>
             <Text style={[styles.resultLabel, { color: colors.muted }]}>{results.length} {results.length === 1 ? "Aarti" : "Aartis"} ready to read</Text>
+            <Pressable onPress={() => { haptic.light(); router.push(`/media-discovery?query=${encodeURIComponent(query.trim() || "Hindu Aarti")}` as never); }} style={({ pressed }) => [styles.discoveryButton, { borderColor: colors.primary, backgroundColor: `${colors.primary}12` }, pressed && styles.pressed]}>
+              <IconSymbol name="music.note.list" size={19} color={colors.primary} />
+              <View style={styles.discoveryCopy}>
+                <Text style={[styles.discoveryTitle, { color: colors.foreground }]}>Discover current provider results</Text>
+                <Text style={[styles.discoveryDetail, { color: colors.muted }]}>Runs only when you choose it; local results stay instant.</Text>
+              </View>
+              <IconSymbol name="chevron.right" size={18} color={colors.primary} />
+            </Pressable>
+            <Pressable onPress={() => { haptic.light(); router.push("/audio-player" as never); }} style={({ pressed }) => [styles.playerLink, { borderColor: colors.border, backgroundColor: colors.surface }, pressed && styles.pressed]}>
+              <IconSymbol name="play.fill" size={18} color={colors.primary} />
+              <Text style={[styles.playerLinkText, { color: colors.foreground }]}>Open local media player</Text>
+              <IconSymbol name="chevron.right" size={18} color={colors.primary} />
+            </Pressable>
           </View>
         }
         renderItem={({ item }) => {
@@ -82,6 +95,12 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, height: "100%", fontSize: 15 },
   chips: { gap: 8, paddingRight: 8 },
   resultLabel: { fontSize: 13, fontWeight: "700" },
+  discoveryButton: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 15, padding: 13, flexDirection: "row", alignItems: "center", gap: 10 },
+  discoveryCopy: { flex: 1, gap: 2 },
+  discoveryTitle: { fontSize: 14, fontWeight: "800" },
+  discoveryDetail: { fontSize: 12, lineHeight: 17 },
+  playerLink: { minHeight: 44, borderWidth: StyleSheet.hairlineWidth, borderRadius: 14, paddingHorizontal: 13, alignItems: "center", flexDirection: "row", gap: 9 },
+  playerLinkText: { flex: 1, fontSize: 14, fontWeight: "800" },
   itemCard: { gap: 10 },
   itemTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   heartButton: { width: 42, height: 42, alignItems: "center", justifyContent: "center", borderRadius: 21 },

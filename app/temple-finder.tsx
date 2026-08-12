@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Alert, FlatList, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Stack } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { ScreenContainer } from "@/components/screen-container";
 import { EmptyState, IconCircle, Pill, SoftCard } from "@/components/spiritual-ui";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -16,16 +17,9 @@ export default function TempleFinderScreen() {
   const [query, setQuery] = useState("");
   const results = useMemo(() => filterTemples(temples, city, query), [city, query]);
 
-  const openMaps = async (temple: Temple) => {
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${temple.name}, ${temple.address}`)}`;
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (!supported) throw new Error("Maps unavailable");
-      haptic.light();
-      await Linking.openURL(url);
-    } catch {
-      Alert.alert("Unable to open maps", "Please check that a browser or maps application is available on your device.");
-    }
+  const openRegistry = (temple: Temple) => {
+    haptic.light();
+    void WebBrowser.openBrowserAsync(temple.sourceUrl);
   };
 
   return (
@@ -38,8 +32,8 @@ export default function TempleFinderScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.foreground }]}>Temple Finder</Text>
-            <Text style={[styles.subtitle, { color: colors.muted }]}>Browse this local directory instantly. Directions only open when you choose a temple, avoiding slow maps or location work on launch.</Text>
+            <Text style={[styles.title, { color: colors.foreground }]}>Trusted Temple Directory</Text>
+            <Text style={[styles.subtitle, { color: colors.muted }]}>No maps or GPS. This directory begins with public authority records and shows each record’s jurisdiction, identifier, and source. India-wide coverage will grow state by state as official lists are verified.</Text>
             <View style={[styles.search, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <IconSymbol name="location.fill" size={19} color={colors.muted} />
               <TextInput value={query} onChangeText={setQuery} placeholder="Search city, temple, or tradition" placeholderTextColor={colors.muted} style={[styles.searchInput, { color: colors.foreground }]} returnKeyType="done" />
@@ -47,7 +41,7 @@ export default function TempleFinderScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
               {cities.map((item) => <Pill key={item} label={item} selected={city === item} onPress={() => { haptic.selection(); setCity(item); }} />)}
             </ScrollView>
-            <Text style={[styles.resultLabel, { color: colors.muted }]}>{results.length} temples ready to browse</Text>
+            <Text style={[styles.resultLabel, { color: colors.muted }]}>{results.length} government-source records in this release</Text>
           </View>
         }
         renderItem={({ item }) => (
@@ -64,9 +58,14 @@ export default function TempleFinderScreen() {
               <IconSymbol name="location.fill" size={17} color={colors.primary} />
               <Text style={[styles.address, { color: colors.foreground }]}>{item.address}</Text>
             </View>
-            <Pressable onPress={() => openMaps(item)} style={({ pressed }) => [styles.mapButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}>
-              <IconSymbol name="map.fill" size={18} color={colors.background} />
-              <Text style={[styles.mapLabel, { color: colors.background }]}>Open in Maps</Text>
+            <View style={[styles.registryBox, { borderColor: colors.border }]}>
+              <Text style={[styles.registryStatus, { color: colors.success }]}>{item.registryStatus.toUpperCase()}</Text>
+              <Text style={[styles.registryDetail, { color: colors.muted }]}>{item.authority} · {item.jurisdiction}</Text>
+              <Text style={[styles.registryDetail, { color: colors.muted }]}>Record {item.registryId} · checked {item.lastChecked}</Text>
+            </View>
+            <Pressable onPress={() => openRegistry(item)} style={({ pressed }) => [styles.registryButton, { backgroundColor: colors.primary }, pressed && styles.pressed]}>
+              <IconSymbol name="book.fill" size={18} color={colors.background} />
+              <Text style={[styles.registryLabel, { color: colors.background }]}>View official registry</Text>
             </Pressable>
           </SoftCard>
         )}
@@ -94,7 +93,10 @@ const styles = StyleSheet.create({
   note: { fontSize: 14, lineHeight: 20 },
   addressBox: { borderRadius: 12, padding: 12, flexDirection: "row", gap: 9, alignItems: "flex-start" },
   address: { flex: 1, fontSize: 13, lineHeight: 19, fontWeight: "600" },
-  mapButton: { height: 45, borderRadius: 13, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 8 },
-  mapLabel: { fontSize: 14, fontWeight: "900" },
+  registryBox: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 11, gap: 3 },
+  registryStatus: { fontSize: 10, lineHeight: 14, fontWeight: "900", letterSpacing: 0.8 },
+  registryDetail: { fontSize: 12, lineHeight: 17 },
+  registryButton: { height: 45, borderRadius: 13, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 8 },
+  registryLabel: { fontSize: 14, fontWeight: "900" },
   pressed: { opacity: 0.74, transform: [{ scale: 0.985 }] },
 });

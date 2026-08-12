@@ -1,8 +1,11 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, router, useLocalSearchParams } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconCircle, SoftCard } from "@/components/spiritual-ui";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
+import { haptic } from "@/lib/haptics";
 import { festivals } from "@/lib/spiritual-data";
 
 export default function FestivalDetailScreen() {
@@ -37,6 +40,10 @@ export default function FestivalDetailScreen() {
           <Text style={[styles.noteLabel, { color: colors.muted }]}>CALENDAR NOTE</Text>
           <Text style={[styles.noteText, { color: colors.muted }]}>Lunar dates and local practice can differ by region. Confirm the timing with a local panchang before planning a fast or ritual.</Text>
           <Text style={[styles.source, { color: colors.foreground }]}>Source · {festival.source}</Text>
+          <Pressable onPress={() => { haptic.light(); void WebBrowser.openBrowserAsync(`https://www.google.com/search?q=${encodeURIComponent(`${festival.name} ${festival.hinduMonth} observance source`)}`); }} style={({ pressed }) => [styles.knowMoreButton, { borderColor: colors.border, backgroundColor: colors.surface }, pressed && styles.pressed]}>
+            <Text style={[styles.knowMoreText, { color: colors.primary }]}>Know more</Text>
+            <IconSymbol name="chevron.right" size={16} color={colors.primary} />
+          </Pressable>
         </View>
       </ScrollView>
     </ScreenContainer>
@@ -55,6 +62,9 @@ const styles = StyleSheet.create({
   noteLabel: { fontSize: 10, fontWeight: "900", letterSpacing: 1.1 },
   noteText: { fontSize: 13, lineHeight: 20 },
   source: { marginTop: 3, fontSize: 13, lineHeight: 19, fontWeight: "700" },
+  knowMoreButton: { marginTop: 7, minHeight: 38, borderWidth: StyleSheet.hairlineWidth, borderRadius: 11, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 4 },
+  knowMoreText: { fontSize: 13, fontWeight: "800" },
   errorTitle: { fontSize: 22, fontWeight: "800" },
   backLink: { marginTop: 12, fontSize: 15, fontWeight: "800" },
+  pressed: { opacity: 0.74, transform: [{ scale: 0.985 }] },
 });

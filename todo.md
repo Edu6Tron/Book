@@ -11,3 +11,11 @@
 - [x] Add automated tests for the local filtering and practice state.
 - [x] Validate the application and prepare the delivery checkpoint.
 - [x] Review the user-provided icon and resolve the checkpoint file-size blocker.
+- [x] Choose an approved source and licensing strategy for connected devotional content.
+- [ ] Build online discovery for Aartis, temples, and festivals without delaying local results.
+- [ ] Add an audio and video player with download, queue, resume, and offline-media controls.
+- [ ] Add a user-controlled refresh policy and test connected/offline behavior on Android.
+- [x] Add a user-triggered Discover New screen that opens source-labelled online results while preserving the instant curated catalogue.
+- [x] Add contextual Know more links that open item-specific online research without replacing verified in-app content.
+- [x] Replace map-linked temple discovery with a government-source directory with provenance and no GPS/map data; expand India-wide coverage state by state from verified official lists.
+- [x] Configure authorised YouTube discovery for user-triggered Aarti and devotional-video results.
