@@ -329,15 +329,37 @@ export const temples: Temple[] = [
   },
 ];
 
-export function filterAartis(items: Aarti[], category: AartiCategory, query: string): Aarti[] {
+export function filterAartis(items: Aarti[], category: AartiCategory, query: string, locationFilter: string = ""): Aarti[] {
   const normalized = query.trim().toLocaleLowerCase();
+  const loc = locationFilter.trim().toLocaleLowerCase();
   return items.filter((item) => {
     const categoryMatches = category === "All" || item.category === category;
+    
+    // Check if location filter matches or suggests relevant deity/tradition
+    let locationMatches = true;
+    if (loc) {
+      const isMaharashtra = loc.includes("maharashtra") || loc.includes("pune") || loc.includes("mumbai") || loc.includes("nashik");
+      const isOdisha = loc.includes("odisha") || loc.includes("puri") || loc.includes("bhubaneswar");
+      const isNorth = loc.includes("delhi") || loc.includes("uttar pradesh") || loc.includes("varanasi") || loc.includes("mathura");
+
+      if (isMaharashtra) {
+        // Maharashtra suggestion: Ganesh, Kakad Aarti (Marathi), Shiva
+        locationMatches = item.category === "Ganesh" || item.deity.toLowerCase().includes("ganesh") || item.languages.some(l => l.toLowerCase() === "marathi") || item.title.toLowerCase().includes("kakad");
+      } else if (isOdisha) {
+        locationMatches = item.deity.toLowerCase().includes("jagdish") || item.deity.toLowerCase().includes("vishnu") || item.source.toLowerCase().includes("odisha") || item.languages.some(l => l.toLowerCase() === "sanskrit");
+      } else if (isNorth) {
+        locationMatches = item.category === "Vishnu" || item.category === "Devi" || item.category === "Shiva";
+      } else {
+        // Generic text match against location string
+        locationMatches = [item.source, item.summary, item.deity, ...item.languages].join(" ").toLowerCase().includes(loc);
+      }
+    }
+
     const queryMatches = !normalized || [item.title, item.deity, item.category, ...item.languages]
       .join(" ")
       .toLocaleLowerCase()
       .includes(normalized);
-    return categoryMatches && queryMatches;
+    return categoryMatches && locationMatches && queryMatches;
   });
 }
 

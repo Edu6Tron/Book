@@ -13,8 +13,9 @@ export default function AartisScreen() {
   const colors = useColors();
   const [category, setCategory] = useState<AartiCategory>("All");
   const [query, setQuery] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
   const { favourites, toggleFavourite } = useSpiritualStore();
-  const results = useMemo(() => filterAartis(aartis, category, query), [category, query]);
+  const results = useMemo(() => filterAartis(aartis, category, query, locationFilter), [category, query, locationFilter]);
 
   return (
     <ScreenContainer>
@@ -38,6 +39,23 @@ export default function AartisScreen() {
                 returnKeyType="done"
                 accessibilityLabel="Search Aartis"
               />
+            </View>
+            <View style={[styles.search, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <IconSymbol name="location.fill" size={19} color={colors.primary} />
+              <TextInput
+                value={locationFilter}
+                onChangeText={setLocationFilter}
+                placeholder="Filter by location (e.g., Maharashtra, Pune)"
+                placeholderTextColor={colors.muted}
+                style={[styles.searchInput, { color: colors.foreground }]}
+                returnKeyType="done"
+                accessibilityLabel="Filter by location"
+              />
+              {locationFilter ? (
+                <Pressable onPress={() => { haptic.light(); setLocationFilter(""); }} hitSlop={8}>
+                  <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>Clear</Text>
+                </Pressable>
+              ) : null}
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
               {aartiCategories.map((item) => <Pill key={item} label={item} selected={category === item} onPress={() => { haptic.selection(); setCategory(item); }} />)}
