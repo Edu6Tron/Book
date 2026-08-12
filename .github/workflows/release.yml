@@ -1,0 +1,29 @@
+name: Spiritual Companion Release Hub
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release-notice:
+    name: Tag Notice & Release Metadata
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release Stub
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Spiritual Companion ${{ github.ref_name }}
+          body: |
+            # Spiritual Companion Release ${{ github.ref_name }}
+            - Fully offline-first devotional library, Aartis, and Festival calendar.
+            - Government-provenance temple directory (no GPS required).
+            - Location-aware Aarti filters (Maharashtra, Pune, etc.).
+            - Secure user-triggered YouTube media discovery & local player.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
