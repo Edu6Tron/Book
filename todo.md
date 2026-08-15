@@ -25,5 +25,5 @@
 - [x] Audit the current offline Aarti, festival, temple, and regional-personalisation coverage to define a meaningful expansion plan without artificial APK padding.
 - [x] Expand the offline devotional catalogue with additional curated Aartis, festivals, and source-labelled government-authorised temple entries across Indian states.
 - [ ] Add native settings and devotional guidance refinements that improve accessibility, reading comfort, and daily practice without compromising offline-first behaviour.
-- [ ] Validate the expanded candidate with unit tests, Android lint, APK assembly, and independent GitHub Actions before publishing it.
+- [x] Validate the expanded candidate with unit tests, Android lint, APK assembly, and independent GitHub Actions before publishing it.
 - [x] Diagnose and eliminate laggy scrolling in the native dashboard, Aarti library, festival calendar, temple directory, and practice flows without reducing useful offline content.
