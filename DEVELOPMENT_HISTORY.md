@@ -1,0 +1,26 @@
+# Project TODO
+
+- [x] Define the local-first devotional, festival, temple, and practice data model.
+- [x] Build the Today dashboard with immediate access to high-frequency spiritual activities.
+- [x] Build the Aartis library with fast local filtering and favourites.
+- [x] Build the Festival Calendar with cached month filtering and detail summaries.
+- [x] Build the Temple Finder with local results and intentional maps handoff.
+- [x] Build the daily practice checklist and Japa counter with local persistence.
+- [x] Apply the Spiritual Companion theme and mobile navigation system.
+- [x] Generate and configure custom application branding assets.
+- [x] Add automated tests for the local filtering and practice state.
+- [x] Validate the application and prepare the delivery checkpoint.
+- [x] Review the user-provided icon and resolve the checkpoint file-size blocker.
+- [x] Choose an approved source and licensing strategy for connected devotional content.
+- [ ] Build online discovery for Aartis, temples, and festivals without delaying local results.
+- [ ] Add an audio and video player with download, queue, resume, and offline-media controls.
+- [ ] Add a user-controlled refresh policy and test connected/offline behavior on Android.
+- [x] Add a user-triggered Discover New screen that opens source-labelled online results while preserving the instant curated catalogue.
+- [x] Add contextual Know more links that open item-specific online research without replacing verified in-app content.
+- [x] Replace map-linked temple discovery with a government-source directory with provenance and no GPS/map data; expand India-wide coverage state by state from verified official lists.
+- [x] Configure authorised YouTube discovery for user-triggered Aarti and devotional-video results.
+- [ ] Audit the public repository presentation and current release metadata.
+- [ ] Replace the root repository documentation with a Kotlin-first native Android project overview.
+- [ ] Add professional contribution, build, verification, and APK-installation guidance.
+- [ ] Create a versioned GitHub Release containing the verified native Android APK and SHA-256 checksum.
+- [ ] Verify the public release page and download experience on GitHub.
