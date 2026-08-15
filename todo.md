@@ -17,3 +17,8 @@
 - [x] Complete searchable offline temple and festival experiences with source details and durable city personalization.
 - [x] Strengthen daily practice, Japa, alarms, accessibility, and lifecycle behaviour through focused regression tests.
 - [x] Publish the final candidate APK only after native unit tests, lint, local debug assembly, and independent GitHub Actions validation pass.
+- [x] Audit the current native release candidate for Android startup, lifecycle, performance, accessibility, diagnostic, and distribution-readiness gaps.
+- [x] Harden lifecycle and error handling across navigation, local media playback, alarms, and persistence without blocking the UI thread.
+- [x] Add release-grade diagnostics and automated quality safeguards that help identify a device-specific failure without leaking private user data.
+- [x] Document and prepare the GitHub release-signing workflow without committing a keystore or credentials.
+- [ ] Validate and publish the next hardened native Android candidate only after independent CI succeeds.

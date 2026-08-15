@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.1.1-rc.4 — unreleased
+
+This device-hardening candidate makes native startup, local playback, saved state, and alarm scheduling failures visible through privacy-preserving, non-blocking in-app notices. Sanitised diagnostic markers deliberately omit city names, media file names, devotional content, user input, and device identifiers.
+
+The Android manifest now blocks clear-text network traffic and Android lint is a mandatory GitHub Actions gate before a debug APK artifact is assembled. The project also includes a protected, manually invoked release-signing workflow that expects a Base64 keystore and passwords only through GitHub Actions secrets; no signing material is committed to source control.
+
 ## v1.1.0-rc.3 — unreleased
 
 This feature-completion candidate adds a fully offline, city-aware devotional dashboard. The dashboard resolves the saved no-GPS city, provides transparent calculated sunrise, sunset, moonrise, moonset, Brahma Muhurta, Tithi, Nakshatra, Paksha, Hindu-month, and Saka-calendar context, and clearly labels the calculation as an offline devotional estimate.

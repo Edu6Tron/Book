@@ -10,17 +10,47 @@ android {
   namespace = "com.edu6tron.spiritualcompanion.nativepreview"
   compileSdk = 35
 
+  val releaseStoreFile = providers.gradleProperty("RELEASE_STORE_FILE").orNull
+  val releaseStorePassword = providers.gradleProperty("RELEASE_STORE_PASSWORD").orNull
+  val releaseKeyAlias = providers.gradleProperty("RELEASE_KEY_ALIAS").orNull
+  val releaseKeyPassword = providers.gradleProperty("RELEASE_KEY_PASSWORD").orNull
+
   defaultConfig {
     applicationId = "com.edu6tron.spiritualcompanion.nativepreview"
     minSdk = 26
     targetSdk = 35
-    versionCode = 4
-    versionName = "1.1.0-rc.3"
+    versionCode = 5
+    versionName = "1.1.1-rc.4"
   }
 
   buildFeatures {
     compose = true
     buildConfig = true
+  }
+
+  if (
+    !releaseStoreFile.isNullOrBlank() &&
+      !releaseStorePassword.isNullOrBlank() &&
+      !releaseKeyAlias.isNullOrBlank() &&
+      !releaseKeyPassword.isNullOrBlank()
+  ) {
+    signingConfigs {
+      create("productionRelease") {
+        storeFile = file(releaseStoreFile)
+        storePassword = releaseStorePassword
+        keyAlias = releaseKeyAlias
+        keyPassword = releaseKeyPassword
+      }
+    }
+  }
+
+  buildTypes {
+    getByName("release") {
+      val signedConfiguration = signingConfigs.findByName("productionRelease")
+      if (signedConfiguration != null) {
+        signingConfig = signedConfiguration
+      }
+    }
   }
 
   compileOptions {

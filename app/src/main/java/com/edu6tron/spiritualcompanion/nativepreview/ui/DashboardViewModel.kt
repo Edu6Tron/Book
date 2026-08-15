@@ -6,12 +6,14 @@ import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.SpiritualRepository
+import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
 import com.edu6tron.spiritualcompanion.nativepreview.media.NativeDevotionalPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -27,6 +29,7 @@ data class DashboardUiState(
   val selectedMediaLabel: String? = null,
   val savedLocation: String? = null,
   val playback: com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState = com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState(),
+  val notice: String? = null,
 )
 
 @HiltViewModel
@@ -35,8 +38,9 @@ class DashboardViewModel @Inject constructor(
   private val player: NativeDevotionalPlayer,
   @ApplicationContext private val context: Context,
 ) : ViewModel() {
-  val state: StateFlow<DashboardUiState> = repository.observeState()
-    .combine(player.playback) { stored, playback ->
+  private val notice = MutableStateFlow<String?>(null)
+
+  val state: StateFlow<DashboardUiState> = combine(repository.observeState(), player.playback, notice) { stored, playback, currentNotice ->
       DashboardUiState(
         practices = stored.practices,
         favouriteIds = stored.favouriteIds,
@@ -46,32 +50,37 @@ class DashboardViewModel @Inject constructor(
         selectedMediaLabel = stored.selectedMediaLabel,
         savedLocation = stored.savedLocation,
         playback = playback,
+        notice = currentNotice,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
 
   fun togglePractice(id: String) {
-    viewModelScope.launch {
-      repository.togglePractice(id)
-    }
+    launchSafely("daily-practice") { repository.togglePractice(id) }
   }
 
   fun toggleFavourite(aartiId: String) {
-    viewModelScope.launch { repository.toggleFavourite(aartiId) }
+    launchSafely("aarti-favourite") { repository.toggleFavourite(aartiId) }
   }
 
   fun incrementJapa(amount: Int = 1) {
-    viewModelScope.launch { repository.incrementJapa(amount) }
+    launchSafely("japa-count") { repository.incrementJapa(amount) }
   }
 
   fun resetJapa() {
-    viewModelScope.launch { repository.resetJapa() }
+    launchSafely("japa-reset") { repository.resetJapa() }
   }
 
   fun saveAlarm(alarm: RitualAlarmEntity) {
-    viewModelScope.launch {
+    launchSafely("ritual-alarm") {
       repository.saveAlarm(alarm)
-      if (alarm.enabled) RitualAlarmScheduler.scheduleNext(context, alarm) else RitualAlarmScheduler.cancel(context, alarm.id)
+      val exactAvailable = if (alarm.enabled) RitualAlarmScheduler.scheduleNext(context, alarm) else {
+        RitualAlarmScheduler.cancel(context, alarm.id)
+        true
+      }
+      if (alarm.enabled && !exactAvailable) {
+        notice.value = "Alarm saved. Allow Alarms & reminders for exact timing."
+      }
     }
   }
 
@@ -91,7 +100,7 @@ class DashboardViewModel @Inject constructor(
   )
 
   fun deleteAlarm(alarm: RitualAlarmEntity) {
-    viewModelScope.launch {
+    launchSafely("delete-ritual-alarm") {
       RitualAlarmScheduler.cancel(context, alarm.id)
       repository.deleteAlarm(alarm)
     }
@@ -102,11 +111,11 @@ class DashboardViewModel @Inject constructor(
   fun stopTonePreview() = player.stop()
 
   fun saveSelectedMedia(uri: String, label: String) {
-    viewModelScope.launch { repository.saveSelectedMedia(uri, label) }
+    launchSafely("save-local-media") { repository.saveSelectedMedia(uri, label) }
   }
 
   fun clearSelectedMedia() {
-    viewModelScope.launch { repository.clearSelectedMedia() }
+    launchSafely("clear-local-media") { repository.clearSelectedMedia() }
     player.stop()
   }
 
@@ -117,11 +126,24 @@ class DashboardViewModel @Inject constructor(
   }
 
   fun saveLocation(location: String) {
-    viewModelScope.launch { repository.saveLocation(location) }
+    launchSafely("save-city") { repository.saveLocation(location) }
   }
 
   fun clearLocation() {
-    viewModelScope.launch { repository.clearLocation() }
+    launchSafely("clear-city") { repository.clearLocation() }
+  }
+
+  fun dismissNotice() {
+    notice.value = null
+  }
+
+  private fun launchSafely(component: String, block: suspend () -> Unit) {
+    viewModelScope.launch {
+      runCatching { block() }.onFailure { error ->
+        NativeDiagnostics.recordFailure(component, error)
+        notice.value = "That action could not be completed. Please try again."
+      }
+    }
   }
 
   override fun onCleared() {

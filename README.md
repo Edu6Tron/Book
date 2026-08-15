@@ -45,6 +45,8 @@ Install Android SDK Platform 35 and Java 17, then run the following from the rep
 
 The test APK is written to `app/build/outputs/apk/debug/app-debug.apk`. It is unsigned for store distribution and should be used only for direct device testing. See [RELEASES.md](RELEASES.md) for installation and verification guidance.
 
+For protected production signing and Android App Bundle distribution, follow [Android release signing](docs/RELEASE_SIGNING.md). The private keystore and its passwords are kept only as protected GitHub secrets; they are never stored in this repository.
+
 ## Repository layout
 
 ```text

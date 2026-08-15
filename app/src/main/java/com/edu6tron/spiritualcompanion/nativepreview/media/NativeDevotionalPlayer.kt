@@ -7,6 +7,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.edu6tron.spiritualcompanion.nativepreview.R
+import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -72,9 +73,17 @@ class NativeDevotionalPlayer @Inject constructor(
 
   fun play(uri: String, label: String = "Selected devotional audio") {
     _playback.value = DevotionalPlaybackState(sourceLabel = label, message = "Preparing audio…")
-    player.setMediaItem(MediaItem.fromUri(uri))
-    player.prepare()
-    player.play()
+    runCatching {
+      player.setMediaItem(MediaItem.fromUri(uri))
+      player.prepare()
+      player.play()
+    }.onFailure { error ->
+      NativeDiagnostics.recordFailure("local-playback", error)
+      _playback.value = DevotionalPlaybackState(
+        sourceLabel = label,
+        message = "This audio file could not be opened. Choose another local audio file.",
+      )
+    }
   }
 
   fun playBundledFallback() {
@@ -86,13 +95,15 @@ class NativeDevotionalPlayer @Inject constructor(
 
   fun stop() {
     progressHandler.removeCallbacks(progressTick)
-    player.stop()
+    runCatching { player.stop() }
+      .onFailure { NativeDiagnostics.recordFailure("stop-playback", it) }
     _playback.value = _playback.value.copy(isPlaying = false, message = "Playback stopped", positionMs = 0L)
   }
 
   fun release() {
     progressHandler.removeCallbacks(progressTick)
-    player.release()
+    runCatching { player.release() }
+      .onFailure { NativeDiagnostics.recordFailure("release-playback", it) }
     _playback.value = DevotionalPlaybackState(message = "Playback closed")
   }
 
