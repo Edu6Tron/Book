@@ -26,6 +26,7 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 private enum class NativeTab(val title: String) {
   TODAY("Today"),
   AARTIS("Aartis"),
+  DISCOVER("Discover"),
   FESTIVALS("Festivals"),
   PRACTICE("Practice"),
 }
@@ -46,6 +47,8 @@ fun SpiritualCompanionApp(
   onSaveSelectedMedia: (String, String) -> Unit,
   onClearSelectedMedia: () -> Unit,
   onPlaySelectedMedia: (String) -> Unit,
+  onSaveLocation: (String) -> Unit,
+  onClearLocation: () -> Unit,
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
   Scaffold(
@@ -55,6 +58,7 @@ fun SpiritualCompanionApp(
         listOf(
           Triple(NativeTab.TODAY, Icons.Outlined.Home, "Today"),
           Triple(NativeTab.AARTIS, Icons.Outlined.LibraryMusic, "Aartis"),
+          Triple(NativeTab.DISCOVER, Icons.Outlined.AutoAwesome, "Discover"),
           Triple(NativeTab.FESTIVALS, Icons.Outlined.CalendarMonth, "Festivals"),
           Triple(NativeTab.PRACTICE, Icons.Outlined.Spa, "Practice"),
         ).forEach { (tab, icon, label) ->
@@ -94,6 +98,13 @@ fun SpiritualCompanionApp(
         onClearSelectedMedia = onClearSelectedMedia,
         onPlaySelectedMedia = onPlaySelectedMedia,
         onStopPlayback = onStopTonePreview,
+        savedLocation = state.savedLocation,
+        onSaveLocation = onSaveLocation,
+        onClearLocation = onClearLocation,
+      )
+      NativeTab.DISCOVER -> DiscoverDevotionalsScreen(
+        contentPadding = padding,
+        onOpenAartis = { selectedTab = NativeTab.AARTIS },
       )
       NativeTab.FESTIVALS -> FestivalCalendarScreen(contentPadding = padding)
       NativeTab.PRACTICE -> PracticeScreen(

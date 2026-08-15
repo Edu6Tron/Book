@@ -28,4 +28,13 @@ interface AppStateDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun savePreference(preference: AppPreferenceEntity)
+
+  @Query("SELECT value FROM string_preference WHERE `key` = :key LIMIT 1")
+  fun observeString(key: String): Flow<String?>
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun saveStringPreference(preference: StringPreferenceEntity)
+
+  @Query("DELETE FROM string_preference WHERE `key` = :key")
+  suspend fun deleteStringPreference(key: String)
 }

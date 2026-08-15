@@ -14,3 +14,9 @@ data class AppPreferenceEntity(
   @PrimaryKey val key: String,
   val value: Long,
 )
+
+@Entity(tableName = "string_preference")
+data class StringPreferenceEntity(
+  @PrimaryKey val key: String,
+  val value: String,
+)

@@ -24,6 +24,7 @@ data class DashboardUiState(
   val ritualAlarms: List<RitualAlarmEntity> = emptyList(),
   val selectedMediaUri: String? = null,
   val selectedMediaLabel: String? = null,
+  val savedLocation: String? = null,
 )
 
 @HiltViewModel
@@ -41,6 +42,7 @@ class DashboardViewModel @Inject constructor(
         ritualAlarms = stored.ritualAlarms,
         selectedMediaUri = stored.selectedMediaUri,
         selectedMediaLabel = stored.selectedMediaLabel,
+        savedLocation = stored.savedLocation,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
@@ -93,6 +95,14 @@ class DashboardViewModel @Inject constructor(
   }
 
   fun playSelectedMedia(uri: String) = player.play(uri)
+
+  fun saveLocation(location: String) {
+    viewModelScope.launch { repository.saveLocation(location) }
+  }
+
+  fun clearLocation() {
+    viewModelScope.launch { repository.clearLocation() }
+  }
 
   override fun onCleared() {
     player.stop()

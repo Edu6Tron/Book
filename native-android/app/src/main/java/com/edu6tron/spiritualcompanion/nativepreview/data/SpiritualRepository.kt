@@ -20,6 +20,7 @@ data class StoredSpiritualState(
   val ritualAlarms: List<RitualAlarmEntity> = emptyList(),
   val selectedMediaUri: String? = null,
   val selectedMediaLabel: String? = null,
+  val savedLocation: String? = null,
 )
 
 @Singleton
@@ -37,6 +38,7 @@ class SpiritualRepository @Inject constructor(
 
   private val japaKey = "japa_count"
   private val selectedMediaId = "devotional_audio"
+  private val savedLocationKey = "saved_location"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -62,6 +64,8 @@ class SpiritualRepository @Inject constructor(
       selectedMediaUri = media?.uri,
       selectedMediaLabel = media?.label,
     )
+  }.combine(appStateDao.observeString(savedLocationKey)) { state, savedLocation ->
+    state.copy(savedLocation = savedLocation)
   }
 
   suspend fun togglePractice(id: String) {
@@ -110,5 +114,18 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun clearSelectedMedia() {
     mediaSelectionDao.clear(selectedMediaId)
+  }
+
+  suspend fun saveLocation(location: String) {
+    val cleaned = location.trim()
+    if (cleaned.isBlank()) {
+      appStateDao.deleteStringPreference(savedLocationKey)
+    } else {
+      appStateDao.saveStringPreference(StringPreferenceEntity(savedLocationKey, cleaned))
+    }
+  }
+
+  suspend fun clearLocation() {
+    appStateDao.deleteStringPreference(savedLocationKey)
   }
 }

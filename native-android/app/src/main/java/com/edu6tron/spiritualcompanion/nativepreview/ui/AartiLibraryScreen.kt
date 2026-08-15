@@ -59,9 +59,13 @@ fun AartiLibraryScreen(
   onClearSelectedMedia: () -> Unit,
   onPlaySelectedMedia: (String) -> Unit,
   onStopPlayback: () -> Unit,
+  savedLocation: String?,
+  onSaveLocation: (String) -> Unit,
+  onClearLocation: () -> Unit,
 ) {
   var query by rememberSaveable { mutableStateOf("") }
   var category by rememberSaveable { mutableStateOf("All") }
+  var locationDraft by rememberSaveable(savedLocation) { mutableStateOf(savedLocation.orEmpty()) }
   var selectedAarti by remember { mutableStateOf<AartiItem?>(null) }
   val context = LocalContext.current
   val mediaPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -73,8 +77,13 @@ fun AartiLibraryScreen(
       ?: "Selected devotional audio"
     onSaveSelectedMedia(uri.toString(), label)
   }
+  val locationSuggestions = savedLocation
+    ?.takeIf { it.isNotBlank() }
+    ?.let { location -> NativeCatalogue.suggestionsFor(location).map { it.id }.toSet() }
+    .orEmpty()
   val filtered = NativeCatalogue.aartis.filter { item ->
     (category == "All" || item.category == category || item.deity == category) &&
+      (locationSuggestions.isEmpty() || item.id in locationSuggestions) &&
       (query.isBlank() || listOf(item.title, item.deity, item.category, item.languages.joinToString()).any {
         it.contains(query, ignoreCase = true)
       })
@@ -116,6 +125,45 @@ fun AartiLibraryScreen(
               TextButton(onClick = onStopPlayback) { Text("Stop") }
               TextButton(onClick = onClearSelectedMedia) { Text("Clear") }
             }
+          }
+        }
+      }
+    }
+    item {
+      Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+      ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          Text("Aartis for your place", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+          Text(
+            "Optionally save a city or state to guide the offline library. Your location is entered by you; this app does not use GPS.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+          OutlinedTextField(
+            value = locationDraft,
+            onValueChange = { locationDraft = it },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text("City or state, for example Pune, Maharashtra") },
+          )
+          Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = { onSaveLocation(locationDraft) }, enabled = locationDraft.isNotBlank()) {
+              Text(if (savedLocation == null) "Save location" else "Refresh suggestions")
+            }
+            if (savedLocation != null) {
+              TextButton(onClick = {
+                locationDraft = ""
+                onClearLocation()
+              }) { Text("Clear") }
+            }
+          }
+          savedLocation?.let { location ->
+            Text(
+              "Showing ${locationSuggestions.size} location-guided Aartis for $location.",
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.primary,
+            )
           }
         }
       }

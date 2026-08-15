@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,9 +48,18 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.TempleItem
 fun FestivalCalendarScreen(contentPadding: PaddingValues) {
   var selectedSection by rememberSaveable { mutableIntStateOf(0) }
   var month by rememberSaveable { mutableStateOf("All") }
+  var templeQuery by rememberSaveable { mutableStateOf("") }
+  var templeCity by rememberSaveable { mutableStateOf("All") }
   var selectedFestival by remember { mutableStateOf<FestivalItem?>(null) }
   var selectedTemple by remember { mutableStateOf<TempleItem?>(null) }
   val festivals = NativeCatalogue.festivals.filter { month == "All" || it.hinduMonth == month }
+  val templeCities = listOf("All") + NativeCatalogue.temples.map { it.city }.distinct().sorted()
+  val temples = NativeCatalogue.temples.filter { temple ->
+    (templeCity == "All" || temple.city == templeCity) &&
+      (templeQuery.isBlank() || listOf(temple.name, temple.city, temple.state, temple.address, temple.authority).any {
+        it.contains(templeQuery, ignoreCase = true)
+      })
+  }
 
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -92,7 +102,28 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
       item {
         Text("Offline government and trust-source directory. No GPS or map tracking is used.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
-      items(NativeCatalogue.temples, key = { it.id }) { temple ->
+      item {
+        OutlinedTextField(
+          value = templeQuery,
+          onValueChange = { templeQuery = it },
+          modifier = Modifier.fillMaxWidth(),
+          singleLine = true,
+          label = { Text("Search temple, city, state, or authority") },
+        )
+      }
+      item {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          items(templeCities) { city -> AssistChip(onClick = { templeCity = city }, label = { Text(city) }) }
+        }
+      }
+      if (temples.isEmpty()) {
+        item {
+          Card(modifier = Modifier.fillMaxWidth()) {
+            Text("No authorised directory record matches this search.", modifier = Modifier.padding(20.dp))
+          }
+        }
+      }
+      items(temples, key = { it.id }) { temple ->
         TempleCard(temple, onClick = { selectedTemple = temple })
       }
     }
@@ -147,6 +178,7 @@ private fun FestivalDetailDialog(festival: FestivalItem, onDismiss: () -> Unit) 
 
 @Composable
 private fun TempleDetailDialog(temple: TempleItem, onDismiss: () -> Unit) {
+  val context = androidx.compose.ui.platform.LocalContext.current
   AlertDialog(
     onDismissRequest = onDismiss,
     title = { Text(temple.name) },
@@ -158,6 +190,12 @@ private fun TempleDetailDialog(temple: TempleItem, onDismiss: () -> Unit) {
         Text("Source: ${temple.sourceUrl}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     },
-    confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+    confirmButton = {
+      TextButton(onClick = {
+        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(temple.sourceUrl))
+        if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
+      }) { Text("Open source") }
+    },
+    dismissButton = { TextButton(onClick = onDismiss) { Text("Close") } },
   )
 }

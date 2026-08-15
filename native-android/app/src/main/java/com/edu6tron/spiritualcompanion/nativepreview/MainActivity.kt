@@ -47,5 +47,7 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
     onSaveSelectedMedia = viewModel::saveSelectedMedia,
     onClearSelectedMedia = viewModel::clearSelectedMedia,
     onPlaySelectedMedia = viewModel::playSelectedMedia,
+    onSaveLocation = viewModel::saveLocation,
+    onClearLocation = viewModel::clearLocation,
   )
 }

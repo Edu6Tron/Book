@@ -8,10 +8,11 @@ import androidx.room.RoomDatabase
     DailyPracticeEntity::class,
     FavouriteAartiEntity::class,
     AppPreferenceEntity::class,
+    StringPreferenceEntity::class,
     RitualAlarmEntity::class,
     MediaSelectionEntity::class,
   ],
-  version = 4,
+  version = 5,
   exportSchema = false,
 )
 abstract class SpiritualDatabase : RoomDatabase() {

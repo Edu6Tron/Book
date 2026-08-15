@@ -8,9 +8,9 @@ import org.junit.Test
 class NativeCatalogueTest {
   @Test
   fun offlineCatalogueHasCoreDevotionalContent() {
-    assertTrue(NativeCatalogue.aartis.size >= 6)
-    assertTrue(NativeCatalogue.festivals.size >= 9)
-    assertTrue(NativeCatalogue.temples.size >= 6)
+    assertTrue(NativeCatalogue.aartis.size >= 13)
+    assertTrue(NativeCatalogue.festivals.size >= 13)
+    assertTrue(NativeCatalogue.temples.size >= 12)
     assertTrue(NativeCatalogue.aartis.all { it.verses.isNotEmpty() && it.source.isNotBlank() })
     assertTrue(NativeCatalogue.temples.all { it.authority.isNotBlank() && it.sourceUrl.startsWith("https://") })
   }
@@ -26,5 +26,11 @@ class NativeCatalogueTest {
   @Test
   fun unknownLocationKeepsFullOfflineLibraryAvailable() {
     assertEquals(NativeCatalogue.aartis, NativeCatalogue.suggestionsFor(""))
+  }
+
+  @Test
+  fun citySuggestionsRemainMeaningfulAcrossSupportedRegions() {
+    assertTrue(NativeCatalogue.suggestionsFor("Varanasi, Uttar Pradesh").any { it.category == "Shiva" || it.deity == "Rama" })
+    assertTrue(NativeCatalogue.suggestionsFor("Tirupati, Andhra Pradesh").any { it.category == "Vishnu" || it.deity == "Krishna" })
   }
 }
