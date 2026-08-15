@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.edu6tron.spiritualcompanion.nativepreview.ui.DashboardScreen
+import com.edu6tron.spiritualcompanion.nativepreview.ui.SpiritualCompanionApp
 import com.edu6tron.spiritualcompanion.nativepreview.ui.DashboardViewModel
 import com.edu6tron.spiritualcompanion.nativepreview.ui.SpiritualCompanionNativeTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,8 +33,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel()) {
   val state by viewModel.state.collectAsStateWithLifecycle()
-  DashboardScreen(
+  SpiritualCompanionApp(
     state = state,
     onTogglePractice = viewModel::togglePractice,
+    onIncrementJapa = viewModel::incrementJapa,
+    onResetJapa = viewModel::resetJapa,
+    onToggleFavourite = viewModel::toggleFavourite,
   )
 }

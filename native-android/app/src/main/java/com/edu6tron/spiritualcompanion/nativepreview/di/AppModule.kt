@@ -2,6 +2,7 @@ package com.edu6tron.spiritualcompanion.nativepreview.di
 
 import android.content.Context
 import androidx.room.Room
+import com.edu6tron.spiritualcompanion.nativepreview.data.AppStateDao
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPracticeDao
 import com.edu6tron.spiritualcompanion.nativepreview.data.SpiritualDatabase
 import dagger.Module
@@ -17,8 +18,13 @@ object AppModule {
   @Provides
   @Singleton
   fun provideDatabase(@ApplicationContext context: Context): SpiritualDatabase =
-    Room.databaseBuilder(context, SpiritualDatabase::class.java, "spiritual-companion.db").build()
+    Room.databaseBuilder(context, SpiritualDatabase::class.java, "spiritual-companion.db")
+      .fallbackToDestructiveMigration()
+      .build()
 
   @Provides
   fun provideDailyPracticeDao(database: SpiritualDatabase): DailyPracticeDao = database.dailyPracticeDao()
+
+  @Provides
+  fun provideAppStateDao(database: SpiritualDatabase): AppStateDao = database.appStateDao()
 }

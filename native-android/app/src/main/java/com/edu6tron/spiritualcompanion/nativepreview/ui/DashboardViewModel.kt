@@ -14,19 +14,33 @@ import kotlinx.coroutines.launch
 
 data class DashboardUiState(
   val practices: List<DailyPractice> = emptyList(),
+  val favouriteIds: Set<String> = emptySet(),
+  val japaCount: Int = 0,
 )
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
   private val repository: SpiritualRepository,
 ) : ViewModel() {
-  val state: StateFlow<DashboardUiState> = repository.observeDailyPractices()
-    .map { DashboardUiState(practices = it) }
+  val state: StateFlow<DashboardUiState> = repository.observeState()
+    .map { stored -> DashboardUiState(stored.practices, stored.favouriteIds, stored.japaCount) }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
 
   fun togglePractice(id: String) {
     viewModelScope.launch {
       repository.togglePractice(id)
     }
+  }
+
+  fun toggleFavourite(aartiId: String) {
+    viewModelScope.launch { repository.toggleFavourite(aartiId) }
+  }
+
+  fun incrementJapa() {
+    viewModelScope.launch { repository.incrementJapa() }
+  }
+
+  fun resetJapa() {
+    viewModelScope.launch { repository.resetJapa() }
   }
 }
