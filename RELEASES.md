@@ -6,7 +6,7 @@ This project uses [GitHub Releases](https://github.com/Edu6Tron/Book/releases) a
 
 | Field | Value |
 |---|---|
-| Version | `v1.0.0-rc.1` |
+| Version | `v1.0.1-rc.2` |
 | Package ID | `com.edu6tron.spiritualcompanion.nativepreview` |
 | Minimum Android version | Android 8.0 / API 26 |
 | Build type | Debug APK for direct testing |
@@ -14,7 +14,7 @@ This project uses [GitHub Releases](https://github.com/Edu6Tron/Book/releases) a
 
 | Asset | SHA-256 |
 |---|---|
-| `spiritual-companion-native-v1.0.0-rc.1-debug.apk` | `7bdab8ef1c50d9d84420aa5e6ba29285ff695112b68fee47802b2172db1108d8` |
+| `spiritual-companion-native-v1.0.1-rc.2-debug.apk` | `5bd75bb304cb6f8a08c3ffc750632a412e660aa3c7dab4d7bb24882ecf48e6d6` |
 
 The release page includes the APK and a `.sha256` checksum file. A later store-ready build will use a release signing key and a different package/distribution configuration.
 
@@ -27,7 +27,7 @@ Download the `.apk` asset from the project’s Releases page. When Android asks,
 On a computer, run the following command from the directory containing both release assets:
 
 ```bash
-sha256sum --check spiritual-companion-native-v1.0.0-rc.1-debug.apk.sha256
+sha256sum --check spiritual-companion-native-v1.0.1-rc.2-debug.apk.sha256
 ```
 
 The command must report `OK` before installation. The checksums in a GitHub Release correspond to the exact uploaded file, not an approximate build size.

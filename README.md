@@ -12,7 +12,7 @@ The recommended installation path is the [GitHub Releases page](https://github.c
 
 | Current release track | Package ID | Android support | Distribution |
 |---|---|---|---|
-| `v1.0.0-rc.1` | `com.edu6tron.spiritualcompanion.nativepreview` | Android 8.0+ (API 26) | APK attached to GitHub Release |
+| `v1.0.1-rc.2` | `com.edu6tron.spiritualcompanion.nativepreview` | Android 8.0+ (API 26) | APK attached to GitHub Release |
 
 ## What is included
 

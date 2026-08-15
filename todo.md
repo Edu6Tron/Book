@@ -10,4 +10,4 @@
 - [x] Audit the installed native APK against the promised dashboard, Aarti, temple, media, alarm, and persistence flows; document reproducible defects.
 - [x] Repair the core Kotlin app flows rather than changing only repository presentation or release metadata.
 - [x] Add regression coverage for repaired alarm-tone persistence and validate the debug APK with unit tests, assembly, and lint before publishing a new version.
-- [ ] Publish a genuinely updated APK with a new version code and release notes that distinguish it from `v1.0.0-rc.1`.
+- [x] Publish a genuinely updated APK with versionCode `3`, release notes, checksum, and a distinct `v1.0.1-rc.2` tag.
