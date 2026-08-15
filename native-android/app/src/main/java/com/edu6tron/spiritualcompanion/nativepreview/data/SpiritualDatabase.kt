@@ -4,12 +4,19 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-  entities = [DailyPracticeEntity::class, FavouriteAartiEntity::class, AppPreferenceEntity::class, RitualAlarmEntity::class],
-  version = 3,
+  entities = [
+    DailyPracticeEntity::class,
+    FavouriteAartiEntity::class,
+    AppPreferenceEntity::class,
+    RitualAlarmEntity::class,
+    MediaSelectionEntity::class,
+  ],
+  version = 4,
   exportSchema = false,
 )
 abstract class SpiritualDatabase : RoomDatabase() {
   abstract fun dailyPracticeDao(): DailyPracticeDao
   abstract fun appStateDao(): AppStateDao
   abstract fun ritualAlarmDao(): RitualAlarmDao
+  abstract fun mediaSelectionDao(): MediaSelectionDao
 }

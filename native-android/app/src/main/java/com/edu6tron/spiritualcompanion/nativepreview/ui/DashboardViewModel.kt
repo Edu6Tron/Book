@@ -22,6 +22,8 @@ data class DashboardUiState(
   val favouriteIds: Set<String> = emptySet(),
   val japaCount: Int = 0,
   val ritualAlarms: List<RitualAlarmEntity> = emptyList(),
+  val selectedMediaUri: String? = null,
+  val selectedMediaLabel: String? = null,
 )
 
 @HiltViewModel
@@ -31,7 +33,16 @@ class DashboardViewModel @Inject constructor(
   @ApplicationContext private val context: Context,
 ) : ViewModel() {
   val state: StateFlow<DashboardUiState> = repository.observeState()
-    .map { stored -> DashboardUiState(stored.practices, stored.favouriteIds, stored.japaCount, stored.ritualAlarms) }
+    .map { stored ->
+      DashboardUiState(
+        practices = stored.practices,
+        favouriteIds = stored.favouriteIds,
+        japaCount = stored.japaCount,
+        ritualAlarms = stored.ritualAlarms,
+        selectedMediaUri = stored.selectedMediaUri,
+        selectedMediaLabel = stored.selectedMediaLabel,
+      )
+    }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
 
   fun togglePractice(id: String) {
@@ -71,6 +82,17 @@ class DashboardViewModel @Inject constructor(
   fun playFallbackTone() = player.playBundledFallback()
 
   fun stopTonePreview() = player.stop()
+
+  fun saveSelectedMedia(uri: String, label: String) {
+    viewModelScope.launch { repository.saveSelectedMedia(uri, label) }
+  }
+
+  fun clearSelectedMedia() {
+    viewModelScope.launch { repository.clearSelectedMedia() }
+    player.stop()
+  }
+
+  fun playSelectedMedia(uri: String) = player.play(uri)
 
   override fun onCleared() {
     player.stop()

@@ -43,6 +43,9 @@ fun SpiritualCompanionApp(
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
   onPlayFallbackTone: () -> Unit,
   onStopTonePreview: () -> Unit,
+  onSaveSelectedMedia: (String, String) -> Unit,
+  onClearSelectedMedia: () -> Unit,
+  onPlaySelectedMedia: (String) -> Unit,
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
   Scaffold(
@@ -85,6 +88,12 @@ fun SpiritualCompanionApp(
         contentPadding = padding,
         favourites = state.favouriteIds,
         onToggleFavourite = onToggleFavourite,
+        selectedMediaUri = state.selectedMediaUri,
+        selectedMediaLabel = state.selectedMediaLabel,
+        onSaveSelectedMedia = onSaveSelectedMedia,
+        onClearSelectedMedia = onClearSelectedMedia,
+        onPlaySelectedMedia = onPlaySelectedMedia,
+        onStopPlayback = onStopTonePreview,
       )
       NativeTab.FESTIVALS -> FestivalCalendarScreen(contentPadding = padding)
       NativeTab.PRACTICE -> PracticeScreen(

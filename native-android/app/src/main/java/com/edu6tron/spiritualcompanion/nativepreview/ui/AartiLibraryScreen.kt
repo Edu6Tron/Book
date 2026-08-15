@@ -1,5 +1,9 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,9 +24,9 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,25 +41,43 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.AartiItem
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeCatalogue
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AartiLibraryScreen(
   contentPadding: PaddingValues,
   favourites: Set<String>,
   onToggleFavourite: (String) -> Unit,
+  selectedMediaUri: String?,
+  selectedMediaLabel: String?,
+  onSaveSelectedMedia: (String, String) -> Unit,
+  onClearSelectedMedia: () -> Unit,
+  onPlaySelectedMedia: (String) -> Unit,
+  onStopPlayback: () -> Unit,
 ) {
   var query by rememberSaveable { mutableStateOf("") }
   var category by rememberSaveable { mutableStateOf("All") }
   var selectedAarti by remember { mutableStateOf<AartiItem?>(null) }
+  val context = LocalContext.current
+  val mediaPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+    uri ?: return@rememberLauncherForActivityResult
+    runCatching {
+      context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    val label = uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
+      ?: "Selected devotional audio"
+    onSaveSelectedMedia(uri.toString(), label)
+  }
   val filtered = NativeCatalogue.aartis.filter { item ->
     (category == "All" || item.category == category || item.deity == category) &&
-      (query.isBlank() || listOf(item.title, item.deity, item.category, item.languages.joinToString()).any { it.contains(query, ignoreCase = true) })
+      (query.isBlank() || listOf(item.title, item.deity, item.category, item.languages.joinToString()).any {
+        it.contains(query, ignoreCase = true)
+      })
   }
 
   LazyColumn(
@@ -71,7 +93,31 @@ fun AartiLibraryScreen(
     item {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Aarti library", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Curated devotional lyrics available offline", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Curated devotional lyrics and your downloaded audio, available offline", color = MaterialTheme.colorScheme.onSurfaceVariant)
+      }
+    }
+    item {
+      Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+      ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          Text("Devotional player", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+          Text(
+            selectedMediaLabel ?: "Choose an audio file already stored on your device. Its access is retained for offline playback.",
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+          )
+          Button(onClick = { mediaPicker.launch(arrayOf("audio/*")) }) {
+            Text(if (selectedMediaUri == null) "Choose local audio" else "Change audio")
+          }
+          if (selectedMediaUri != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+              TextButton(onClick = { onPlaySelectedMedia(selectedMediaUri) }) { Text("Play") }
+              TextButton(onClick = onStopPlayback) { Text("Stop") }
+              TextButton(onClick = onClearSelectedMedia) { Text("Clear") }
+            }
+          }
+        }
       }
     }
     item {
@@ -89,7 +135,9 @@ fun AartiLibraryScreen(
           AssistChip(
             onClick = { category = chip },
             label = { Text(chip) },
-            leadingIcon = if (chip == category) ({ Icon(Icons.Outlined.MenuBook, contentDescription = null, modifier = Modifier.size(16.dp)) }) else null,
+            leadingIcon = if (chip == category) ({
+              Icon(Icons.Outlined.MenuBook, contentDescription = null, modifier = Modifier.size(16.dp))
+            }) else null,
           )
         }
       }

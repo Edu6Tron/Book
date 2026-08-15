@@ -18,6 +18,8 @@ data class StoredSpiritualState(
   val favouriteIds: Set<String> = emptySet(),
   val japaCount: Int = 0,
   val ritualAlarms: List<RitualAlarmEntity> = emptyList(),
+  val selectedMediaUri: String? = null,
+  val selectedMediaLabel: String? = null,
 )
 
 @Singleton
@@ -25,6 +27,7 @@ class SpiritualRepository @Inject constructor(
   private val dailyPracticeDao: DailyPracticeDao,
   private val appStateDao: AppStateDao,
   private val ritualAlarmDao: RitualAlarmDao,
+  private val mediaSelectionDao: MediaSelectionDao,
 ) {
   private val defaults = listOf(
     DailyPractice("pause", "Pause for one minute", "Settle your attention with three unhurried breaths.", false),
@@ -33,6 +36,7 @@ class SpiritualRepository @Inject constructor(
   )
 
   private val japaKey = "japa_count"
+  private val selectedMediaId = "devotional_audio"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -48,12 +52,15 @@ class SpiritualRepository @Inject constructor(
     appStateDao.observeFavouriteIds(),
     appStateDao.observeLong(japaKey),
     ritualAlarmDao.observeAll(),
-  ) { practices, favourites, japa, alarms ->
+    mediaSelectionDao.observe(selectedMediaId),
+  ) { practices, favourites, japa, alarms, media ->
     StoredSpiritualState(
       practices = practices,
       favouriteIds = favourites.toSet(),
       japaCount = (japa ?: 0L).toInt().coerceAtLeast(0),
       ritualAlarms = alarms,
+      selectedMediaUri = media?.uri,
+      selectedMediaLabel = media?.label,
     )
   }
 
@@ -93,5 +100,15 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun deleteAlarm(alarm: RitualAlarmEntity) {
     ritualAlarmDao.delete(alarm)
+  }
+
+  suspend fun saveSelectedMedia(uri: String, label: String) {
+    mediaSelectionDao.upsert(
+      MediaSelectionEntity(uri = uri, label = label, updatedAt = System.currentTimeMillis()),
+    )
+  }
+
+  suspend fun clearSelectedMedia() {
+    mediaSelectionDao.clear(selectedMediaId)
   }
 }
