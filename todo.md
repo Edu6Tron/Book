@@ -16,4 +16,4 @@
 - [x] Complete native Aarti playback, lyric presentation, media picking, and safe user-initiated discovery flows.
 - [x] Complete searchable offline temple and festival experiences with source details and durable city personalization.
 - [x] Strengthen daily practice, Japa, alarms, accessibility, and lifecycle behaviour through focused regression tests.
-- [ ] Publish a final candidate APK only after all required native validation tasks pass.
+- [x] Publish the final candidate APK only after native unit tests, lint, local debug assembly, and independent GitHub Actions validation pass.
