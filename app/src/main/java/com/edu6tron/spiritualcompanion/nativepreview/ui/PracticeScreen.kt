@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PracticeScreen(
   contentPadding: PaddingValues,
-  state: DashboardUiState,
+  content: DashboardContentState,
   onTogglePractice: (String) -> Unit,
   onIncrementJapa: (Int) -> Unit,
   onResetJapa: () -> Unit,
@@ -53,9 +53,9 @@ fun PracticeScreen(
         Text("Small repeatable acts, kept on this device", color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
-    item { JapaCounterCard(state.japaCount, onIncrementJapa, onResetJapa) }
+    item(contentType = "japa") { JapaCounterCard(content.japaCount, onIncrementJapa, onResetJapa) }
     item { Text("Today’s checklist", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) }
-    items(state.practices, key = { it.id }) { practice ->
+    items(content.practices, key = { it.id }, contentType = { "practice" }) { practice ->
       Card(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
           Checkbox(checked = practice.completed, onCheckedChange = { onTogglePractice(practice.id) })

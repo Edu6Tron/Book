@@ -84,16 +84,21 @@ fun AartiLibraryScreen(
       ?: "Selected devotional audio"
     onSaveSelectedMedia(uri.toString(), label)
   }
-  val locationSuggestions = savedLocation
-    ?.takeIf { it.isNotBlank() }
-    ?.let { location -> NativeCatalogue.suggestionsFor(location).map { it.id }.toSet() }
-    .orEmpty()
-  val filtered = NativeCatalogue.aartis.filter { item ->
-    (category == "All" || item.category == category || item.deity == category) &&
-      (locationSuggestions.isEmpty() || item.id in locationSuggestions) &&
-      (query.isBlank() || listOf(item.title, item.deity, item.category, item.languages.joinToString()).any {
-        it.contains(query, ignoreCase = true)
-      })
+  val supportedPlaces = remember { PanchangCalculator.supportedPlaceLabels() }
+  val locationSuggestions = remember(savedLocation) {
+    savedLocation
+      ?.takeIf { it.isNotBlank() }
+      ?.let { location -> NativeCatalogue.suggestionsFor(location).map { it.id }.toSet() }
+      .orEmpty()
+  }
+  val filtered = remember(category, query, locationSuggestions) {
+    NativeCatalogue.aartis.filter { item ->
+      (category == "All" || item.category == category || item.deity == category) &&
+        (locationSuggestions.isEmpty() || item.id in locationSuggestions) &&
+        (query.isBlank() || listOf(item.title, item.deity, item.category, item.languages.joinToString()).any {
+          it.contains(query, ignoreCase = true)
+        })
+    }
   }
 
   LazyColumn(
@@ -165,7 +170,7 @@ fun AartiLibraryScreen(
           )
           Text("Quick choices", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
           LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(PanchangCalculator.supportedPlaceLabels()) { place ->
+            items(supportedPlaces, key = { it }) { place ->
               AssistChip(onClick = { locationDraft = place }, label = { Text(place.substringBefore(',')) })
             }
           }
@@ -201,7 +206,7 @@ fun AartiLibraryScreen(
     }
     item {
       LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(NativeCatalogue.aartiCategories) { chip ->
+        items(NativeCatalogue.aartiCategories, key = { it }) { chip ->
           AssistChip(
             onClick = { category = chip },
             label = { Text(chip) },
@@ -219,7 +224,7 @@ fun AartiLibraryScreen(
         }
       }
     }
-    items(filtered, key = { it.id }) { aarti ->
+    items(filtered, key = { it.id }, contentType = { "aarti" }) { aarti ->
       AartiListCard(
         aarti = aarti,
         favourite = aarti.id in favourites,
@@ -343,7 +348,7 @@ private fun AartiLyricsDialog(
           verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
           item { Text(aarti.summary, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-          items(aarti.verses.indices.toList()) { index ->
+          items(count = aarti.verses.size, key = { it }, contentType = { "verse" }) { index ->
             val isActive = index == activeVerseIndex
             Card(
               colors = CardDefaults.cardColors(

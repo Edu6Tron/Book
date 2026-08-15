@@ -27,6 +27,10 @@ data class DevotionalPlaybackState(
 class NativeDevotionalPlayer @Inject constructor(
   @ApplicationContext private val appContext: Context,
 ) {
+  private companion object {
+    const val PROGRESS_UPDATE_INTERVAL_MS = 500L
+  }
+
   private val player = ExoPlayer.Builder(appContext).build()
   private val _playback = MutableStateFlow(DevotionalPlaybackState())
   val playback: StateFlow<DevotionalPlaybackState> = _playback.asStateFlow()
@@ -34,7 +38,7 @@ class NativeDevotionalPlayer @Inject constructor(
   private val progressTick = object : Runnable {
     override fun run() {
       publishProgress()
-      if (player.isPlaying) progressHandler.postDelayed(this, 250L)
+      if (player.isPlaying) progressHandler.postDelayed(this, PROGRESS_UPDATE_INTERVAL_MS)
     }
   }
 

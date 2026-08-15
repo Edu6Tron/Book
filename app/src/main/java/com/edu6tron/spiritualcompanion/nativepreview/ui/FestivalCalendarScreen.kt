@@ -52,13 +52,15 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
   var templeCity by rememberSaveable { mutableStateOf("All") }
   var selectedFestival by remember { mutableStateOf<FestivalItem?>(null) }
   var selectedTemple by remember { mutableStateOf<TempleItem?>(null) }
-  val festivals = NativeCatalogue.festivals.filter { month == "All" || it.hinduMonth == month }
-  val templeCities = listOf("All") + NativeCatalogue.temples.map { it.city }.distinct().sorted()
-  val temples = NativeCatalogue.temples.filter { temple ->
-    (templeCity == "All" || temple.city == templeCity) &&
-      (templeQuery.isBlank() || listOf(temple.name, temple.city, temple.state, temple.address, temple.authority).any {
-        it.contains(templeQuery, ignoreCase = true)
-      })
+  val festivals = remember(month) { NativeCatalogue.festivals.filter { month == "All" || it.hinduMonth == month } }
+  val templeCities = remember { listOf("All") + NativeCatalogue.temples.map { it.city }.distinct().sorted() }
+  val temples = remember(templeCity, templeQuery) {
+    NativeCatalogue.temples.filter { temple ->
+      (templeCity == "All" || temple.city == templeCity) &&
+        (templeQuery.isBlank() || listOf(temple.name, temple.city, temple.state, temple.address, temple.authority).any {
+          it.contains(templeQuery, ignoreCase = true)
+        })
+    }
   }
 
   LazyColumn(
@@ -92,12 +94,12 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
       }
       item {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          items(NativeCatalogue.hinduMonths) { chip ->
+          items(NativeCatalogue.hinduMonths, key = { it }) { chip ->
             FilterChip(selected = month == chip, onClick = { month = chip }, label = { Text(chip) })
           }
         }
       }
-      items(festivals, key = { it.id }) { festival ->
+      items(festivals, key = { it.id }, contentType = { "festival" }) { festival ->
         FestivalCard(festival, onClick = { selectedFestival = festival })
       }
     } else {
@@ -115,7 +117,7 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
       }
       item {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          items(templeCities) { city ->
+          items(templeCities, key = { it }) { city ->
             FilterChip(selected = templeCity == city, onClick = { templeCity = city }, label = { Text(city) })
           }
         }
@@ -127,7 +129,7 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
           }
         }
       }
-      items(temples, key = { it.id }) { temple ->
+      items(temples, key = { it.id }, contentType = { "temple" }) { temple ->
         TempleCard(temple, onClick = { selectedTemple = temple })
       }
     }

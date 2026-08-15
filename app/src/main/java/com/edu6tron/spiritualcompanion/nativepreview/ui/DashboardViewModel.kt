@@ -2,6 +2,7 @@ package com.edu6tron.spiritualcompanion.nativepreview.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.Immutable
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
@@ -20,7 +21,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class DashboardUiState(
+@Immutable
+data class DashboardContentState(
   val practices: List<DailyPractice> = emptyList(),
   val favouriteIds: Set<String> = emptySet(),
   val japaCount: Int = 0,
@@ -28,6 +30,11 @@ data class DashboardUiState(
   val selectedMediaUri: String? = null,
   val selectedMediaLabel: String? = null,
   val savedLocation: String? = null,
+)
+
+@Immutable
+data class DashboardUiState(
+  val content: DashboardContentState = DashboardContentState(),
   val playback: com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState = com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState(),
   val notice: String? = null,
 )
@@ -40,8 +47,9 @@ class DashboardViewModel @Inject constructor(
 ) : ViewModel() {
   private val notice = MutableStateFlow<String?>(null)
 
-  val state: StateFlow<DashboardUiState> = combine(repository.observeState(), player.playback, notice) { stored, playback, currentNotice ->
-      DashboardUiState(
+  val content: StateFlow<DashboardContentState> = repository.observeState()
+    .map { stored ->
+      DashboardContentState(
         practices = stored.practices,
         favouriteIds = stored.favouriteIds,
         japaCount = stored.japaCount,
@@ -49,11 +57,13 @@ class DashboardViewModel @Inject constructor(
         selectedMediaUri = stored.selectedMediaUri,
         selectedMediaLabel = stored.selectedMediaLabel,
         savedLocation = stored.savedLocation,
-        playback = playback,
-        notice = currentNotice,
       )
     }
-    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
+
+  val state: StateFlow<DashboardUiState> = combine(content, player.playback, notice) { content, playback, currentNotice ->
+    DashboardUiState(content = content, playback = playback, notice = currentNotice)
+  }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
 
   fun togglePractice(id: String) {
     launchSafely("daily-practice") { repository.togglePractice(id) }

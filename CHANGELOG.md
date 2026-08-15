@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.1.2-rc.5 — 15 August 2026
+
+This performance-focused candidate removes avoidable scroll-time work from the Aarti library, festival calendar, temple directory, dashboard, and daily-practice lists. Playback progress is now isolated from the static offline content state and updates at a calmer cadence, while filters, location suggestions, quick choices, and reusable list content are cached rather than recalculated during a swipe.
+
+The offline library now contains 24 curated Aartis, 26 festival guides, and 23 address-only temple records. Temple records remain source-labelled and no-GPS; the Panchang calculator also adds bundled offline support for Madurai, Shimla, Kochi, and Patna, and prioritises an exact city selection over broad state-name matching.
+
 ## v1.1.1-rc.4 — 15 August 2026
 
 This device-hardening candidate makes native startup, local playback, saved state, and alarm scheduling failures visible through privacy-preserving, non-blocking in-app notices. Sanitised diagnostic markers deliberately omit city names, media file names, devotional content, user input, and device identifiers.

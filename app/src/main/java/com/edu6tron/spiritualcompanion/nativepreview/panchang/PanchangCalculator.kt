@@ -75,8 +75,12 @@ object PanchangCalculator {
     GeoLocation("Bengaluru, Karnataka", 12.9716, 77.5946, setOf("bengaluru", "bangalore", "karnataka")),
     GeoLocation("Hyderabad, Telangana", 17.3850, 78.4867, setOf("hyderabad", "telangana")),
     GeoLocation("Chennai, Tamil Nadu", 13.0827, 80.2707, setOf("chennai", "tamil nadu", "madras")),
+    GeoLocation("Madurai, Tamil Nadu", 9.9252, 78.1198, setOf("madurai")),
     GeoLocation("Kolkata, West Bengal", 22.5726, 88.3639, setOf("kolkata", "calcutta", "west bengal")),
     GeoLocation("Ahmedabad, Gujarat", 23.0225, 72.5714, setOf("ahmedabad", "gujarat")),
+    GeoLocation("Shimla, Himachal Pradesh", 31.1048, 77.1734, setOf("shimla", "himachal", "himachal pradesh")),
+    GeoLocation("Kochi, Kerala", 9.9312, 76.2673, setOf("kochi", "kerala", "cochin")),
+    GeoLocation("Patna, Bihar", 25.5941, 85.1376, setOf("patna", "bihar")),
   )
 
   private val tithiNames = listOf(
@@ -148,7 +152,8 @@ object PanchangCalculator {
   private fun resolveLocation(input: String?): Triple<GeoLocation, String, Boolean> {
     val normalized = input.orEmpty().lowercase().trim()
     if (normalized.isBlank()) return Triple(indiaReference, indiaReference.label, false)
-    val match = cities.firstOrNull { city -> city.aliases.any { normalized.contains(it) } }
+    val match = cities.firstOrNull { city -> normalized == city.label.lowercase() }
+      ?: cities.firstOrNull { city -> city.aliases.any { normalized.contains(it) } }
     return if (match != null) Triple(match, match.label, true)
     else Triple(indiaReference, "$input · India reference", false)
   }

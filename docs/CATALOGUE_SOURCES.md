@@ -1,0 +1,11 @@
+# Offline Catalogue Source Notes
+
+The native temple directory is deliberately **offline, address-based, and no-GPS**. New entries must use a government department, statutory board, or government-hosted endowment listing as their attribution source. The app does not use these links to infer a device location; links are shown only when a user explicitly opens a record’s source.
+
+| Source | What it establishes | Catalogue use |
+|---|---|---|
+| [Tamil Nadu Hindu Religious and Charitable Endowments Department](https://hrce.tn.gov.in/hrcehome/temple_list.php) | The department publishes state and district temple-list options and identifies itself as owned and maintained by the Government of Tamil Nadu. | Future Tamil Nadu records must be transcribed only after confirmation in the department directory. |
+| [Ballari District, Government of Karnataka — Hindu Religious Institutions and Charitable Endowments Department](https://ballari.nic.in/en/hindu-religious-institutions-and-charitable-endowments-department/) | The district administration describes the HRI&CE statutory administration and reports its notified temple coverage. | Karnataka records should use the state or district HRI&CE authority label rather than tourism or private directories. |
+| [Himachal Pradesh Language, Art and Culture Department — Temples Trust](https://lac.hp.gov.in/temples-trust/) | The government page lists acquired Hindu public religious institutions with district and notification detail under the state Act. | The expansion uses only the individually listed acquired temples, with the page retained as the source URL. |
+
+The content team must avoid copying unverified address data from search results, social media, commercial travel pages, or private temple listings. Festival and Aarti descriptions are concise app guidance; they do not assert local ritual dates or provide ritual authority. Users are reminded to confirm time-sensitive observances with a local published Panchang.

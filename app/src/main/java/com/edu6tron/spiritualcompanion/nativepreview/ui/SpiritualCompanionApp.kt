@@ -90,13 +90,12 @@ fun SpiritualCompanionApp(
   ) { padding ->
     when (selectedTab) {
       NativeTab.TODAY -> DashboardScreen(
-        state = state,
+        content = state.content,
         contentPadding = padding,
         onTogglePractice = onTogglePractice,
         onIncrementJapa = { onIncrementJapa(1) },
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
         onOpenFestivals = { selectedTab = NativeTab.FESTIVALS },
-        alarms = state.ritualAlarms,
         onSaveAlarm = onSaveAlarm,
         onSetAlarmEnabled = onSetAlarmEnabled,
         onDeleteAlarm = onDeleteAlarm,
@@ -108,16 +107,16 @@ fun SpiritualCompanionApp(
       )
       NativeTab.AARTIS -> AartiLibraryScreen(
         contentPadding = padding,
-        favourites = state.favouriteIds,
+        favourites = state.content.favouriteIds,
         onToggleFavourite = onToggleFavourite,
-        selectedMediaUri = state.selectedMediaUri,
-        selectedMediaLabel = state.selectedMediaLabel,
+        selectedMediaUri = state.content.selectedMediaUri,
+        selectedMediaLabel = state.content.selectedMediaLabel,
         onSaveSelectedMedia = onSaveSelectedMedia,
         onClearSelectedMedia = onClearSelectedMedia,
         onPlaySelectedMedia = onPlaySelectedMedia,
         playback = state.playback,
         onStopPlayback = onStopTonePreview,
-        savedLocation = state.savedLocation,
+        savedLocation = state.content.savedLocation,
         onSaveLocation = onSaveLocation,
         onClearLocation = onClearLocation,
       )
@@ -128,7 +127,7 @@ fun SpiritualCompanionApp(
       NativeTab.FESTIVALS -> FestivalCalendarScreen(contentPadding = padding)
       NativeTab.PRACTICE -> PracticeScreen(
         contentPadding = padding,
-        state = state,
+        content = state.content,
         onTogglePractice = onTogglePractice,
         onIncrementJapa = onIncrementJapa,
         onResetJapa = onResetJapa,

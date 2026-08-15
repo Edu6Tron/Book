@@ -28,6 +28,16 @@ class PanchangCalculatorTest {
   }
 
   @Test
+  fun expandedRegionalCitiesResolveFromBundledCoordinates() {
+    listOf("Shimla, Himachal Pradesh", "Madurai, Tamil Nadu", "Kochi, Kerala", "Patna, Bihar").forEach { place ->
+      val snapshot = PanchangCalculator.calculate(LocalDate.of(2026, 8, 15), place, indiaZone)
+      assertTrue("Expected $place to be recognised", snapshot.usesRecognisedCity)
+      assertEquals(place, snapshot.placeLabel)
+      assertNotNull(snapshot.sunrise)
+    }
+  }
+
+  @Test
   fun unsupportedPlaceFallsBackWithoutGpsOrNetworkAssumptions() {
     val snapshot = PanchangCalculator.calculate(LocalDate.of(2026, 8, 15), "My village", indiaZone)
 

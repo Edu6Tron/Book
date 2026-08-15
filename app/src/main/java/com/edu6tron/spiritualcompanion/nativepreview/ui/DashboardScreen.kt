@@ -49,13 +49,12 @@ import java.util.Locale
 
 @Composable
 fun DashboardScreen(
-  state: DashboardUiState,
+  content: DashboardContentState,
   contentPadding: PaddingValues,
   onTogglePractice: (String) -> Unit,
   onIncrementJapa: () -> Unit,
   onOpenAartis: () -> Unit,
   onOpenFestivals: () -> Unit,
-  alarms: List<RitualAlarmEntity>,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
   onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
@@ -65,16 +64,6 @@ fun DashboardScreen(
   onPreviewAlarmTone: (String?) -> Unit,
   onStopTonePreview: () -> Unit,
 ) {
-  val now by produceState(initialValue = LocalDateTime.now()) {
-    while (true) {
-      value = LocalDateTime.now()
-      delay(1_000)
-    }
-  }
-  val panchang = remember(state.savedLocation, now.toLocalDate()) {
-    PanchangCalculator.calculate(now.toLocalDate(), state.savedLocation)
-  }
-
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(
@@ -85,12 +74,11 @@ fun DashboardScreen(
     ),
     verticalArrangement = Arrangement.spacedBy(14.dp),
   ) {
-    item { DashboardHeading() }
-    item { PanchangHero(now, panchang) }
-    item { TimingCard(panchang) }
+    item(contentType = "heading") { DashboardHeading() }
+    item(contentType = "panchang") { PanchangSection(content.savedLocation) }
     item {
       RitualAlarmSection(
-        alarms = alarms,
+        alarms = content.ritualAlarms,
         onSave = onSaveAlarm,
         onSetEnabled = onSetAlarmEnabled,
         onDelete = onDeleteAlarm,
@@ -101,9 +89,26 @@ fun DashboardScreen(
         onStopTonePreview = onStopTonePreview,
       )
     }
-    item { DailyEntryCard(state.japaCount, onIncrementJapa) }
+    item(contentType = "japa") { DailyEntryCard(content.japaCount, onIncrementJapa) }
     item { ExploreCard(onOpenAartis, onOpenFestivals) }
-    item { PracticeCard(state.practices, onTogglePractice) }
+    item(contentType = "practice") { PracticeCard(content.practices, onTogglePractice) }
+  }
+}
+
+@Composable
+private fun PanchangSection(savedLocation: String?) {
+  val now by produceState(initialValue = LocalDateTime.now()) {
+    while (true) {
+      value = LocalDateTime.now()
+      delay(1_000)
+    }
+  }
+  val panchang = remember(savedLocation, now.toLocalDate()) {
+    PanchangCalculator.calculate(now.toLocalDate(), savedLocation)
+  }
+  Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    PanchangHero(now, panchang)
+    TimingCard(panchang)
   }
 }
 
