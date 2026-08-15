@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 
 private enum class NativeTab(val title: String) {
   TODAY("Today"),
@@ -37,6 +38,11 @@ fun SpiritualCompanionApp(
   onIncrementJapa: () -> Unit,
   onResetJapa: () -> Unit,
   onToggleFavourite: (String) -> Unit,
+  onSaveAlarm: (RitualAlarmEntity) -> Unit,
+  onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
+  onDeleteAlarm: (RitualAlarmEntity) -> Unit,
+  onPlayFallbackTone: () -> Unit,
+  onStopTonePreview: () -> Unit,
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
   Scaffold(
@@ -68,6 +74,12 @@ fun SpiritualCompanionApp(
         onIncrementJapa = onIncrementJapa,
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
         onOpenFestivals = { selectedTab = NativeTab.FESTIVALS },
+        alarms = state.ritualAlarms,
+        onSaveAlarm = onSaveAlarm,
+        onSetAlarmEnabled = onSetAlarmEnabled,
+        onDeleteAlarm = onDeleteAlarm,
+        onPlayFallbackTone = onPlayFallbackTone,
+        onStopTonePreview = onStopTonePreview,
       )
       NativeTab.AARTIS -> AartiLibraryScreen(
         contentPadding = padding,

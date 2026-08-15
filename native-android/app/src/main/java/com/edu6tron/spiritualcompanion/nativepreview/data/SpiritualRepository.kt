@@ -17,12 +17,14 @@ data class StoredSpiritualState(
   val practices: List<DailyPractice> = emptyList(),
   val favouriteIds: Set<String> = emptySet(),
   val japaCount: Int = 0,
+  val ritualAlarms: List<RitualAlarmEntity> = emptyList(),
 )
 
 @Singleton
 class SpiritualRepository @Inject constructor(
   private val dailyPracticeDao: DailyPracticeDao,
   private val appStateDao: AppStateDao,
+  private val ritualAlarmDao: RitualAlarmDao,
 ) {
   private val defaults = listOf(
     DailyPractice("pause", "Pause for one minute", "Settle your attention with three unhurried breaths.", false),
@@ -45,11 +47,13 @@ class SpiritualRepository @Inject constructor(
     observeDailyPractices(),
     appStateDao.observeFavouriteIds(),
     appStateDao.observeLong(japaKey),
-  ) { practices, favourites, japa ->
+    ritualAlarmDao.observeAll(),
+  ) { practices, favourites, japa, alarms ->
     StoredSpiritualState(
       practices = practices,
       favouriteIds = favourites.toSet(),
       japaCount = (japa ?: 0L).toInt().coerceAtLeast(0),
+      ritualAlarms = alarms,
     )
   }
 
@@ -81,5 +85,13 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun resetJapa() {
     appStateDao.savePreference(AppPreferenceEntity(japaKey, 0L))
+  }
+
+  suspend fun saveAlarm(alarm: RitualAlarmEntity) {
+    ritualAlarmDao.upsert(alarm.copy(updatedAt = System.currentTimeMillis()))
+  }
+
+  suspend fun deleteAlarm(alarm: RitualAlarmEntity) {
+    ritualAlarmDao.delete(alarm)
   }
 }

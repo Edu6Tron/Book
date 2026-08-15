@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.edu6tron.spiritualcompanion.nativepreview.data.AppStateDao
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPracticeDao
+import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmDao
 import com.edu6tron.spiritualcompanion.nativepreview.data.SpiritualDatabase
 import dagger.Module
 import dagger.Provides
@@ -27,4 +28,7 @@ object AppModule {
 
   @Provides
   fun provideAppStateDao(database: SpiritualDatabase): AppStateDao = database.appStateDao()
+
+  @Provides
+  fun provideRitualAlarmDao(database: SpiritualDatabase): RitualAlarmDao = database.ritualAlarmDao()
 }

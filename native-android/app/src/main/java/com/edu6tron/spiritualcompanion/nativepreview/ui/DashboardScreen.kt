@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
+import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -56,6 +57,12 @@ fun DashboardScreen(
   onIncrementJapa: () -> Unit,
   onOpenAartis: () -> Unit,
   onOpenFestivals: () -> Unit,
+  alarms: List<RitualAlarmEntity>,
+  onSaveAlarm: (RitualAlarmEntity) -> Unit,
+  onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
+  onDeleteAlarm: (RitualAlarmEntity) -> Unit,
+  onPlayFallbackTone: () -> Unit,
+  onStopTonePreview: () -> Unit,
 ) {
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -70,6 +77,16 @@ fun DashboardScreen(
     item { DashboardHeading() }
     item { PanchangHero() }
     item { TimingCard() }
+    item {
+      RitualAlarmSection(
+        alarms = alarms,
+        onSave = onSaveAlarm,
+        onSetEnabled = onSetAlarmEnabled,
+        onDelete = onDeleteAlarm,
+        onPlayFallbackTone = onPlayFallbackTone,
+        onStopTonePreview = onStopTonePreview,
+      )
+    }
     item { DailyEntryCard(state.japaCount, onIncrementJapa) }
     item {
       ExploreCard(

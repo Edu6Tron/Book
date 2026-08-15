@@ -39,5 +39,10 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
     onIncrementJapa = viewModel::incrementJapa,
     onResetJapa = viewModel::resetJapa,
     onToggleFavourite = viewModel::toggleFavourite,
+    onSaveAlarm = viewModel::saveAlarm,
+    onSetAlarmEnabled = viewModel::setAlarmEnabled,
+    onDeleteAlarm = viewModel::deleteAlarm,
+    onPlayFallbackTone = viewModel::playFallbackTone,
+    onStopTonePreview = viewModel::stopTonePreview,
   )
 }
