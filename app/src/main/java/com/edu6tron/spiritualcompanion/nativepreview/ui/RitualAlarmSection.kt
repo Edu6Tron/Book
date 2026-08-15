@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.DeleteOutline
@@ -22,6 +20,7 @@ import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,8 +30,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,6 +50,7 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.days
 import com.edu6tron.spiritualcompanion.nativepreview.data.isPaused
 import java.text.DateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.UUID
 
@@ -139,6 +142,7 @@ fun RitualAlarmSection(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun AlarmEditorDialog(
   initial: RitualAlarmEntity?,
   onDismiss: () -> Unit,
@@ -147,11 +151,13 @@ private fun AlarmEditorDialog(
   onSave: (RitualAlarmEntity) -> Unit,
 ) {
   var label by remember(initial) { mutableStateOf(initial?.label ?: "Brahma Muhurta") }
-  var hour by remember(initial) { mutableStateOf(initial?.hour ?: 4) }
-  var minute by remember(initial) { mutableStateOf(initial?.minute ?: 30) }
+  val initialCalendar = remember(initial) { Calendar.getInstance() }
+  var hour by remember(initial) { mutableStateOf(initial?.hour ?: initialCalendar.get(Calendar.HOUR_OF_DAY)) }
+  var minute by remember(initial) { mutableStateOf(initial?.minute ?: initialCalendar.get(Calendar.MINUTE)) }
   var selectedDays by remember(initial) { mutableStateOf((initial?.days() ?: (0..6).toList()).toSet()) }
   var toneUri by remember(initial) { mutableStateOf(initial?.toneUri) }
   var invalidTime by remember(initial) { mutableStateOf(false) }
+  var showTimePicker by remember(initial) { mutableStateOf(false) }
   val context = LocalContext.current
   val tonePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
     uri ?: return@rememberLauncherForActivityResult
@@ -165,34 +171,24 @@ private fun AlarmEditorDialog(
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         OutlinedTextField(label, { label = it }, label = { Text("Label") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
         Text("Time", style = MaterialTheme.typography.labelLarge)
-        Text(
-          "%02d:%02d".format(hour, minute),
-          style = MaterialTheme.typography.headlineMedium,
-          fontWeight = FontWeight.Bold,
-          color = MaterialTheme.colorScheme.primary,
-        )
-        Text("Swipe a row to move quickly, then tap the exact hour and minute.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("Hour", style = MaterialTheme.typography.labelMedium)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
-          items((0..23).toList()) { value ->
-            FilterChip(
-              selected = hour == value,
-              onClick = { hour = value },
-              modifier = Modifier.semantics { contentDescription = "Set hour to %02d".format(value) },
-              label = { Text("%02d".format(value)) },
-            )
+        OutlinedButton(
+          onClick = { showTimePicker = true },
+          modifier = Modifier.fillMaxWidth().semantics {
+            contentDescription = "Choose alarm time, currently ${AlarmTimeSelection(hour, minute).displayText()}"
+          },
+        ) {
+          Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(AlarmTimeSelection(hour, minute).displayText(), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text("Tap to choose time", style = MaterialTheme.typography.labelMedium)
           }
         }
-        Text("Minute", style = MaterialTheme.typography.labelMedium)
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
-          items((0..59).toList()) { value ->
-            FilterChip(
-              selected = minute == value,
-              onClick = { minute = value },
-              modifier = Modifier.semantics { contentDescription = "Set minute to %02d".format(value) },
-              label = { Text("%02d".format(value)) },
-            )
-          }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+          TextButton(onClick = {
+            val now = AlarmTimeSelection.from(Calendar.getInstance())
+            hour = now.hour
+            minute = now.minute
+          }) { Text("Use current time") }
+          TextButton(onClick = { hour = AlarmTimeSelection.brahmaMuhurta.hour; minute = AlarmTimeSelection.brahmaMuhurta.minute }) { Text("Brahma Muhurta") }
         }
         Text("Repeat on", style = MaterialTheme.typography.labelLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
@@ -230,6 +226,24 @@ private fun AlarmEditorDialog(
     },
     dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
   )
+  if (showTimePicker) {
+    key(hour, minute) {
+      val pickerState = rememberTimePickerState(initialHour = hour, initialMinute = minute, is24Hour = true)
+      AlertDialog(
+        onDismissRequest = { showTimePicker = false },
+        title = { Text("Choose alarm time") },
+        text = { TimePicker(state = pickerState) },
+        confirmButton = {
+          TextButton(onClick = {
+            hour = pickerState.hour
+            minute = pickerState.minute
+            showTimePicker = false
+          }) { Text("Done") }
+        },
+        dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Cancel") } },
+      )
+    }
+  }
 }
 
 private fun alarmToneSummary(toneUri: String?): String =

@@ -27,3 +27,5 @@
 - [ ] Add native settings and devotional guidance refinements that improve accessibility, reading comfort, and daily practice without compromising offline-first behaviour.
 - [x] Validate the expanded candidate with unit tests, Android lint, APK assembly, and independent GitHub Actions before publishing it.
 - [x] Diagnose and eliminate laggy scrolling in the native dashboard, Aarti library, festival calendar, temple directory, and practice flows without reducing useful offline content.
+- [x] Replace the current ritual-alarm time controls with a faster, clearer, accessible clock-style picker that supports quick hour and minute selection.
+- [ ] Add regression coverage and publish a validated native candidate for the improved time picker.

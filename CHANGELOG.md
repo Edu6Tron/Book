@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.1.3-rc.6 — 15 August 2026
+
+The ritual-alarm editor now uses a proper, touch-friendly analogue clock picker instead of long horizontal hour and minute strips. The selected time is prominent, opens the clock in one tap, and changes only after the user confirms it. The editor retains practical one-tap actions for the current time and the 04:30 Brahma Muhurta preset, together with an accessible description of the selected time.
+
+The picker uses the project’s bundled Material implementation, keeps 24-hour alarm scheduling, and adds deterministic coverage for zero-padded time display, the current-time action, and the Brahma Muhurta preset.
+
 ## v1.1.2-rc.5 — 15 August 2026
 
 This performance-focused candidate removes avoidable scroll-time work from the Aarti library, festival calendar, temple directory, dashboard, and daily-practice lists. Playback progress is now isolated from the static offline content state and updates at a calmer cadence, while filters, location suggestions, quick choices, and reusable list content are cached rather than recalculated during a swipe.
