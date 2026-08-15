@@ -62,6 +62,8 @@ fun DashboardScreen(
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
   onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
+  onPauseAlarm: (RitualAlarmEntity, Int) -> Unit,
+  onResumeAlarm: (RitualAlarmEntity) -> Unit,
   onPlayFallbackTone: () -> Unit,
   onStopTonePreview: () -> Unit,
 ) {
@@ -84,6 +86,8 @@ fun DashboardScreen(
         onSave = onSaveAlarm,
         onSetEnabled = onSetAlarmEnabled,
         onDelete = onDeleteAlarm,
+        onPause = onPauseAlarm,
+        onResume = onResumeAlarm,
         onPlayFallbackTone = onPlayFallbackTone,
         onStopTonePreview = onStopTonePreview,
       )

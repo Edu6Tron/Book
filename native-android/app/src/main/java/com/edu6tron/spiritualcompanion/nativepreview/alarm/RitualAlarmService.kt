@@ -10,6 +10,7 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.edu6tron.spiritualcompanion.nativepreview.R
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
@@ -50,6 +51,7 @@ class RitualAlarmService : Service() {
           .build(),
       )
       isLooping = true
+      setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
     }
     try {
       if (toneUri.isNullOrBlank()) throw IllegalArgumentException("Use offline devotional fallback")

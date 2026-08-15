@@ -11,6 +11,8 @@ import java.util.Calendar
 
 object RitualAlarmScheduler {
   const val ACTION_FIRE = "com.edu6tron.spiritualcompanion.nativepreview.alarm.FIRE"
+  const val ACTION_SNOOZED_FIRE = "com.edu6tron.spiritualcompanion.nativepreview.alarm.SNOOZED_FIRE"
+  const val ACTION_RESUME_AFTER_PAUSE = "com.edu6tron.spiritualcompanion.nativepreview.alarm.RESUME_AFTER_PAUSE"
   const val ACTION_STOP = "com.edu6tron.spiritualcompanion.nativepreview.alarm.STOP"
   const val ACTION_SNOOZE = "com.edu6tron.spiritualcompanion.nativepreview.alarm.SNOOZE"
   const val EXTRA_ID = "ritual_alarm_id"
@@ -22,8 +24,12 @@ object RitualAlarmScheduler {
   const val EXTRA_AFTER_ALERT = "ritual_alarm_after_alert"
 
   fun scheduleNext(context: Context, alarm: RitualAlarmEntity): Boolean {
-    cancel(context, alarm.id)
+    cancelScheduledTriggers(context, alarm.id)
     if (!alarm.enabled || alarm.days().isEmpty()) return false
+    alarm.pauseUntilMillis?.takeIf { it > System.currentTimeMillis() }?.let { pauseUntil ->
+      scheduleAt(context, alarm, pauseUntil, ACTION_RESUME_AFTER_PAUSE)
+      return canScheduleExactAlarms(context)
+    }
     val now = Calendar.getInstance()
     val candidate = (0..7).mapNotNull { offset ->
       Calendar.getInstance().apply {
@@ -34,16 +40,23 @@ object RitualAlarmScheduler {
         set(Calendar.MILLISECOND, 0)
       }.takeIf { it.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY in alarm.days() && it.after(now) }
     }.firstOrNull() ?: return false
-    scheduleAt(context, alarm, candidate.timeInMillis)
+    scheduleAt(context, alarm, candidate.timeInMillis, ACTION_FIRE)
     return canScheduleExactAlarms(context)
   }
 
   fun snooze(context: Context, alarm: RitualAlarmEntity, minutes: Int = 5) {
-    scheduleAt(context, alarm, System.currentTimeMillis() + minutes.coerceIn(1, 30) * 60_000L)
+    manager(context).cancel(pendingIntent(context, alarm.id, ACTION_SNOOZED_FIRE))
+    scheduleAt(
+      context,
+      alarm,
+      System.currentTimeMillis() + minutes.coerceIn(1, 30) * 60_000L,
+      ACTION_SNOOZED_FIRE,
+    )
   }
 
   fun cancel(context: Context, id: String) {
-    manager(context).cancel(pendingIntent(context, id))
+    cancelScheduledTriggers(context, id)
+    manager(context).cancel(pendingIntent(context, id, ACTION_SNOOZED_FIRE))
   }
 
   fun canScheduleExactAlarms(context: Context): Boolean =
@@ -52,8 +65,8 @@ object RitualAlarmScheduler {
   fun serviceIntent(context: Context, action: String, alarm: RitualAlarmEntity): Intent =
     Intent(context, RitualAlarmService::class.java).setAction(action).apply { putAlarmExtras(alarm) }
 
-  private fun scheduleAt(context: Context, alarm: RitualAlarmEntity, triggerAt: Long) {
-    val pending = pendingIntent(context, alarm.id, alarm)
+  private fun scheduleAt(context: Context, alarm: RitualAlarmEntity, triggerAt: Long, action: String) {
+    val pending = pendingIntent(context, alarm.id, action, alarm)
     if (canScheduleExactAlarms(context)) {
       manager(context).setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
     } else {
@@ -63,12 +76,22 @@ object RitualAlarmScheduler {
 
   private fun manager(context: Context) = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-  private fun pendingIntent(context: Context, id: String, alarm: RitualAlarmEntity? = null): PendingIntent {
+  private fun cancelScheduledTriggers(context: Context, id: String) {
+    manager(context).cancel(pendingIntent(context, id, ACTION_FIRE))
+    manager(context).cancel(pendingIntent(context, id, ACTION_RESUME_AFTER_PAUSE))
+  }
+
+  private fun pendingIntent(context: Context, id: String, action: String, alarm: RitualAlarmEntity? = null): PendingIntent {
     val intent = Intent(context, RitualAlarmReceiver::class.java)
-      .setAction(ACTION_FIRE)
+      .setAction(action)
       .putExtra(EXTRA_ID, id)
     alarm?.let { intent.putAlarmExtras(it) }
-    return PendingIntent.getBroadcast(context, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    return PendingIntent.getBroadcast(
+      context,
+      31 * id.hashCode() + action.hashCode(),
+      intent,
+      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    )
   }
 
   fun Intent.putAlarmExtras(alarm: RitualAlarmEntity) {

@@ -13,6 +13,7 @@ data class RitualAlarmEntity(
   val enabled: Boolean,
   val toneUri: String? = null,
   val afterAlertAartiId: String? = null,
+  val pauseUntilMillis: Long? = null,
   val updatedAt: Long = System.currentTimeMillis(),
 )
 
@@ -21,3 +22,6 @@ fun RitualAlarmEntity.days(): List<Int> = repeatDays.split(",")
   .filter { it in 0..6 }
   .distinct()
   .sorted()
+
+fun RitualAlarmEntity.isPaused(now: Long = System.currentTimeMillis()): Boolean =
+  (pauseUntilMillis ?: 0L) > now

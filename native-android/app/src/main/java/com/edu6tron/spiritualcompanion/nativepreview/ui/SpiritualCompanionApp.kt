@@ -42,6 +42,8 @@ fun SpiritualCompanionApp(
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
   onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
+  onPauseAlarm: (RitualAlarmEntity, Int) -> Unit,
+  onResumeAlarm: (RitualAlarmEntity) -> Unit,
   onPlayFallbackTone: () -> Unit,
   onStopTonePreview: () -> Unit,
   onSaveSelectedMedia: (String, String) -> Unit,
@@ -85,6 +87,8 @@ fun SpiritualCompanionApp(
         onSaveAlarm = onSaveAlarm,
         onSetAlarmEnabled = onSetAlarmEnabled,
         onDeleteAlarm = onDeleteAlarm,
+        onPauseAlarm = onPauseAlarm,
+        onResumeAlarm = onResumeAlarm,
         onPlayFallbackTone = onPlayFallbackTone,
         onStopTonePreview = onStopTonePreview,
       )

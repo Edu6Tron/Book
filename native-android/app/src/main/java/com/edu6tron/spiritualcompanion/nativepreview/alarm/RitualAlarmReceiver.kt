@@ -13,6 +13,10 @@ class RitualAlarmReceiver : BroadcastReceiver() {
         ContextCompat.startForegroundService(context, RitualAlarmScheduler.serviceIntent(context, RitualAlarmScheduler.ACTION_FIRE, alarm))
         RitualAlarmScheduler.scheduleNext(context, alarm)
       }
+      RitualAlarmScheduler.ACTION_SNOOZED_FIRE ->
+        ContextCompat.startForegroundService(context, RitualAlarmScheduler.serviceIntent(context, RitualAlarmScheduler.ACTION_FIRE, alarm))
+      RitualAlarmScheduler.ACTION_RESUME_AFTER_PAUSE ->
+        RitualAlarmScheduler.scheduleNext(context, alarm.copy(pauseUntilMillis = null))
       RitualAlarmScheduler.ACTION_SNOOZE,
       RitualAlarmScheduler.ACTION_STOP -> ContextCompat.startForegroundService(context, RitualAlarmScheduler.serviceIntent(context, intent.action.orEmpty(), alarm))
     }

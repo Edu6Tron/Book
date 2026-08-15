@@ -74,6 +74,19 @@ class DashboardViewModel @Inject constructor(
 
   fun setAlarmEnabled(alarm: RitualAlarmEntity, enabled: Boolean) = saveAlarm(alarm.copy(enabled = enabled))
 
+  fun pauseAlarm(alarm: RitualAlarmEntity, days: Int) {
+    saveAlarm(
+      alarm.copy(
+        pauseUntilMillis = System.currentTimeMillis() + days.coerceIn(1, 30) * 86_400_000L,
+        updatedAt = System.currentTimeMillis(),
+      ),
+    )
+  }
+
+  fun resumeAlarm(alarm: RitualAlarmEntity) = saveAlarm(
+    alarm.copy(pauseUntilMillis = null, updatedAt = System.currentTimeMillis()),
+  )
+
   fun deleteAlarm(alarm: RitualAlarmEntity) {
     viewModelScope.launch {
       RitualAlarmScheduler.cancel(context, alarm.id)

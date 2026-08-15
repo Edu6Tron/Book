@@ -11,6 +11,9 @@ interface RitualAlarmDao {
   @Query("SELECT * FROM ritual_alarms ORDER BY hour, minute")
   fun observeAll(): Flow<List<RitualAlarmEntity>>
 
+  @Query("SELECT * FROM ritual_alarms WHERE enabled = 1")
+  suspend fun enabledAlarms(): List<RitualAlarmEntity>
+
   @Upsert
   suspend fun upsert(alarm: RitualAlarmEntity)
 

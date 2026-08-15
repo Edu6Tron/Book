@@ -6,6 +6,7 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
   <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
   <application
     android:name=".SpiritualCompanionApplication"
     android:allowBackup="true"
@@ -27,6 +28,16 @@
     <receiver
       android:name=".alarm.RitualAlarmReceiver"
       android:exported="false" />
+    <receiver
+      android:name=".alarm.AlarmRecoveryReceiver"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.TIME_SET" />
+        <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+      </intent-filter>
+    </receiver>
     <service
       android:name=".alarm.RitualAlarmService"
       android:exported="false"
