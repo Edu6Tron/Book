@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,6 +24,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -92,7 +92,9 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
       }
       item {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          items(NativeCatalogue.hinduMonths) { chip -> AssistChip(onClick = { month = chip }, label = { Text(chip) }) }
+          items(NativeCatalogue.hinduMonths) { chip ->
+            FilterChip(selected = month == chip, onClick = { month = chip }, label = { Text(chip) })
+          }
         }
       }
       items(festivals, key = { it.id }) { festival ->
@@ -113,7 +115,9 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
       }
       item {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          items(templeCities) { city -> AssistChip(onClick = { templeCity = city }, label = { Text(city) }) }
+          items(templeCities) { city ->
+            FilterChip(selected = templeCity == city, onClick = { templeCity = city }, label = { Text(city) })
+          }
         }
       }
       if (temples.isEmpty()) {

@@ -89,9 +89,9 @@ class SpiritualRepository @Inject constructor(
     }
   }
 
-  suspend fun incrementJapa() {
+  suspend fun incrementJapa(amount: Int = 1) {
     val current = appStateDao.getLong(japaKey) ?: 0L
-    appStateDao.savePreference(AppPreferenceEntity(japaKey, current + 1L))
+    appStateDao.savePreference(AppPreferenceEntity(japaKey, current + amount.coerceIn(1, 108).toLong()))
   }
 
   suspend fun resetJapa() {

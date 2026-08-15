@@ -60,8 +60,8 @@ class DashboardViewModel @Inject constructor(
     viewModelScope.launch { repository.toggleFavourite(aartiId) }
   }
 
-  fun incrementJapa() {
-    viewModelScope.launch { repository.incrementJapa() }
+  fun incrementJapa(amount: Int = 1) {
+    viewModelScope.launch { repository.incrementJapa(amount) }
   }
 
   fun resetJapa() {

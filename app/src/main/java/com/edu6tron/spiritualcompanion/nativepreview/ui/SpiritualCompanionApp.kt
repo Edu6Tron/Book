@@ -36,7 +36,7 @@ private enum class NativeTab(val title: String) {
 fun SpiritualCompanionApp(
   state: DashboardUiState,
   onTogglePractice: (String) -> Unit,
-  onIncrementJapa: () -> Unit,
+  onIncrementJapa: (Int) -> Unit,
   onResetJapa: () -> Unit,
   onToggleFavourite: (String) -> Unit,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
@@ -81,7 +81,7 @@ fun SpiritualCompanionApp(
         state = state,
         contentPadding = padding,
         onTogglePractice = onTogglePractice,
-        onIncrementJapa = onIncrementJapa,
+        onIncrementJapa = { onIncrementJapa(1) },
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
         onOpenFestivals = { selectedTab = NativeTab.FESTIVALS },
         alarms = state.ritualAlarms,

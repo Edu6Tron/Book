@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,9 +46,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.edu6tron.spiritualcompanion.nativepreview.data.AartiItem
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeCatalogue
 import com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState
+import com.edu6tron.spiritualcompanion.nativepreview.media.LyricTiming
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
 
 @Composable
 fun AartiLibraryScreen(
@@ -123,7 +128,9 @@ fun AartiLibraryScreen(
           }
           if (selectedMediaUri != null) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-              TextButton(onClick = { onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio") }) { Text("Play") }
+              TextButton(onClick = { onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio") }) {
+                Text(if (playback.isPlaying) "Restart" else "Play")
+              }
               TextButton(onClick = onStopPlayback) { Text("Stop") }
               TextButton(onClick = onClearSelectedMedia) { Text("Clear") }
             }
@@ -156,6 +163,12 @@ fun AartiLibraryScreen(
             singleLine = true,
             label = { Text("City or state, for example Pune, Maharashtra") },
           )
+          Text("Quick choices", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(PanchangCalculator.supportedPlaceLabels()) { place ->
+              AssistChip(onClick = { locationDraft = place }, label = { Text(place.substringBefore(',')) })
+            }
+          }
           Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { onSaveLocation(locationDraft) }, enabled = locationDraft.isNotBlank()) {
               Text(if (savedLocation == null) "Save location" else "Refresh suggestions")
@@ -217,7 +230,15 @@ fun AartiLibraryScreen(
   }
 
   selectedAarti?.let { aarti ->
-    AartiLyricsDialog(aarti = aarti, onDismiss = { selectedAarti = null })
+    AartiLyricsDialog(
+      aarti = aarti,
+      selectedMediaUri = selectedMediaUri,
+      selectedMediaLabel = selectedMediaLabel,
+      playback = playback,
+      onPlaySelectedMedia = onPlaySelectedMedia,
+      onStopPlayback = onStopPlayback,
+      onDismiss = { selectedAarti = null },
+    )
   }
 }
 
@@ -253,20 +274,96 @@ private fun AartiListCard(
 }
 
 @Composable
-private fun AartiLyricsDialog(aarti: AartiItem, onDismiss: () -> Unit) {
-  AlertDialog(
+private fun AartiLyricsDialog(
+  aarti: AartiItem,
+  selectedMediaUri: String?,
+  selectedMediaLabel: String?,
+  playback: DevotionalPlaybackState,
+  onPlaySelectedMedia: (String, String) -> Unit,
+  onStopPlayback: () -> Unit,
+  onDismiss: () -> Unit,
+) {
+  val activeVerseIndex = if (playback.isPlaying) {
+    LyricTiming.activeVerseIndex(playback.positionMs, playback.durationMs, aarti.verses.size)
+  } else -1
+  Dialog(
     onDismissRequest = onDismiss,
-    title = { Text(aarti.title) },
-    text = {
-      LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        item { Text(aarti.summary, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-        items(aarti.verses) { verse -> Text(verse, style = MaterialTheme.typography.bodyLarge) }
-        item {
-          Spacer(Modifier.height(2.dp))
-          Text("Source: ${aarti.source}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    properties = DialogProperties(usePlatformDefaultWidth = false),
+  ) {
+    Card(
+      modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight()
+        .padding(16.dp),
+      colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+      Column(
+        modifier = Modifier.fillMaxSize().padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+      ) {
+        Text(aarti.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(
+          "Use your local recording while reading. When duration is available, the current verse is highlighted proportionally; recordings can have different exact timings.",
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (selectedMediaUri != null) {
+          Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+            Row(
+              modifier = Modifier.fillMaxWidth().padding(12.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+              Column(modifier = Modifier.weight(1f)) {
+                Text(selectedMediaLabel ?: "Selected local audio", style = MaterialTheme.typography.titleSmall)
+                Text(
+                  if (playback.isPlaying) "Playing in this app" else playback.message ?: "Ready for offline playback",
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+              }
+              TextButton(onClick = {
+                onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio")
+              }) { Text(if (playback.isPlaying) "Restart" else "Play") }
+              TextButton(onClick = onStopPlayback) { Text("Stop") }
+            }
+          }
+        } else {
+          Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+            Text(
+              "Choose local audio from the Aarti library to listen offline while reading these lyrics.",
+              modifier = Modifier.padding(12.dp),
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
         }
+        LazyColumn(
+          modifier = Modifier.weight(1f),
+          verticalArrangement = Arrangement.spacedBy(18.dp),
+        ) {
+          item { Text(aarti.summary, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+          items(aarti.verses.indices.toList()) { index ->
+            val isActive = index == activeVerseIndex
+            Card(
+              colors = CardDefaults.cardColors(
+                containerColor = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+              ),
+            ) {
+              Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (isActive) {
+                  Text("Reading now", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                }
+                Text(aarti.verses[index], style = MaterialTheme.typography.bodyLarge)
+              }
+            }
+          }
+          item {
+            Text("Source: ${aarti.source}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          }
+        }
+        TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Close") }
       }
-    },
-    confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-  )
+    }
+  }
 }

@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.1.0-rc.3 — unreleased
+
+This feature-completion candidate adds a fully offline, city-aware devotional dashboard. The dashboard resolves the saved no-GPS city, provides transparent calculated sunrise, sunset, moonrise, moonset, Brahma Muhurta, Tithi, Nakshatra, Paksha, Hindu-month, and Saka-calendar context, and clearly labels the calculation as an offline devotional estimate.
+
+The Aarti experience now includes a full-screen local read-along mode with actual playback position, approximate proportional lyric highlighting for user-selected recordings, clear media-state feedback, and safe in-app user-initiated devotional discovery. Festival and temple filter states are visibly selected, while temple data remains offline and does not request GPS or maps.
+
+The ritual-alarm editor now exposes fast horizontally scrollable hour and minute selectors with screen-reader descriptions. The daily Practice experience adds grouped mala controls and clearer local Japa progress. The candidate includes regression tests for location-aware Panchang calculations and lyric timing, together with native unit tests, Android lint, and debug APK assembly validation.
+
 ## v1.0.1-rc.2 — unreleased
 
 This repair build changes functional Android behavior rather than repository presentation. The ritual-alarm editor now lets the user select, persist, replace, preview, and clear a local audio tone per alarm. Tone-preview state is reported in the Aarti library, and unreadable local alarm audio falls back to the bundled offline devotional chime. The fired-alarm activity now identifies the active time and tone and offers 5- or 10-minute Snooze controls.

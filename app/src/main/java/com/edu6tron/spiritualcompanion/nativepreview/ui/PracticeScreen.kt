@@ -21,6 +21,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,7 +34,7 @@ fun PracticeScreen(
   contentPadding: PaddingValues,
   state: DashboardUiState,
   onTogglePractice: (String) -> Unit,
-  onIncrementJapa: () -> Unit,
+  onIncrementJapa: (Int) -> Unit,
   onResetJapa: () -> Unit,
 ) {
   LazyColumn(
@@ -70,7 +71,10 @@ fun PracticeScreen(
 }
 
 @Composable
-private fun JapaCounterCard(count: Int, onIncrement: () -> Unit, onReset: () -> Unit) {
+private fun JapaCounterCard(count: Int, onIncrement: (Int) -> Unit, onReset: () -> Unit) {
+  val currentMala = count % 108
+  val completedMalas = count / 108
+  val remaining = if (currentMala == 0) 108 else 108 - currentMala
   Card(
     modifier = Modifier.fillMaxWidth(),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
@@ -79,7 +83,22 @@ private fun JapaCounterCard(count: Int, onIncrement: () -> Unit, onReset: () -> 
       Icon(Icons.Outlined.TouchApp, contentDescription = null, modifier = Modifier.size(30.dp), tint = MaterialTheme.colorScheme.primary)
       Text("$count", style = MaterialTheme.typography.displayLarge, fontWeight = FontWeight.Bold)
       Text("Japa repetitions today", color = MaterialTheme.colorScheme.onPrimaryContainer)
-      Button(onClick = onIncrement, modifier = Modifier.fillMaxWidth()) { Text("Count one repetition") }
+      LinearProgressIndicator(
+        progress = { currentMala / 108f },
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.surface,
+      )
+      Text(
+        if (completedMalas == 0) "$remaining repetitions to complete this mala" else "$completedMalas mala${if (completedMalas == 1) "" else "s"} complete • $remaining to the next",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+      )
+      Button(onClick = { onIncrement(1) }, modifier = Modifier.fillMaxWidth()) { Text("Count one repetition") }
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = { onIncrement(11) }, modifier = Modifier.weight(1f)) { Text("+11") }
+        OutlinedButton(onClick = { onIncrement(108) }, modifier = Modifier.weight(1f)) { Text("Complete mala") }
+      }
       OutlinedButton(onClick = onReset, modifier = Modifier.fillMaxWidth()) {
         Icon(Icons.Outlined.Refresh, contentDescription = null)
         Spacer(Modifier.size(6.dp))

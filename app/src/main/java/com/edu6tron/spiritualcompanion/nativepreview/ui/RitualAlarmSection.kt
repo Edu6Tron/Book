@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.DeleteOutline
@@ -37,6 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
@@ -47,7 +51,7 @@ import java.text.DateFormat
 import java.util.Date
 import java.util.UUID
 
-private val dayLabels = listOf("S", "M", "T", "W", "T", "F", "S")
+private val dayLabels = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
 
 @Composable
 fun RitualAlarmSection(
@@ -143,8 +147,8 @@ private fun AlarmEditorDialog(
   onSave: (RitualAlarmEntity) -> Unit,
 ) {
   var label by remember(initial) { mutableStateOf(initial?.label ?: "Brahma Muhurta") }
-  var hour by remember(initial) { mutableStateOf((initial?.hour ?: 4).toString()) }
-  var minute by remember(initial) { mutableStateOf((initial?.minute ?: 30).toString()) }
+  var hour by remember(initial) { mutableStateOf(initial?.hour ?: 4) }
+  var minute by remember(initial) { mutableStateOf(initial?.minute ?: 30) }
   var selectedDays by remember(initial) { mutableStateOf((initial?.days() ?: (0..6).toList()).toSet()) }
   var toneUri by remember(initial) { mutableStateOf(initial?.toneUri) }
   var invalidTime by remember(initial) { mutableStateOf(false) }
@@ -160,13 +164,46 @@ private fun AlarmEditorDialog(
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         OutlinedTextField(label, { label = it }, label = { Text("Label") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-          OutlinedTextField(hour, { hour = it.filter(Char::isDigit).take(2) }, label = { Text("Hour") }, modifier = Modifier.weight(1f), singleLine = true)
-          OutlinedTextField(minute, { minute = it.filter(Char::isDigit).take(2) }, label = { Text("Minute") }, modifier = Modifier.weight(1f), singleLine = true)
+        Text("Time", style = MaterialTheme.typography.labelLarge)
+        Text(
+          "%02d:%02d".format(hour, minute),
+          style = MaterialTheme.typography.headlineMedium,
+          fontWeight = FontWeight.Bold,
+          color = MaterialTheme.colorScheme.primary,
+        )
+        Text("Swipe a row to move quickly, then tap the exact hour and minute.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Hour", style = MaterialTheme.typography.labelMedium)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+          items((0..23).toList()) { value ->
+            FilterChip(
+              selected = hour == value,
+              onClick = { hour = value },
+              modifier = Modifier.semantics { contentDescription = "Set hour to %02d".format(value) },
+              label = { Text("%02d".format(value)) },
+            )
+          }
+        }
+        Text("Minute", style = MaterialTheme.typography.labelMedium)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+          items((0..59).toList()) { value ->
+            FilterChip(
+              selected = minute == value,
+              onClick = { minute = value },
+              modifier = Modifier.semantics { contentDescription = "Set minute to %02d".format(value) },
+              label = { Text("%02d".format(value)) },
+            )
+          }
         }
         Text("Repeat on", style = MaterialTheme.typography.labelLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
-          dayLabels.forEachIndexed { index, day -> FilterChip(selected = index in selectedDays, onClick = { selectedDays = if (index in selectedDays) selectedDays - index else selectedDays + index }, label = { Text(day) }) }
+          dayLabels.forEachIndexed { index, day ->
+            FilterChip(
+              selected = index in selectedDays,
+              onClick = { selectedDays = if (index in selectedDays) selectedDays - index else selectedDays + index },
+              modifier = Modifier.semantics { contentDescription = "Repeat on $day" },
+              label = { Text(day.first().toString()) },
+            )
+          }
         }
         Text("Choose media or tone to play", style = MaterialTheme.typography.labelLarge)
         Text(alarmToneSummary(toneUri), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -184,12 +221,10 @@ private fun AlarmEditorDialog(
     },
     confirmButton = {
       Button(onClick = {
-        val parsedHour = hour.toIntOrNull()
-        val parsedMinute = minute.toIntOrNull()
-        if (parsedHour == null || parsedHour !in 0..23 || parsedMinute == null || parsedMinute !in 0..59 || selectedDays.isEmpty()) {
+        if (hour !in 0..23 || minute !in 0..59 || selectedDays.isEmpty()) {
           invalidTime = true
         } else {
-          onSave(RitualAlarmEntity(id = initial?.id ?: UUID.randomUUID().toString(), label = label.trim().ifBlank { "Ritual alarm" }, hour = parsedHour, minute = parsedMinute, repeatDays = selectedDays.sorted().joinToString(","), enabled = initial?.enabled ?: true, toneUri = toneUri, afterAlertAartiId = initial?.afterAlertAartiId))
+          onSave(RitualAlarmEntity(id = initial?.id ?: UUID.randomUUID().toString(), label = label.trim().ifBlank { "Ritual alarm" }, hour = hour, minute = minute, repeatDays = selectedDays.sorted().joinToString(","), enabled = initial?.enabled ?: true, toneUri = toneUri, afterAlertAartiId = initial?.afterAlertAartiId))
         }
       }) { Text("Save") }
     },

@@ -11,3 +11,9 @@
 - [x] Repair the core Kotlin app flows rather than changing only repository presentation or release metadata.
 - [x] Add regression coverage for repaired alarm-tone persistence and validate the debug APK with unit tests, assembly, and lint before publishing a new version.
 - [x] Publish a genuinely updated APK with versionCode `3`, release notes, checksum, and a distinct `v1.0.1-rc.2` tag.
+- [x] Complete a source-level audit of all remaining Kotlin-versus-Expo feature gaps and map each to an implementable native flow.
+- [x] Replace indicative dashboard Panchang data with a location-aware, user-configurable calculation model and clear data provenance.
+- [x] Complete native Aarti playback, lyric presentation, media picking, and safe user-initiated discovery flows.
+- [x] Complete searchable offline temple and festival experiences with source details and durable city personalization.
+- [x] Strengthen daily practice, Japa, alarms, accessibility, and lifecycle behaviour through focused regression tests.
+- [ ] Publish a final candidate APK only after all required native validation tasks pass.

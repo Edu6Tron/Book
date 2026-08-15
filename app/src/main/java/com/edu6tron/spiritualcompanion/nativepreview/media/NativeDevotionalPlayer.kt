@@ -1,6 +1,8 @@
 package com.edu6tron.spiritualcompanion.nativepreview.media
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -16,6 +18,8 @@ data class DevotionalPlaybackState(
   val isPlaying: Boolean = false,
   val sourceLabel: String? = null,
   val message: String? = null,
+  val positionMs: Long = 0L,
+  val durationMs: Long = 0L,
 )
 
 @Singleton
@@ -25,20 +29,42 @@ class NativeDevotionalPlayer @Inject constructor(
   private val player = ExoPlayer.Builder(appContext).build()
   private val _playback = MutableStateFlow(DevotionalPlaybackState())
   val playback: StateFlow<DevotionalPlaybackState> = _playback.asStateFlow()
+  private val progressHandler = Handler(Looper.getMainLooper())
+  private val progressTick = object : Runnable {
+    override fun run() {
+      publishProgress()
+      if (player.isPlaying) progressHandler.postDelayed(this, 250L)
+    }
+  }
 
   init {
     player.addListener(object : Player.Listener {
       override fun onIsPlayingChanged(isPlaying: Boolean) {
         _playback.value = _playback.value.copy(isPlaying = isPlaying, message = null)
+        if (isPlaying) {
+          progressHandler.removeCallbacks(progressTick)
+          progressHandler.post(progressTick)
+        } else {
+          progressHandler.removeCallbacks(progressTick)
+          publishProgress()
+        }
       }
 
       override fun onPlaybackStateChanged(playbackState: Int) {
         if (playbackState == Player.STATE_ENDED) {
-          _playback.value = _playback.value.copy(isPlaying = false, message = "Playback finished")
+          progressHandler.removeCallbacks(progressTick)
+          _playback.value = _playback.value.copy(
+            isPlaying = false,
+            message = "Playback finished",
+            positionMs = _playback.value.durationMs,
+          )
+        } else if (playbackState == Player.STATE_READY) {
+          publishProgress()
         }
       }
 
       override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+        progressHandler.removeCallbacks(progressTick)
         _playback.value = _playback.value.copy(isPlaying = false, message = "This audio file could not be played. Choose another local audio file.")
       }
     })
@@ -59,12 +85,19 @@ class NativeDevotionalPlayer @Inject constructor(
   }
 
   fun stop() {
+    progressHandler.removeCallbacks(progressTick)
     player.stop()
-    _playback.value = _playback.value.copy(isPlaying = false, message = "Playback stopped")
+    _playback.value = _playback.value.copy(isPlaying = false, message = "Playback stopped", positionMs = 0L)
   }
 
   fun release() {
+    progressHandler.removeCallbacks(progressTick)
     player.release()
     _playback.value = DevotionalPlaybackState(message = "Playback closed")
+  }
+
+  private fun publishProgress() {
+    val duration = player.duration.takeIf { it > 0L && it != androidx.media3.common.C.TIME_UNSET } ?: 0L
+    _playback.value = _playback.value.copy(positionMs = player.currentPosition.coerceAtLeast(0L), durationMs = duration)
   }
 }
