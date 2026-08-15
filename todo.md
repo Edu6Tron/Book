@@ -21,4 +21,4 @@
 - [x] Harden lifecycle and error handling across navigation, local media playback, alarms, and persistence without blocking the UI thread.
 - [x] Add release-grade diagnostics and automated quality safeguards that help identify a device-specific failure without leaking private user data.
 - [x] Document and prepare the GitHub release-signing workflow without committing a keystore or credentials.
-- [ ] Validate and publish the next hardened native Android candidate only after independent CI succeeds.
+- [x] Validate and publish the next hardened native Android candidate only after independent CI succeeds.

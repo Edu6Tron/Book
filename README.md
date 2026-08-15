@@ -12,7 +12,7 @@ The recommended installation path is the [GitHub Releases page](https://github.c
 
 | Current release track | Package ID | Android support | Distribution |
 |---|---|---|---|
-| `v1.0.1-rc.2` | `com.edu6tron.spiritualcompanion.nativepreview` | Android 8.0+ (API 26) | APK attached to GitHub Release |
+| `v1.1.1-rc.4` | `com.edu6tron.spiritualcompanion.nativepreview` | Android 8.0+ (API 26) | APK attached to GitHub Release |
 
 ## What is included
 
@@ -43,7 +43,7 @@ Install Android SDK Platform 35 and Java 17, then run the following from the rep
 ./gradlew :app:assembleDebug
 ```
 
-The test APK is written to `app/build/outputs/apk/debug/app-debug.apk`. It is unsigned for store distribution and should be used only for direct device testing. See [RELEASES.md](RELEASES.md) for installation and verification guidance.
+The test APK is written to `app/build/outputs/apk/debug/app-debug.apk`. It is unsigned for store distribution and should be used only for direct device testing. See [Native Android releases](docs/RELEASES.md) for installation and verification guidance.
 
 For protected production signing and Android App Bundle distribution, follow [Android release signing](docs/RELEASE_SIGNING.md). The private keystore and its passwords are kept only as protected GitHub secrets; they are never stored in this repository.
 
@@ -55,7 +55,7 @@ app/src/main/        Kotlin, Compose UI, Room, audio, and alarm code
 app/src/test/        Native unit tests
 gradle/              Gradle wrapper files
 .github/workflows/   APK build automation
-RELEASES.md          Version and APK-verification guidance
+docs/RELEASES.md     Version and APK-verification guidance
 CONTRIBUTING.md      Local development and pull-request expectations
 ```
 

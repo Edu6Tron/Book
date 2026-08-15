@@ -2,7 +2,7 @@
 
 All notable user-facing changes are documented here.
 
-## v1.1.1-rc.4 — unreleased
+## v1.1.1-rc.4 — 15 August 2026
 
 This device-hardening candidate makes native startup, local playback, saved state, and alarm scheduling failures visible through privacy-preserving, non-blocking in-app notices. Sanitised diagnostic markers deliberately omit city names, media file names, devotional content, user input, and device identifiers.
 
