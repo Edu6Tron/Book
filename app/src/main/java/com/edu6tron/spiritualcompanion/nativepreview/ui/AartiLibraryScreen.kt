@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.AartiItem
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeCatalogue
+import com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState
 
 @Composable
 fun AartiLibraryScreen(
@@ -57,8 +58,9 @@ fun AartiLibraryScreen(
   selectedMediaLabel: String?,
   onSaveSelectedMedia: (String, String) -> Unit,
   onClearSelectedMedia: () -> Unit,
-  onPlaySelectedMedia: (String) -> Unit,
+  onPlaySelectedMedia: (String, String) -> Unit,
   onStopPlayback: () -> Unit,
+  playback: DevotionalPlaybackState,
   savedLocation: String?,
   onSaveLocation: (String) -> Unit,
   onClearLocation: () -> Unit,
@@ -121,10 +123,17 @@ fun AartiLibraryScreen(
           }
           if (selectedMediaUri != null) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-              TextButton(onClick = { onPlaySelectedMedia(selectedMediaUri) }) { Text("Play") }
+              TextButton(onClick = { onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio") }) { Text("Play") }
               TextButton(onClick = onStopPlayback) { Text("Stop") }
               TextButton(onClick = onClearSelectedMedia) { Text("Clear") }
             }
+          }
+          playback.sourceLabel?.let { source ->
+            Text(
+              if (playback.isPlaying) "Playing: $source" else "${playback.message ?: "Ready"}: $source",
+              style = MaterialTheme.typography.bodySmall,
+              color = if (playback.isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondaryContainer,
+            )
           }
         }
       }

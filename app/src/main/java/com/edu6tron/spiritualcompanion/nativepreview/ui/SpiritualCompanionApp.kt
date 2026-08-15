@@ -45,10 +45,11 @@ fun SpiritualCompanionApp(
   onPauseAlarm: (RitualAlarmEntity, Int) -> Unit,
   onResumeAlarm: (RitualAlarmEntity) -> Unit,
   onPlayFallbackTone: () -> Unit,
+  onPreviewAlarmTone: (String?) -> Unit,
   onStopTonePreview: () -> Unit,
   onSaveSelectedMedia: (String, String) -> Unit,
   onClearSelectedMedia: () -> Unit,
-  onPlaySelectedMedia: (String) -> Unit,
+  onPlaySelectedMedia: (String, String) -> Unit,
   onSaveLocation: (String) -> Unit,
   onClearLocation: () -> Unit,
 ) {
@@ -90,6 +91,7 @@ fun SpiritualCompanionApp(
         onPauseAlarm = onPauseAlarm,
         onResumeAlarm = onResumeAlarm,
         onPlayFallbackTone = onPlayFallbackTone,
+        onPreviewAlarmTone = onPreviewAlarmTone,
         onStopTonePreview = onStopTonePreview,
       )
       NativeTab.AARTIS -> AartiLibraryScreen(
@@ -101,6 +103,7 @@ fun SpiritualCompanionApp(
         onSaveSelectedMedia = onSaveSelectedMedia,
         onClearSelectedMedia = onClearSelectedMedia,
         onPlaySelectedMedia = onPlaySelectedMedia,
+        playback = state.playback,
         onStopPlayback = onStopTonePreview,
         savedLocation = state.savedLocation,
         onSaveLocation = onSaveLocation,

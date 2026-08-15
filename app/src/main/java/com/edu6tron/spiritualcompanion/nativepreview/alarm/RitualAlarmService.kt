@@ -27,7 +27,7 @@ class RitualAlarmService : Service() {
       RitualAlarmScheduler.ACTION_FIRE -> startAlarm(alarm)
       RitualAlarmScheduler.ACTION_SNOOZE -> {
         stopAlarm()
-        RitualAlarmScheduler.snooze(this, alarm)
+        RitualAlarmScheduler.snooze(this, alarm, intent.getIntExtra("ritual_alarm_snooze_minutes", 5))
       }
       RitualAlarmScheduler.ACTION_STOP -> stopAlarm()
     }
@@ -39,7 +39,23 @@ class RitualAlarmService : Service() {
     createChannel()
     startForeground(NOTIFICATION_ID, buildNotification(alarm))
     player?.release()
-    player = createAlarmPlayer(alarm.toneUri).also { it.start() }
+    player = createAlarmPlayer(alarm.toneUri).also { alarmPlayer ->
+      alarmPlayer.setOnErrorListener { _, _, _ ->
+        runCatching {
+          alarmPlayer.reset()
+          prepareBundledFallback(alarmPlayer)
+          alarmPlayer.start()
+        }
+        true
+      }
+      runCatching { alarmPlayer.start() }.onFailure {
+        runCatching {
+          alarmPlayer.reset()
+          prepareBundledFallback(alarmPlayer)
+          alarmPlayer.start()
+        }
+      }
+    }
   }
 
   private fun createAlarmPlayer(toneUri: String?): MediaPlayer {
@@ -59,13 +75,17 @@ class RitualAlarmService : Service() {
       result.prepare()
     } catch (_: Exception) {
       result.reset()
-      val descriptor = resources.openRawResourceFd(R.raw.devotional_alarm_fallback)
-        ?: error("Bundled devotional fallback is missing")
-      result.setDataSource(descriptor.fileDescriptor, descriptor.startOffset, descriptor.length)
-      descriptor.close()
-      result.prepare()
+      prepareBundledFallback(result)
     }
     return result
+  }
+
+  private fun prepareBundledFallback(target: MediaPlayer) {
+    val descriptor = resources.openRawResourceFd(R.raw.devotional_alarm_fallback)
+      ?: error("Bundled devotional fallback is missing")
+    target.setDataSource(descriptor.fileDescriptor, descriptor.startOffset, descriptor.length)
+    descriptor.close()
+    target.prepare()
   }
 
   private fun createChannel() {

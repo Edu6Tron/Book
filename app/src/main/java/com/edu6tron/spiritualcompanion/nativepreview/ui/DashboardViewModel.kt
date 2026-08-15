@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ data class DashboardUiState(
   val selectedMediaUri: String? = null,
   val selectedMediaLabel: String? = null,
   val savedLocation: String? = null,
+  val playback: com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState = com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState(),
 )
 
 @HiltViewModel
@@ -34,7 +36,7 @@ class DashboardViewModel @Inject constructor(
   @ApplicationContext private val context: Context,
 ) : ViewModel() {
   val state: StateFlow<DashboardUiState> = repository.observeState()
-    .map { stored ->
+    .combine(player.playback) { stored, playback ->
       DashboardUiState(
         practices = stored.practices,
         favouriteIds = stored.favouriteIds,
@@ -43,6 +45,7 @@ class DashboardViewModel @Inject constructor(
         selectedMediaUri = stored.selectedMediaUri,
         selectedMediaLabel = stored.selectedMediaLabel,
         savedLocation = stored.savedLocation,
+        playback = playback,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
@@ -107,7 +110,11 @@ class DashboardViewModel @Inject constructor(
     player.stop()
   }
 
-  fun playSelectedMedia(uri: String) = player.play(uri)
+  fun playSelectedMedia(uri: String, label: String) = player.play(uri, label)
+
+  fun previewAlarmTone(uri: String?) {
+    if (uri.isNullOrBlank()) player.playBundledFallback() else player.play(uri, "Selected local alarm tone")
+  }
 
   fun saveLocation(location: String) {
     viewModelScope.launch { repository.saveLocation(location) }

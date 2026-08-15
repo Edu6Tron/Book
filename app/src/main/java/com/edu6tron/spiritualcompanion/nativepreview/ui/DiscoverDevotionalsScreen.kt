@@ -1,18 +1,21 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
-import android.content.Intent
-import android.net.Uri
+import android.annotation.SuppressLint
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,9 +29,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.unit.dp
+import android.net.Uri
 
 @Composable
 fun DiscoverDevotionalsScreen(
@@ -36,14 +39,15 @@ fun DiscoverDevotionalsScreen(
   onOpenAartis: () -> Unit,
 ) {
   var query by rememberSaveable { mutableStateOf("") }
-  val context = LocalContext.current
-  val suggestedQueries = listOf("Ganesh Aarti", "Shiva Aarti", "Krishna bhajan", "Devi stotram", "Morning mantra")
+  var submittedQuery by rememberSaveable { mutableStateOf<String?>(null) }
+  val suggestedQueries = listOf("Ganesh Aarti lyrics", "Shiva Aarti", "Krishna bhajan", "Devi stotram", "Morning mantra")
 
-  fun openProviderSearch() {
-    val requested = query.trim().ifBlank { "devotional Aarti lyrics" }
-    val uri = Uri.parse("https://www.youtube.com/results?search_query=${Uri.encode(requested)}")
-    val intent = Intent(Intent.ACTION_VIEW, uri)
-    if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
+  if (submittedQuery != null) {
+    InAppProviderSearch(
+      query = submittedQuery.orEmpty(),
+      onBack = { submittedQuery = null },
+    )
+    return
   }
 
   LazyColumn(
@@ -58,15 +62,15 @@ fun DiscoverDevotionalsScreen(
   ) {
     item {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Discover devotionals", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Search is always started by you. The app does not fetch or refresh online media in the background.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Discover devotionals", style = MaterialTheme.typography.headlineSmall)
+        Text("Search begins only when you tap Search. Nothing is fetched or refreshed in the background.", color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
     item {
       Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-          Text("Search an authorised provider", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-          Text("Open a devotional search in your installed provider or browser. Media from an online provider is never used as an alarm tone.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text("Search online", style = MaterialTheme.typography.titleMedium)
+          Text("Results open inside this app. Online provider media cannot be used as an alarm tone; select local audio for an alarm instead.", color = MaterialTheme.colorScheme.onSurfaceVariant)
           OutlinedTextField(
             value = query,
             onValueChange = { query = it },
@@ -79,8 +83,8 @@ fun DiscoverDevotionalsScreen(
               AssistChip(onClick = { query = suggestion }, label = { Text(suggestion) })
             }
           }
-          Button(onClick = ::openProviderSearch) {
-            Icon(Icons.Outlined.OpenInNew, contentDescription = null)
+          Button(onClick = { submittedQuery = query.trim().ifBlank { "devotional Aarti lyrics" } }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.Search, contentDescription = null)
             Text(" Search online")
           }
         }
@@ -89,11 +93,35 @@ fun DiscoverDevotionalsScreen(
     item {
       Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-          Text("Keep a devotional available offline", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-          Text("For continuous, offline playback and a personal alarm tone, import an audio file you have permission to use. It stays on your device and is managed in the Aartis tab.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text("Keep a devotional available offline", style = MaterialTheme.typography.titleMedium)
+          Text("For uninterrupted offline playback and an alarm tone, choose an audio file you have permission to use. It stays on your device.", color = MaterialTheme.colorScheme.onSurfaceVariant)
           Button(onClick = onOpenAartis) { Text("Open devotional player") }
         }
       }
     }
+  }
+}
+
+@SuppressLint("SetJavaScriptEnabled")
+@Composable
+private fun InAppProviderSearch(query: String, onBack: () -> Unit) {
+  Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Text("Online devotional search", style = MaterialTheme.typography.headlineSmall)
+    Text("Provider content is streamed by the provider and remains separate from local alarm tones.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Button(onClick = onBack) { Text("Back to search") }
+    AndroidView(
+      modifier = Modifier.fillMaxWidth().weight(1f),
+      factory = { context ->
+        WebView(context).apply {
+          settings.javaScriptEnabled = true
+          settings.domStorageEnabled = true
+          settings.allowFileAccess = false
+          settings.allowContentAccess = false
+          settings.cacheMode = WebSettings.LOAD_DEFAULT
+          webViewClient = WebViewClient()
+          loadUrl("https://www.youtube.com/results?search_query=${Uri.encode(query)}")
+        }
+      },
+    )
   }
 }

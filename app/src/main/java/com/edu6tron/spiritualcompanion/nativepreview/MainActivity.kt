@@ -45,6 +45,7 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
     onPauseAlarm = viewModel::pauseAlarm,
     onResumeAlarm = viewModel::resumeAlarm,
     onPlayFallbackTone = viewModel::playFallbackTone,
+    onPreviewAlarmTone = viewModel::previewAlarmTone,
     onStopTonePreview = viewModel::stopTonePreview,
     onSaveSelectedMedia = viewModel::saveSelectedMedia,
     onClearSelectedMedia = viewModel::clearSelectedMedia,

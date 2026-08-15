@@ -65,6 +65,7 @@ fun DashboardScreen(
   onPauseAlarm: (RitualAlarmEntity, Int) -> Unit,
   onResumeAlarm: (RitualAlarmEntity) -> Unit,
   onPlayFallbackTone: () -> Unit,
+  onPreviewAlarmTone: (String?) -> Unit,
   onStopTonePreview: () -> Unit,
 ) {
   LazyColumn(
@@ -89,6 +90,7 @@ fun DashboardScreen(
         onPause = onPauseAlarm,
         onResume = onResumeAlarm,
         onPlayFallbackTone = onPlayFallbackTone,
+        onPreviewTone = onPreviewAlarmTone,
         onStopTonePreview = onStopTonePreview,
       )
     }

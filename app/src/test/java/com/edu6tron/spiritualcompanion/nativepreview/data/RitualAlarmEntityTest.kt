@@ -1,6 +1,7 @@
 package com.edu6tron.spiritualcompanion.nativepreview.data
 
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -20,5 +21,15 @@ class RitualAlarmEntityTest {
     assertTrue(alarm.copy(pauseUntilMillis = now + 1).isPaused(now))
     assertFalse(alarm.copy(pauseUntilMillis = now).isPaused(now))
     assertFalse(alarm.copy(pauseUntilMillis = now - 1).isPaused(now))
+  }
+
+  @Test
+  fun selectedLocalToneIsRetainedWhenAnAlarmIsEdited() {
+    val selectedTone = "content://media/external/audio/media/42"
+    val edited = alarm.copy(hour = 5, minute = 15, toneUri = selectedTone)
+
+    assertEquals(5, edited.hour)
+    assertEquals(15, edited.minute)
+    assertEquals(selectedTone, edited.toneUri)
   }
 }
