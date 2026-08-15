@@ -42,6 +42,12 @@ pnpm install
 pnpm dev
 ```
 
+### Native Android Preview APK
+
+The repository now also contains a separate Kotlin and Jetpack Compose proof-of-foundation under [`native-android/`](native-android/). It includes Room, Hilt, Gradle, and Media3/ExoPlayer, and is kept separate so it does not replace the Expo application.
+
+GitHub Actions builds an unsigned debug APK whenever native Android files change or when you manually run **Native Android APK** from the Actions tab. Download the `spiritual-companion-native-debug-apk` workflow artifact after a successful run. See [`native-android/README.md`](native-android/README.md) for local build instructions and scope.
+
 ---
 
 ## 🛡️ License & Provenance

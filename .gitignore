@@ -42,6 +42,10 @@ app-example
 /ios
 /android
 
+# Native Android preview build outputs
+/native-android/.gradle/
+/native-android/app/build/
+
 # IDE
 .vscode/
 .idea/
