@@ -4,18 +4,19 @@ The repository publishes installable debug candidates through GitHub Releases. E
 
 | Version | Status | APK | Verification |
 |---|---|---|---|
-| [`v1.1.2-rc.5`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.2-rc.5) | Current scroll-optimised device-test candidate | [`spiritual-companion-native-v1.1.2-rc.5-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.1.2-rc.5/spiritual-companion-native-v1.1.2-rc.5-debug.apk) | Native unit tests, Android lint, debug assembly, and independent GitHub Actions validation passed. |
+| [`v1.1.3-rc.6`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.3-rc.6) | Current clock-picker device-test candidate | [`spiritual-companion-native-v1.1.3-rc.6-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.1.3-rc.6/spiritual-companion-native-v1.1.3-rc.6-debug.apk) | Native unit tests, Android lint, debug assembly, and independent GitHub Actions validation passed. |
+| [`v1.1.2-rc.5`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.2-rc.5) | Prior scroll-optimised candidate | GitHub Release asset | SHA-256 is published with the release. |
 | [`v1.1.1-rc.4`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.1-rc.4) | Prior device-hardening candidate | GitHub Release asset | SHA-256 is published with the release. |
 | [`v1.1.0-rc.3`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.0-rc.3) | Prior feature-completion candidate | GitHub Release asset | SHA-256 is published with the release. |
 
-> `v1.1.2-rc.5` is an installable **debug** release candidate for device testing. A Play Store-ready signed APK or AAB is deliberately not published until the repository owner configures the protected GitHub Actions signing secrets described in [Release signing](RELEASE_SIGNING.md).
+> `v1.1.3-rc.6` is an installable **debug** release candidate for device testing. A Play Store-ready signed APK or AAB is deliberately not published until the repository owner configures the protected GitHub Actions signing secrets described in [Release signing](RELEASE_SIGNING.md).
 
 ## Verify an APK
 
 On macOS or Linux, run the following from the directory containing the downloaded files.
 
 ```bash
-sha256sum -c spiritual-companion-native-v1.1.2-rc.5-debug.apk.sha256
+sha256sum -c spiritual-companion-native-v1.1.3-rc.6-debug.apk.sha256
 ```
 
 The command must report `OK` before installation. Android may require the user to allow installation from the browser or file manager used to open the APK.
