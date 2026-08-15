@@ -40,6 +40,9 @@ jobs:
       - name: Grant Gradle wrapper permission
         run: chmod +x gradlew
 
+      - name: Run native unit tests
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+
       - name: Assemble native Android debug APK
         run: ./gradlew --no-daemon :app:assembleDebug
 

@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
+import com.edu6tron.spiritualcompanion.nativepreview.util.PracticeMath
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -187,7 +188,7 @@ private fun DailyEntryCard(japaCount: Int, onIncrementJapa: () -> Unit) {
     Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
       Text("Japa today", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       Text("$japaCount", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
-      Text("${108 - (japaCount % 108)} repetitions to your next 108", color = MaterialTheme.colorScheme.onSecondaryContainer)
+      Text("${PracticeMath.remainingToNextMala(japaCount)} repetitions to your next 108", color = MaterialTheme.colorScheme.onSecondaryContainer)
       Button(onClick = onIncrementJapa, modifier = Modifier.fillMaxWidth()) { Text("Count one repetition") }
     }
   }
