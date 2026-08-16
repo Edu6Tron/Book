@@ -36,3 +36,6 @@
 - [x] Replace the fragile embedded provider experience with a bounded, user-initiated native discovery surface that remains usable when provider pages fail or open account menus.
 - [x] Refine high-impact navigation, feedback, and daily-use interactions without introducing background network work, GPS, or scroll-time overhead.
 - [x] Add regression coverage and publish a validated native candidate for the discovery and interaction refinements.
+- [x] Audit the remaining alarm, daily-guidance, and navigation flows for the next highest-value offline-first reliability and usability improvement.
+- [x] Implement the selected daily-use quality improvement without introducing background network work, GPS, private logging, or scroll-time overhead.
+- [ ] Add regression coverage and publish a validated native candidate for the next reliability and usability improvement.

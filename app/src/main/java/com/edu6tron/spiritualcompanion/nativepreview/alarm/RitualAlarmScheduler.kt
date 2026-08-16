@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Build
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.days
-import java.util.Calendar
 
 object RitualAlarmScheduler {
   const val ACTION_FIRE = "com.edu6tron.spiritualcompanion.nativepreview.alarm.FIRE"
@@ -30,17 +29,8 @@ object RitualAlarmScheduler {
       scheduleAt(context, alarm, pauseUntil, ACTION_RESUME_AFTER_PAUSE)
       return canScheduleExactAlarms(context)
     }
-    val now = Calendar.getInstance()
-    val candidate = (0..7).mapNotNull { offset ->
-      Calendar.getInstance().apply {
-        add(Calendar.DATE, offset)
-        set(Calendar.HOUR_OF_DAY, alarm.hour)
-        set(Calendar.MINUTE, alarm.minute)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-      }.takeIf { it.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY in alarm.days() && it.after(now) }
-    }.firstOrNull() ?: return false
-    scheduleAt(context, alarm, candidate.timeInMillis, ACTION_FIRE)
+    val nextTriggerAt = RitualAlarmTiming.nextScheduledAt(alarm) ?: return false
+    scheduleAt(context, alarm, nextTriggerAt, ACTION_FIRE)
     return canScheduleExactAlarms(context)
   }
 

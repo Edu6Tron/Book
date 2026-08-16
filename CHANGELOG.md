@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.1.6-rc.9 — 15 August 2026
+
+Ritual alarms now show an explicit **Next** date and time in the alarm list, using the same offline repeat-day calculation as the exact AlarmManager scheduling path. A paused alarm clearly shows its resume time, and a disabled alarm clearly reports that it is turned off. This makes it easier to verify an alarm before putting the phone away.
+
+The next-occurrence calculation is isolated as a deterministic timing model shared by the schedule path and interface, with tests for same-day, future-day, paused, and disabled states. It does not add network work, GPS access, user-data logging, or recurring background activity.
+
 ## v1.1.5-rc.8 — 15 August 2026
 
 Online devotional discovery no longer embeds a full provider website inside the app. A search now opens only when the user taps the action, and it uses a browser-managed secure app tab with a visible toolbar. This prevents account menus, provider overlays, and page layouts from being clipped by the app’s navigation or covering the bottom tabs. Closing the provider tab returns the user directly to Discover.

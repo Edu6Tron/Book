@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
+import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmTiming
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.days
 import com.edu6tron.spiritualcompanion.nativepreview.data.isPaused
@@ -95,6 +96,7 @@ fun RitualAlarmSection(
         Button(onClick = { creating = true }, modifier = Modifier.fillMaxWidth()) { Text("Add Brahma Muhurta alarm") }
       } else {
         alarms.forEach { alarm ->
+          val nextScheduledAt = RitualAlarmTiming.nextScheduledAt(alarm)
           Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
               Text("%02d:%02d".format(alarm.hour, alarm.minute), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -102,6 +104,10 @@ fun RitualAlarmSection(
               Text("${if (alarm.days().size == 7) "Every day" else "${alarm.days().size} days selected"} • ${alarmToneSummary(alarm.toneUri)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
               if (alarm.isPaused()) {
                 Text("Paused until ${DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(alarm.pauseUntilMillis!!))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+              } else if (!alarm.enabled) {
+                Text("Turned off", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+              } else if (nextScheduledAt != null) {
+                Text("Next: ${DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(nextScheduledAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
               }
             }
             Switch(checked = alarm.enabled, onCheckedChange = { onSetEnabled(alarm, it) })
