@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,9 +21,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -118,20 +119,23 @@ fun AartiLibraryScreen(
       end = 20.dp,
       bottom = contentPadding.calculateBottomPadding() + 20.dp,
     ),
-    verticalArrangement = Arrangement.spacedBy(12.dp),
+    verticalArrangement = Arrangement.spacedBy(14.dp),
   ) {
     item {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text("OFFLINE LYRICS & AUDIO", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
         Text("Aarti library", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Curated devotional lyrics and your downloaded audio, available offline", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Curated lyrics and your chosen local audio, ready whenever you need them", color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
     item {
       Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = RoundedCornerShape(28.dp),
       ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          Text("YOUR LOCAL PLAYER", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
           Text("Devotional player", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
           Text(
             selectedMediaLabel ?: "Choose an audio file already stored on your device. Its access is retained for offline playback.",
@@ -163,8 +167,10 @@ fun AartiLibraryScreen(
       Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        shape = RoundedCornerShape(28.dp),
       ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          Text("PERSONALISE THE LIBRARY", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
           Text("Aartis for your place", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
           Text(
             "Optionally save a city or state to guide the offline library. Your location is entered by you; this app does not use GPS.",
@@ -210,7 +216,7 @@ fun AartiLibraryScreen(
         onValueChange = { query = it },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
-        label = { Text("Search Aartis or deity") },
+        label = { Text("Search Aartis, deity, or language") },
       )
     }
     item {
@@ -220,7 +226,7 @@ fun AartiLibraryScreen(
             onClick = { category = chip },
             label = { Text(chip) },
             leadingIcon = if (chip == category) ({
-              Icon(Icons.Outlined.MenuBook, contentDescription = null, modifier = Modifier.size(16.dp))
+              Icon(Icons.AutoMirrored.Outlined.MenuBook, contentDescription = null, modifier = Modifier.size(16.dp))
             }) else null,
           )
         }
@@ -228,7 +234,11 @@ fun AartiLibraryScreen(
     }
     if (filtered.isEmpty()) {
       item {
-        Card(modifier = Modifier.fillMaxWidth()) {
+        Card(
+          modifier = Modifier.fillMaxWidth(),
+          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+          shape = RoundedCornerShape(24.dp),
+        ) {
           Text("No Aartis match this search. Try a deity, language, or category.", modifier = Modifier.padding(20.dp))
         }
       }
@@ -266,9 +276,10 @@ private fun AartiListCard(
   Card(
     modifier = Modifier.fillMaxWidth().clickable(onClick = onOpen),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    shape = RoundedCornerShape(24.dp),
   ) {
     Row(
-      modifier = Modifier.padding(16.dp),
+      modifier = Modifier.padding(horizontal = 18.dp, vertical = 17.dp),
       verticalAlignment = Alignment.CenterVertically,
     ) {
       Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {

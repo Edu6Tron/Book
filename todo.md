@@ -65,3 +65,6 @@
 - [x] Audit the newly released routine experience for the highest-impact devotional-flow, personal-control, and usability refinements.
 - [x] Implement and test the selected offline-first routine refinements without weakening alarm reliability or privacy boundaries.
 - [x] Validate and publish an improved native Android devotional-routine release.
+- [x] Audit the shared Compose theme, navigation shell, and high-frequency Today and routine screens for visual hierarchy and interaction refinements.
+- [x] Implement a more polished, accessible devotional visual system across the priority native screens without adding network work or scroll-time overhead.
+- [ ] Validate and publish the refined native Android interface.

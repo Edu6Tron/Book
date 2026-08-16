@@ -1,5 +1,7 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,11 +21,12 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,8 +38,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalRoutineAnchor
 import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalRoutineDefinition
 import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalRoutineStep
@@ -92,7 +98,7 @@ fun DevotionalRoutineScreen(
       end = 20.dp,
       bottom = contentPadding.calculateBottomPadding() + 20.dp,
     ),
-    verticalArrangement = Arrangement.spacedBy(14.dp),
+    verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     item { RoutineHeader(onNavigateBack) }
     item { RoutineTimingCard(snapshot = panchang, now = now, onOpenAlarmTools = onOpenAlarmTools) }
@@ -147,10 +153,16 @@ private fun RoutineHeader(onNavigateBack: () -> Unit) {
     modifier = Modifier.fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    IconButton(onClick = onNavigateBack) {
+    FilledTonalIconButton(onClick = onNavigateBack) {
       Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back to Today")
     }
-    Column(modifier = Modifier.padding(start = 6.dp)) {
+    Column(modifier = Modifier.padding(start = 12.dp)) {
+      Text(
+        "DAILY DEVOTIONAL RHYTHM",
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+        letterSpacing = 0.8.sp,
+      )
       Text("My routines", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
       Text("A quiet, timing-aware guide for your day", color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -165,9 +177,19 @@ private fun RoutineTimingCard(
 ) {
   Card(
     modifier = Modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+    shape = RoundedCornerShape(30.dp),
   ) {
-    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+      modifier = Modifier
+        .background(
+          Brush.linearGradient(
+            listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer),
+          ),
+        )
+        .padding(20.dp),
+      verticalArrangement = Arrangement.spacedBy(9.dp),
+    ) {
       Text("Today’s anchors", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       TimingLine("Brahma Muhurta begins", snapshot.brahmaMuhurtaStart.routineTime())
       TimingLine("Sunset estimate", snapshot.sunset.routineTime())
@@ -226,9 +248,16 @@ private fun RoutineDefinitionCard(
   val isComplete = completedCount == definition.steps.size
   Card(
     modifier = Modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    colors = CardDefaults.cardColors(
+      containerColor = if (definition.anchor == DevotionalRoutineAnchor.SUNSET) {
+        MaterialTheme.colorScheme.surfaceContainerLow
+      } else {
+        MaterialTheme.colorScheme.secondaryContainer
+      },
+    ),
+    shape = RoundedCornerShape(28.dp),
   ) {
-    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
       Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(26.dp), tint = MaterialTheme.colorScheme.primary)
         Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
@@ -294,12 +323,18 @@ private fun RoutineStepRow(
 ) {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
     Checkbox(checked = completed, onCheckedChange = onCompletedChange)
-    Text(
-      number.toString(),
-      modifier = Modifier.size(28.dp).padding(top = 4.dp, start = 4.dp),
-      style = MaterialTheme.typography.labelLarge,
-      color = MaterialTheme.colorScheme.primary,
-    )
+    Surface(
+      modifier = Modifier.padding(start = 4.dp, end = 8.dp),
+      shape = RoundedCornerShape(10.dp),
+      color = if (completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer,
+    ) {
+      Text(
+        number.toString(),
+        modifier = Modifier.size(28.dp).padding(top = 5.dp),
+        style = MaterialTheme.typography.labelLarge,
+        color = if (completed) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer,
+      )
+    }
     Column(modifier = Modifier.weight(1f)) {
       Text(step.title, fontWeight = FontWeight.SemiBold)
       Text(step.detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -327,8 +362,9 @@ private fun SpecialDayGuidanceCard(
   Card(
     modifier = Modifier.fillMaxWidth(),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+    shape = RoundedCornerShape(28.dp),
   ) {
-    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
       Text(guidance.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       Text(guidance.detail, color = MaterialTheme.colorScheme.onTertiaryContainer)
       guidance.suggestedAartiIds.forEach { aartiId ->
@@ -345,7 +381,11 @@ private fun SpecialDayGuidanceCard(
 
 @Composable
 private fun PersonalSuggestionCard() {
-  Card(modifier = Modifier.fillMaxWidth()) {
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    shape = RoundedCornerShape(24.dp),
+  ) {
     Text(
       "These are personal routine suggestions, not ritual instructions. Adapt the order, language, and duration to your tradition, family practice, and local published Panchang.",
       modifier = Modifier.padding(18.dp),

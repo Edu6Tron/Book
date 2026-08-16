@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
@@ -84,7 +85,10 @@ fun SpiritualCompanionApp(
     snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     bottomBar = {
       if (selectedTab != NativeTab.SETTINGS && selectedTab != NativeTab.ROUTINE) {
-        NavigationBar {
+        NavigationBar(
+          containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
+          tonalElevation = 10.dp,
+        ) {
           listOf(
             Triple(NativeTab.TODAY, Icons.Outlined.Home, "Today"),
             Triple(NativeTab.AARTIS, Icons.Outlined.LibraryMusic, "Aartis"),
@@ -97,7 +101,13 @@ fun SpiritualCompanionApp(
               onClick = { selectedTab = tab },
               icon = { Icon(icon, contentDescription = label) },
               label = { Text(label) },
-              colors = NavigationBarItemDefaults.colors(),
+              colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                selectedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                indicatorColor = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
+                unselectedIconColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                unselectedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+              ),
             )
           }
         }

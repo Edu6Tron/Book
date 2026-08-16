@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.4-rc.18 — 16 August 2026
+
+This release gives the native app a calmer and more intentional devotional visual system. The shared warm palette now distinguishes dawn, evening, practice, and supporting surfaces with clearer contrast in both light and dark modes. A dedicated serif-led display hierarchy makes the devotional clock, routine names, and lyric-led content easier to scan without reducing the user-selected reading-comfort scaling.
+
+The **Today** experience now opens with a more expressive devotional clock, a concise Saka-date context line, clearer sacred-window typography, and visibly grouped cards for routines, japa, exploration, and daily practice. Bottom navigation has a more deliberate selected state, while the settings and routine back actions use clearer tonal controls.
+
+**My routines** now has a stronger daily-rhythm header, a warm anchor-time panel, more distinct morning and evening routine surfaces, and numbered completion markers that visibly acknowledge each completed step. The Aarti library receives matching hierarchy across its local player, optional city guidance, search, and lyric-entry cards. These changes are Compose-only: no network activity, background work, private-data logging, or scroll-time data loading was added.
+
 ## v1.3.3-rc.17 — 16 August 2026
 
 **My routines** now feels more like a daily companion than a static reading list. It shows the next upcoming personal moment from the local Brahma Muhurta and sunset estimates, including a calm time-until label that refreshes on-device. The timing card also has a direct **Open reminder controls** action, which returns to the established exact-alarm controls instead of leaving the reminder path implicit.

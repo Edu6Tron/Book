@@ -1,6 +1,8 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,16 +21,16 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -187,7 +190,7 @@ private fun PanchangSection(savedLocation: String?) {
   val now by produceState(initialValue = LocalDateTime.now()) {
     while (true) {
       value = LocalDateTime.now()
-      delay(1_000)
+      delay(30_000L)
     }
   }
   val panchang = remember(savedLocation, now.toLocalDate()) {
@@ -202,11 +205,12 @@ private fun PanchangSection(savedLocation: String?) {
 @Composable
 private fun DashboardHeading(onOpenSettings: () -> Unit) {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+      Text("TODAY", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
       Text("Spiritual Companion", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-      Text("Your quiet daily space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      Text("A quieter rhythm for the day ahead", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    IconButton(onClick = onOpenSettings) {
+    FilledTonalIconButton(onClick = onOpenSettings) {
       Icon(Icons.Outlined.Settings, contentDescription = "Open settings")
     }
   }
@@ -216,28 +220,48 @@ private fun DashboardHeading(onOpenSettings: () -> Unit) {
 private fun PanchangHero(now: LocalDateTime, panchang: PanchangSnapshot) {
   Card(
     modifier = Modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-    shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+    colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+    shape = RoundedCornerShape(32.dp),
   ) {
     Column(
-      modifier = Modifier.padding(24.dp),
+      modifier = Modifier
+        .background(
+          Brush.linearGradient(
+            listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer),
+          ),
+        )
+        .padding(horizontal = 24.dp, vertical = 26.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.spacedBy(7.dp),
     ) {
-      Icon(Icons.Outlined.AutoAwesome, contentDescription = null, modifier = Modifier.size(28.dp), tint = MaterialTheme.colorScheme.primary)
-      Spacer(Modifier.height(8.dp))
-      Text(now.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault())), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
+      Text("DEVOTIONAL CLOCK", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+      Icon(Icons.Outlined.AutoAwesome, contentDescription = null, modifier = Modifier.size(26.dp), tint = MaterialTheme.colorScheme.primary)
+      Text(now.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault())), style = MaterialTheme.typography.displayLarge, fontWeight = FontWeight.Bold)
       Text(now.format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.getDefault())), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
-      Spacer(Modifier.height(8.dp))
-      AssistChip(onClick = {}, label = { Text("${panchang.paksha} · ${panchang.tithi}") })
-      Text(panchang.placeLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+      Surface(
+        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.08f),
+        shape = RoundedCornerShape(50.dp),
+      ) {
+        Text(
+          "${panchang.paksha} · ${panchang.tithi}",
+          modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+      }
+      Text("${panchang.placeLabel} · ${panchang.sakaDate}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
     }
   }
 }
 
 @Composable
 private fun TimingCard(panchang: PanchangSnapshot) {
-  Card(modifier = Modifier.fillMaxWidth()) {
-    Column(modifier = Modifier.padding(18.dp)) {
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    shape = RoundedCornerShape(28.dp),
+  ) {
+    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
       Text("Sacred windows", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       Text(
         if (panchang.usesRecognisedCity) "Offline astronomical estimate for ${panchang.placeLabel}"
@@ -265,9 +289,9 @@ private fun TimingCard(panchang: PanchangSnapshot) {
 
 @Composable
 private fun TimingRow(label: String, value: String) {
-  Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-    Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Text(value, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 12.dp), textAlign = TextAlign.End)
+  Row(modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+    Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(value, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 12.dp), textAlign = TextAlign.End)
   }
 }
 
@@ -293,9 +317,11 @@ private fun RoutineEntryCard(
   Card(
     modifier = Modifier.fillMaxWidth(),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+    shape = RoundedCornerShape(28.dp),
   ) {
-    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-      Text("My routines", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+      Text("DAILY RHYTHM", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
+      Text("My routines", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
       Text(
         "Sunset ${panchang.sunset.asDisplay()} · Brahma Muhurta ${panchang.brahmaMuhurtaStart.asDisplay()}",
         style = MaterialTheme.typography.bodyMedium,
@@ -308,7 +334,7 @@ private fun RoutineEntryCard(
         color = MaterialTheme.colorScheme.onTertiaryContainer,
       )
       TextButton(onClick = onOpenRoutines, modifier = Modifier.fillMaxWidth()) {
-        Text("Open routines")
+        Text("Open my routines")
       }
     }
   }
@@ -316,8 +342,13 @@ private fun RoutineEntryCard(
 
 @Composable
 private fun DailyEntryCard(japaCount: Int, onIncrementJapa: () -> Unit) {
-  Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
-    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+    shape = RoundedCornerShape(28.dp),
+  ) {
+    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+      Text("A GENTLE COUNT", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
       Text("Japa today", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       Text("$japaCount", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
       Text("${PracticeMath.remainingToNextMala(japaCount)} repetitions to your next 108", color = MaterialTheme.colorScheme.onSecondaryContainer)
@@ -332,8 +363,8 @@ private fun ExploreCard(
   onOpenFestivals: () -> Unit,
   onOpenDiscover: () -> Unit,
 ) {
-  ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+  ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp)) {
+    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
       Text("Continue your practice", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         OutlinedButton(onClick = onOpenAartis, modifier = Modifier.weight(1f)) {
@@ -358,8 +389,12 @@ private fun ExploreCard(
 
 @Composable
 private fun PracticeCard(practices: List<DailyPractice>, onTogglePractice: (String) -> Unit) {
-  Card(modifier = Modifier.fillMaxWidth()) {
-    Column(modifier = Modifier.padding(18.dp)) {
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    shape = RoundedCornerShape(28.dp),
+  ) {
+    Column(modifier = Modifier.padding(20.dp)) {
       Text("Today’s practice", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       Spacer(Modifier.height(8.dp))
       practices.forEach { practice ->
