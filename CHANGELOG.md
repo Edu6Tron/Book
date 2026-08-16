@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.1.5-rc.8 — 15 August 2026
+
+Online devotional discovery no longer embeds a full provider website inside the app. A search now opens only when the user taps the action, and it uses a browser-managed secure app tab with a visible toolbar. This prevents account menus, provider overlays, and page layouts from being clipped by the app’s navigation or covering the bottom tabs. Closing the provider tab returns the user directly to Discover.
+
+The Discover screen now has clear privacy and offline guidance, a recoverable no-browser state, and deterministic URL-policy coverage. The Today dashboard also has a direct Discover action so online search is reachable as an intentional next step without hiding the existing offline Aarti and festival journeys.
+
 ## v1.1.4-rc.7 — 15 August 2026
 
 The Practice tab now includes a lightweight offline daily reflection with a practical action for the day. It has no network dependency, no location tracking, and no background refresh work.

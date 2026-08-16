@@ -98,6 +98,7 @@ fun SpiritualCompanionApp(
         onIncrementJapa = { onIncrementJapa(1) },
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
         onOpenFestivals = { selectedTab = NativeTab.FESTIVALS },
+        onOpenDiscover = { selectedTab = NativeTab.DISCOVER },
         onSaveAlarm = onSaveAlarm,
         onSetAlarmEnabled = onSetAlarmEnabled,
         onDeleteAlarm = onDeleteAlarm,

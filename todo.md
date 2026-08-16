@@ -32,3 +32,7 @@
 - [x] Audit daily practice, dashboard, and navigation flows for the next offline-first devotional guidance and reading-comfort improvements.
 - [x] Add a lightweight daily devotional guidance experience and user-controlled reading-comfort settings without introducing network, GPS, or scroll-time overhead.
 - [x] Add regression coverage and publish a validated native candidate for the daily-guidance and settings improvements.
+- [x] Audit the Discover tab and adjacent daily-use flows for clipped provider content, unbounded web interactions, weak recovery states, and high-impact usability defects.
+- [x] Replace the fragile embedded provider experience with a bounded, user-initiated native discovery surface that remains usable when provider pages fail or open account menus.
+- [x] Refine high-impact navigation, feedback, and daily-use interactions without introducing background network work, GPS, or scroll-time overhead.
+- [ ] Add regression coverage and publish a validated native candidate for the discovery and interaction refinements.

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.LibraryMusic
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -27,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -55,6 +57,7 @@ fun DashboardScreen(
   onIncrementJapa: () -> Unit,
   onOpenAartis: () -> Unit,
   onOpenFestivals: () -> Unit,
+  onOpenDiscover: () -> Unit,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
   onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
@@ -90,7 +93,7 @@ fun DashboardScreen(
       )
     }
     item(contentType = "japa") { DailyEntryCard(content.japaCount, onIncrementJapa) }
-    item { ExploreCard(onOpenAartis, onOpenFestivals) }
+    item { ExploreCard(onOpenAartis, onOpenFestivals, onOpenDiscover) }
     item(contentType = "practice") { PracticeCard(content.practices, onTogglePractice) }
   }
 }
@@ -194,7 +197,11 @@ private fun DailyEntryCard(japaCount: Int, onIncrementJapa: () -> Unit) {
 }
 
 @Composable
-private fun ExploreCard(onOpenAartis: () -> Unit, onOpenFestivals: () -> Unit) {
+private fun ExploreCard(
+  onOpenAartis: () -> Unit,
+  onOpenFestivals: () -> Unit,
+  onOpenDiscover: () -> Unit,
+) {
   ElevatedCard(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
       Text("Continue your practice", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -209,6 +216,11 @@ private fun ExploreCard(onOpenAartis: () -> Unit, onOpenFestivals: () -> Unit) {
           Spacer(Modifier.size(6.dp))
           Text("Festivals")
         }
+      }
+      TextButton(onClick = onOpenDiscover, modifier = Modifier.fillMaxWidth()) {
+        Icon(Icons.Outlined.Search, contentDescription = null)
+        Spacer(Modifier.size(6.dp))
+        Text("Discover devotionals online")
       }
     }
   }
