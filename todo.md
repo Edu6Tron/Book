@@ -51,4 +51,4 @@
 - [x] Add regression coverage and publish a validated native candidate for the Settings experience.
 - [x] Audit exact-alarm readiness signals, dashboard entry points, and GitHub Actions maintenance warnings.
 - [x] Add an actionable offline ritual-alarm readiness summary with device-settings recovery guidance and maintain the release workflow actions.
-- [ ] Add regression coverage and publish a validated native candidate for alarm readiness and workflow maintenance.
+- [x] Add regression coverage and publish a validated native candidate for alarm readiness and workflow maintenance.
