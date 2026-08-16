@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.1.4-rc.7 — 15 August 2026
+
+The Practice tab now includes a lightweight offline daily reflection with a practical action for the day. It has no network dependency, no location tracking, and no background refresh work.
+
+Reading comfort is now controlled directly from the Practice tab. Choose Compact, Standard, or Large text; the preference is persisted locally and adjusts the app’s devotional, festival, and practice reading typography without adding a new navigation tab or expensive scrolling behaviour.
+
+Deterministic tests now cover daily-guidance rotation and safe restoration of the saved reading-comfort preference.
+
 ## v1.1.3-rc.6 — 15 August 2026
 
 The ritual-alarm editor now uses a proper, touch-friendly analogue clock picker instead of long horizontal hour and minute strips. The selected time is prominent, opens the clock in one tap, and changes only after the user confirms it. The editor retains practical one-tap actions for the current time and the 04:30 Brahma Muhurta preset, together with an accessible description of the selected time.

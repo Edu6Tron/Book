@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 
 private enum class NativeTab(val title: String) {
@@ -55,6 +56,7 @@ fun SpiritualCompanionApp(
   onPlaySelectedMedia: (String, String) -> Unit,
   onSaveLocation: (String) -> Unit,
   onClearLocation: () -> Unit,
+  onSaveReadingComfort: (ReadingComfort) -> Unit,
   onDismissNotice: () -> Unit,
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
@@ -131,6 +133,8 @@ fun SpiritualCompanionApp(
         onTogglePractice = onTogglePractice,
         onIncrementJapa = onIncrementJapa,
         onResetJapa = onResetJapa,
+        readingComfort = state.content.readingComfort,
+        onSaveReadingComfort = onSaveReadingComfort,
       )
     }
   }

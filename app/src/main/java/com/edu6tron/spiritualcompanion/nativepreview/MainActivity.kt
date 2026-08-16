@@ -21,11 +21,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {
-      SpiritualCompanionNativeTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-          SpiritualCompanionRoot()
-        }
-      }
+      SpiritualCompanionRoot()
     }
   }
 }
@@ -33,25 +29,30 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel()) {
   val state by viewModel.state.collectAsStateWithLifecycle()
-  SpiritualCompanionApp(
-    state = state,
-    onTogglePractice = viewModel::togglePractice,
-    onIncrementJapa = viewModel::incrementJapa,
-    onResetJapa = viewModel::resetJapa,
-    onToggleFavourite = viewModel::toggleFavourite,
-    onSaveAlarm = viewModel::saveAlarm,
-    onSetAlarmEnabled = viewModel::setAlarmEnabled,
-    onDeleteAlarm = viewModel::deleteAlarm,
-    onPauseAlarm = viewModel::pauseAlarm,
-    onResumeAlarm = viewModel::resumeAlarm,
-    onPlayFallbackTone = viewModel::playFallbackTone,
-    onPreviewAlarmTone = viewModel::previewAlarmTone,
-    onStopTonePreview = viewModel::stopTonePreview,
-    onSaveSelectedMedia = viewModel::saveSelectedMedia,
-    onClearSelectedMedia = viewModel::clearSelectedMedia,
-    onPlaySelectedMedia = viewModel::playSelectedMedia,
-    onSaveLocation = viewModel::saveLocation,
-    onClearLocation = viewModel::clearLocation,
-    onDismissNotice = viewModel::dismissNotice,
-  )
+  SpiritualCompanionNativeTheme(readingComfort = state.content.readingComfort) {
+    Surface(color = MaterialTheme.colorScheme.background) {
+      SpiritualCompanionApp(
+        state = state,
+        onTogglePractice = viewModel::togglePractice,
+        onIncrementJapa = viewModel::incrementJapa,
+        onResetJapa = viewModel::resetJapa,
+        onToggleFavourite = viewModel::toggleFavourite,
+        onSaveAlarm = viewModel::saveAlarm,
+        onSetAlarmEnabled = viewModel::setAlarmEnabled,
+        onDeleteAlarm = viewModel::deleteAlarm,
+        onPauseAlarm = viewModel::pauseAlarm,
+        onResumeAlarm = viewModel::resumeAlarm,
+        onPlayFallbackTone = viewModel::playFallbackTone,
+        onPreviewAlarmTone = viewModel::previewAlarmTone,
+        onStopTonePreview = viewModel::stopTonePreview,
+        onSaveSelectedMedia = viewModel::saveSelectedMedia,
+        onClearSelectedMedia = viewModel::clearSelectedMedia,
+        onPlaySelectedMedia = viewModel::playSelectedMedia,
+        onSaveLocation = viewModel::saveLocation,
+        onClearLocation = viewModel::clearLocation,
+        onSaveReadingComfort = viewModel::saveReadingComfort,
+        onDismissNotice = viewModel::dismissNotice,
+      )
+    }
+  }
 }

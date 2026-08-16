@@ -13,21 +13,32 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.edu6tron.spiritualcompanion.nativepreview.data.DailyGuidance
+import com.edu6tron.spiritualcompanion.nativepreview.data.NativeDailyGuidance
+import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 
 @Composable
 fun PracticeScreen(
@@ -36,7 +47,11 @@ fun PracticeScreen(
   onTogglePractice: (String) -> Unit,
   onIncrementJapa: (Int) -> Unit,
   onResetJapa: () -> Unit,
+  readingComfort: ReadingComfort,
+  onSaveReadingComfort: (ReadingComfort) -> Unit,
 ) {
+  val dailyGuidance = remember { NativeDailyGuidance.forToday() }
+  var showReadingComfort by remember { mutableStateOf(false) }
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(
@@ -53,7 +68,11 @@ fun PracticeScreen(
         Text("Small repeatable acts, kept on this device", color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
+    item(contentType = "daily-guidance") { DailyGuidanceCard(dailyGuidance) }
     item(contentType = "japa") { JapaCounterCard(content.japaCount, onIncrementJapa, onResetJapa) }
+    item(contentType = "reading-comfort") {
+      ReadingComfortCard(readingComfort = readingComfort, onOpen = { showReadingComfort = true })
+    }
     item { Text("Today’s checklist", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) }
     items(content.practices, key = { it.id }, contentType = { "practice" }) { practice ->
       Card(modifier = Modifier.fillMaxWidth()) {
@@ -68,6 +87,72 @@ fun PracticeScreen(
       }
     }
   }
+  if (showReadingComfort) {
+    ReadingComfortDialog(
+      selected = readingComfort,
+      onSelect = {
+        onSaveReadingComfort(it)
+        showReadingComfort = false
+      },
+      onDismiss = { showReadingComfort = false },
+    )
+  }
+}
+
+@Composable
+private fun DailyGuidanceCard(guidance: DailyGuidance) {
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+  ) {
+    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+      Text("Daily reflection", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
+      Text(guidance.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+      Text(guidance.reflection, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+      Text("Try this: ${guidance.smallAction}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+    }
+  }
+}
+
+@Composable
+private fun ReadingComfortCard(readingComfort: ReadingComfort, onOpen: () -> Unit) {
+  Card(modifier = Modifier.fillMaxWidth()) {
+    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+      Icon(Icons.Outlined.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+      Spacer(Modifier.size(12.dp))
+      Column(modifier = Modifier.weight(1f)) {
+        Text("Reading comfort", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text("Text size: ${readingComfort.label}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      }
+      OutlinedButton(onClick = onOpen) { Text("Adjust") }
+    }
+  }
+}
+
+@Composable
+private fun ReadingComfortDialog(
+  selected: ReadingComfort,
+  onSelect: (ReadingComfort) -> Unit,
+  onDismiss: () -> Unit,
+) {
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text("Reading comfort") },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Choose the text size that is most comfortable for reading Aartis, festival notes, and daily guidance.")
+        ReadingComfort.entries.forEach { option ->
+          FilterChip(
+            selected = selected == option,
+            onClick = { onSelect(option) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(option.label) },
+          )
+        }
+      }
+    },
+    confirmButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+  )
 }
 
 @Composable

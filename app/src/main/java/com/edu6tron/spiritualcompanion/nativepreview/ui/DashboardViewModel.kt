@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.Immutable
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
+import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.SpiritualRepository
 import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
@@ -30,6 +31,7 @@ data class DashboardContentState(
   val selectedMediaUri: String? = null,
   val selectedMediaLabel: String? = null,
   val savedLocation: String? = null,
+  val readingComfort: ReadingComfort = ReadingComfort.STANDARD,
 )
 
 @Immutable
@@ -57,6 +59,7 @@ class DashboardViewModel @Inject constructor(
         selectedMediaUri = stored.selectedMediaUri,
         selectedMediaLabel = stored.selectedMediaLabel,
         savedLocation = stored.savedLocation,
+        readingComfort = stored.readingComfort,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
@@ -141,6 +144,10 @@ class DashboardViewModel @Inject constructor(
 
   fun clearLocation() {
     launchSafely("clear-city") { repository.clearLocation() }
+  }
+
+  fun saveReadingComfort(readingComfort: ReadingComfort) {
+    launchSafely("reading-comfort") { repository.saveReadingComfort(readingComfort) }
   }
 
   fun dismissNotice() {
