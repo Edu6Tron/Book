@@ -19,8 +19,8 @@ android {
     applicationId = "com.edu6tron.spiritualcompanion.nativepreview"
     minSdk = 26
     targetSdk = 35
-    versionCode = 14
-    versionName = "1.2.3-rc.13"
+    versionCode = 15
+    versionName = "1.3.0-rc.14"
   }
 
   buildFeatures {

@@ -1,6 +1,7 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
@@ -43,7 +46,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.R
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyGuidance
+import com.edu6tron.spiritualcompanion.nativepreview.data.GuidedPracticeJourney
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeDailyGuidance
+import com.edu6tron.spiritualcompanion.nativepreview.data.NativeGuidedPracticeJourneys
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeScriptureReflection
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.ScriptureReflection
@@ -66,6 +71,7 @@ fun PracticeScreen(
   val dailyGuidance = remember { NativeDailyGuidance.forToday() }
   val scriptureReflection = remember { NativeScriptureReflection.forToday() }
   var showReadingComfort by remember { mutableStateOf(false) }
+  var selectedJourney by remember { mutableStateOf<GuidedPracticeJourney?>(null) }
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(
@@ -84,6 +90,12 @@ fun PracticeScreen(
     }
     item(contentType = "daily-guidance") { DailyGuidanceCard(dailyGuidance) }
     item(contentType = "scripture-reflection") { ScriptureReflectionCard(scriptureReflection) }
+    item(contentType = "guided-journeys") {
+      GuidedPracticeJourneys(
+        featuredJourney = NativeGuidedPracticeJourneys.featuredFor(java.time.LocalDate.now()),
+        onJourneySelected = { selectedJourney = it },
+      )
+    }
     item(contentType = "soundscape") {
       SacredDawnSoundscapeCard(
         playback = playback,
@@ -119,6 +131,82 @@ fun PracticeScreen(
       onDismiss = { showReadingComfort = false },
     )
   }
+  selectedJourney?.let { journey ->
+    GuidedJourneyDialog(journey = journey, onDismiss = { selectedJourney = null })
+  }
+}
+
+@Composable
+private fun GuidedPracticeJourneys(
+  featuredJourney: GuidedPracticeJourney,
+  onJourneySelected: (GuidedPracticeJourney) -> Unit,
+) {
+  Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Column(modifier = Modifier.weight(1f)) {
+        Text("Guided practice journeys", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text("Optional offline moments, shaped around your day", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      }
+      Text("Today: ${featuredJourney.moment}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+    }
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 4.dp)) {
+      items(NativeGuidedPracticeJourneys.all, key = { it.id }) { journey ->
+        GuidedJourneyCard(journey = journey, onClick = { onJourneySelected(journey) })
+      }
+    }
+    Text(
+      "These are flexible reflection prompts, not ritual instructions. Adapt them to your tradition, ability, and time.",
+      style = MaterialTheme.typography.labelSmall,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+  }
+}
+
+@Composable
+private fun GuidedJourneyCard(journey: GuidedPracticeJourney, onClick: () -> Unit) {
+  Card(
+    modifier = Modifier.width(286.dp).clickable(onClick = onClick),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+  ) {
+    Column {
+      Image(
+        painter = painterResource(journey.artworkResId),
+        contentDescription = journey.artworkDescription,
+        modifier = Modifier.fillMaxWidth().height(148.dp),
+        contentScale = ContentScale.Crop,
+      )
+      Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text(journey.moment.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+        Text(journey.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(journey.summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("${journey.durationLabel} · Tap to open", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+      }
+    }
+  }
+}
+
+@Composable
+private fun GuidedJourneyDialog(journey: GuidedPracticeJourney, onDismiss: () -> Unit) {
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text(journey.title) },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Image(
+          painter = painterResource(journey.artworkResId),
+          contentDescription = journey.artworkDescription,
+          modifier = Modifier.fillMaxWidth().height(124.dp),
+          contentScale = ContentScale.Crop,
+        )
+        Text(journey.intention, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        journey.steps.forEachIndexed { index, step ->
+          Text("${index + 1}. $step", style = MaterialTheme.typography.bodyMedium)
+        }
+        Text("Kept offline on this device. Adapt this prompt to your own tradition.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      }
+    },
+    confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
+  )
 }
 
 @Composable

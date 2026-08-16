@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.0-rc.14 — 16 August 2026
+
+The Practice tab now has a more immersive **Guided practice journeys** collection. Three original, device-bundled devotional scenes introduce a Dawn sankalpa, an Evening deepa pause, and a Japa garden focus. The horizontally scrolling cards keep the main practice feed light, while a calm full detail sheet opens only when a user selects a journey.
+
+Each journey provides a short suggested duration, a single intention, and four flexible reflection prompts. The content is labelled as optional guidance rather than ritual instruction, can be adapted to the user’s own tradition and circumstances, and remains entirely offline. The visual assets are original bundled artwork with no network download, sign-in, GPS, tracking, or background refresh path.
+
+Deterministic tests verify the bundled journeys have distinct identities, usable artwork resources, and stable date-based featuring. The existing Practice soundscapes, scripture reflection, japa counter, checklist, and reading-comfort controls remain available in the same tab.
+
 ## v1.2.3-rc.13 — 16 August 2026
 
 The Today dashboard now shows a compact **Ritual alarm readiness** card before the detailed alarm editor. It reports only aggregate, local status: whether no alarm is active, active alarms are paused, Android exact-alarm access needs attention, or one or more alarms are ready. It deliberately does not repeat an alarm label, selected media filename, or other private user choice.

@@ -52,3 +52,6 @@
 - [x] Audit exact-alarm readiness signals, dashboard entry points, and GitHub Actions maintenance warnings.
 - [x] Add an actionable offline ritual-alarm readiness summary with device-settings recovery guidance and maintain the release workflow actions.
 - [x] Add regression coverage and publish a validated native candidate for alarm readiness and workflow maintenance.
+- [x] Audit the Practice experience and choose useful, accessibility-safe immersive visual and guided-practice enhancements.
+- [x] Add original offline devotional artwork and guided-practice journeys with efficient presentation and no background network work.
+- [ ] Add regression coverage and publish a validated native candidate for the visual-content and guided-practice expansion.
