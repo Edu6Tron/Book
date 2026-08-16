@@ -38,4 +38,4 @@
 - [x] Add regression coverage and publish a validated native candidate for the discovery and interaction refinements.
 - [x] Audit the remaining alarm, daily-guidance, and navigation flows for the next highest-value offline-first reliability and usability improvement.
 - [x] Implement the selected daily-use quality improvement without introducing background network work, GPS, private logging, or scroll-time overhead.
-- [ ] Add regression coverage and publish a validated native candidate for the next reliability and usability improvement.
+- [x] Add regression coverage and publish a validated native candidate for the next reliability and usability improvement.
