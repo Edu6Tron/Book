@@ -4,10 +4,11 @@ The repository publishes installable debug candidates through GitHub Releases. E
 
 | Version | Status | APK | Verification |
 |---|---|---|---|
-| [`v1.2.3-rc.13`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.3-rc.13) | Current ritual-alarm readiness device-test candidate | [`spiritual-companion-native-v1.2.3-rc.13-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.3-rc.13/spiritual-companion-native-v1.2.3-rc.13-debug.apk) | Native unit tests, Android lint, debug assembly, and GitHub Actions run 31936523147 passed. |
-| [`v1.2.2-rc.12`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.2-rc.12) | Current offline Settings device-test candidate | [`spiritual-companion-native-v1.2.2-rc.12-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.2-rc.12/spiritual-companion-native-v1.2.2-rc.12-debug.apk) | Native unit tests, Android lint, debug assembly, and GitHub Actions run 31935805926 passed. |
-| [`v1.2.1-rc.11`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.1-rc.11) | Current offline-catalogue and scripture-reflection device-test candidate | [`spiritual-companion-native-v1.2.1-rc.11-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.1-rc.11/spiritual-companion-native-v1.2.1-rc.11-debug.apk) | Native unit tests, Android lint, debug assembly, and GitHub Actions run 31935120348 passed. |
-| [`v1.2.0-rc.10`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.0-rc.10) | Current offline-multimedia device-test candidate | [`spiritual-companion-native-v1.2.0-rc.10-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.0-rc.10/spiritual-companion-native-v1.2.0-rc.10-debug.apk) | Native unit tests, Android lint, debug assembly, and independent GitHub Actions validation passed. |
+| [`v1.3.0-rc.14`](https://github.com/Edu6Tron/Book/releases/tag/v1.3.0-rc.14) | Current immersive guided-practice device-test candidate | [`spiritual-companion-native-v1.3.0-rc.14-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.3.0-rc.14/spiritual-companion-native-v1.3.0-rc.14-debug.apk) | Native unit tests, Android lint, debug assembly, and GitHub Actions run 31937207679 passed. |
+| [`v1.2.3-rc.13`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.3-rc.13) | Prior ritual-alarm readiness candidate | [`spiritual-companion-native-v1.2.3-rc.13-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.3-rc.13/spiritual-companion-native-v1.2.3-rc.13-debug.apk) | Native unit tests, Android lint, debug assembly, and GitHub Actions run 31936523147 passed. |
+| [`v1.2.2-rc.12`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.2-rc.12) | Prior offline Settings candidate | [`spiritual-companion-native-v1.2.2-rc.12-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.2-rc.12/spiritual-companion-native-v1.2.2-rc.12-debug.apk) | Native unit tests, Android lint, debug assembly, and GitHub Actions run 31935805926 passed. |
+| [`v1.2.1-rc.11`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.1-rc.11) | Prior offline-catalogue and scripture-reflection candidate | [`spiritual-companion-native-v1.2.1-rc.11-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.1-rc.11/spiritual-companion-native-v1.2.1-rc.11-debug.apk) | Native unit tests, Android lint, debug assembly, and GitHub Actions run 31935120348 passed. |
+| [`v1.2.0-rc.10`](https://github.com/Edu6Tron/Book/releases/tag/v1.2.0-rc.10) | Prior offline-multimedia candidate | [`spiritual-companion-native-v1.2.0-rc.10-debug.apk`](https://github.com/Edu6Tron/Book/releases/download/v1.2.0-rc.10/spiritual-companion-native-v1.2.0-rc.10-debug.apk) | Native unit tests, Android lint, debug assembly, and independent GitHub Actions validation passed. |
 | [`v1.1.6-rc.9`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.6-rc.9) | Prior transparent-alarm-status candidate | GitHub Release asset | SHA-256 is published with the release. |
 | [`v1.1.5-rc.8`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.5-rc.8) | Prior bounded-discovery candidate | GitHub Release asset | SHA-256 is published with the release. |
 | [`v1.1.4-rc.7`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.4-rc.7) | Prior daily-guidance and reading-comfort candidate | GitHub Release asset | SHA-256 is published with the release. |
@@ -16,14 +17,14 @@ The repository publishes installable debug candidates through GitHub Releases. E
 | [`v1.1.1-rc.4`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.1-rc.4) | Prior device-hardening candidate | GitHub Release asset | SHA-256 is published with the release. |
 | [`v1.1.0-rc.3`](https://github.com/Edu6Tron/Book/releases/tag/v1.1.0-rc.3) | Prior feature-completion candidate | GitHub Release asset | SHA-256 is published with the release. |
 
-> `v1.2.3-rc.13` is an installable **debug** release candidate for device testing. A Play Store-ready signed APK or AAB is deliberately not published until the repository owner configures the protected GitHub Actions signing secrets described in [Release signing](RELEASE_SIGNING.md).
+> `v1.3.0-rc.14` is an installable **debug** release candidate for device testing. A Play Store-ready signed APK or AAB is deliberately not published until the repository owner configures the protected GitHub Actions signing secrets described in [Release signing](RELEASE_SIGNING.md).
 
 ## Verify an APK
 
 On macOS or Linux, run the following from the directory containing the downloaded files.
 
 ```bash
-sha256sum -c spiritual-companion-native-v1.2.3-rc.13-debug.apk.sha256
+sha256sum -c spiritual-companion-native-v1.3.0-rc.14-debug.apk.sha256
 ```
 
 The command must report `OK` before installation. Android may require the user to allow installation from the browser or file manager used to open the APK.

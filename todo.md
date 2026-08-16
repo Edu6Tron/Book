@@ -54,4 +54,4 @@
 - [x] Add regression coverage and publish a validated native candidate for alarm readiness and workflow maintenance.
 - [x] Audit the Practice experience and choose useful, accessibility-safe immersive visual and guided-practice enhancements.
 - [x] Add original offline devotional artwork and guided-practice journeys with efficient presentation and no background network work.
-- [ ] Add regression coverage and publish a validated native candidate for the visual-content and guided-practice expansion.
+- [x] Add regression coverage and publish a validated native candidate for the visual-content and guided-practice expansion.
