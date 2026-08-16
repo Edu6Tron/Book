@@ -8,11 +8,14 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.SpiritualRepository
+import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
 import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
 import com.edu6tron.spiritualcompanion.nativepreview.media.NativeDevotionalPlayer
 import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,6 +36,7 @@ data class DashboardContentState(
   val selectedMediaLabel: String? = null,
   val savedLocation: String? = null,
   val readingComfort: ReadingComfort = ReadingComfort.STANDARD,
+  val themeMode: ThemeMode = ThemeMode.LIGHT,
 )
 
 @Immutable
@@ -61,6 +65,7 @@ class DashboardViewModel @Inject constructor(
         selectedMediaLabel = stored.selectedMediaLabel,
         savedLocation = stored.savedLocation,
         readingComfort = stored.readingComfort,
+        themeMode = stored.themeMode,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
@@ -151,6 +156,22 @@ class DashboardViewModel @Inject constructor(
 
   fun saveReadingComfort(readingComfort: ReadingComfort) {
     launchSafely("reading-comfort") { repository.saveReadingComfort(readingComfort) }
+  }
+
+  fun saveThemeMode(themeMode: ThemeMode) {
+    launchSafely("theme-mode") { repository.saveThemeMode(themeMode) }
+  }
+
+  fun openNotificationSettings() {
+    runCatching {
+      context.startActivity(
+        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+          .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+          .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+      )
+    }.onFailure {
+      notice.value = "Android notification settings could not be opened."
+    }
   }
 
   fun dismissNotice() {

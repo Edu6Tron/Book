@@ -22,6 +22,7 @@ data class StoredSpiritualState(
   val selectedMediaLabel: String? = null,
   val savedLocation: String? = null,
   val readingComfort: ReadingComfort = ReadingComfort.STANDARD,
+  val themeMode: ThemeMode = ThemeMode.LIGHT,
 )
 
 @Singleton
@@ -41,6 +42,7 @@ class SpiritualRepository @Inject constructor(
   private val selectedMediaId = "devotional_audio"
   private val savedLocationKey = "saved_location"
   private val readingComfortKey = "reading_comfort"
+  private val themeModeKey = "theme_mode"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -70,6 +72,8 @@ class SpiritualRepository @Inject constructor(
     state.copy(savedLocation = savedLocation)
   }.combine(appStateDao.observeString(readingComfortKey)) { state, readingComfort ->
     state.copy(readingComfort = ReadingComfort.fromStored(readingComfort))
+  }.combine(appStateDao.observeString(themeModeKey)) { state, themeMode ->
+    state.copy(themeMode = ThemeMode.fromStored(themeMode))
   }
 
   suspend fun togglePractice(id: String) {
@@ -135,5 +139,9 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun saveReadingComfort(readingComfort: ReadingComfort) {
     appStateDao.saveStringPreference(StringPreferenceEntity(readingComfortKey, readingComfort.storedValue))
+  }
+
+  suspend fun saveThemeMode(themeMode: ThemeMode) {
+    appStateDao.saveStringPreference(StringPreferenceEntity(themeModeKey, themeMode.storedValue))
   }
 }

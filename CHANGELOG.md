@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.2.2-rc.12 — 16 August 2026
+
+The Today dashboard now has a compact, screen-reader-labelled **Settings** action. It opens a dedicated, lightweight Settings screen rather than adding a sixth crowded bottom-navigation item. The new screen lets the user persist a Light, Dark, or device-controlled colour treatment and choose Compact, Standard, or Large reading comfort in one place.
+
+Settings also explains the local notification and ritual-alarm boundary, then opens Android’s own app notification settings when the user chooses to manage permissions or channels. This app does not proxy those settings through a server or send reminder details off the device. The About and Privacy sections make the offline-first, no-GPS, user-initiated-discovery boundaries visible in the interface.
+
+Theme preference parsing is isolated and deterministically tested, including safe fallback for unknown saved values. The release continues to use Room-backed local preferences and the existing warm devotional Material theme.
+
 ## v1.2.1-rc.11 — 16 August 2026
 
 The offline catalogue now contains **30 Aartis**, **35 festival guides**, and **35 address-only temple records**. The new devotional material adds concise Tamil, Telugu, Kannada, Bengali, Sanskrit, and Hindi/Marathi-oriented entries, while the festival calendar now includes spring Navratri, selected Ekadashi guidance, Ganga Dussehra, Shravan Somvar, Durga Puja, Kartik Purnima, and Vaikuntha Ekadashi. All observances remain indicative and explicitly ask users to verify time-sensitive local dates with a published Panchang.

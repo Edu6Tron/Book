@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -25,6 +26,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -58,6 +60,7 @@ fun DashboardScreen(
   onOpenAartis: () -> Unit,
   onOpenFestivals: () -> Unit,
   onOpenDiscover: () -> Unit,
+  onOpenSettings: () -> Unit,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
   onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
@@ -77,7 +80,7 @@ fun DashboardScreen(
     ),
     verticalArrangement = Arrangement.spacedBy(14.dp),
   ) {
-    item(contentType = "heading") { DashboardHeading() }
+    item(contentType = "heading") { DashboardHeading(onOpenSettings) }
     item(contentType = "panchang") { PanchangSection(content.savedLocation) }
     item {
       RitualAlarmSection(
@@ -116,10 +119,15 @@ private fun PanchangSection(savedLocation: String?) {
 }
 
 @Composable
-private fun DashboardHeading() {
-  Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-    Text("Spiritual Companion", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-    Text("Your quiet daily space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun DashboardHeading(onOpenSettings: () -> Unit) {
+  Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+      Text("Spiritual Companion", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+      Text("Your quiet daily space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    IconButton(onClick = onOpenSettings) {
+      Icon(Icons.Outlined.Settings, contentDescription = "Open settings")
+    }
   }
 }
 

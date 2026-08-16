@@ -29,7 +29,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel()) {
   val state by viewModel.state.collectAsStateWithLifecycle()
-  SpiritualCompanionNativeTheme(readingComfort = state.content.readingComfort) {
+  SpiritualCompanionNativeTheme(
+    readingComfort = state.content.readingComfort,
+    themeMode = state.content.themeMode,
+  ) {
     Surface(color = MaterialTheme.colorScheme.background) {
       SpiritualCompanionApp(
         state = state,
@@ -52,6 +55,8 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
         onSaveLocation = viewModel::saveLocation,
         onClearLocation = viewModel::clearLocation,
         onSaveReadingComfort = viewModel::saveReadingComfort,
+        onSaveThemeMode = viewModel::saveThemeMode,
+        onOpenNotificationSettings = viewModel::openNotificationSettings,
         onDismissNotice = viewModel::dismissNotice,
       )
     }

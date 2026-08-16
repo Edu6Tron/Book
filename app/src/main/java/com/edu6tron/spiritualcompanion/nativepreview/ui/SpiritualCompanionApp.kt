@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
+import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
 import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
 
 private enum class NativeTab(val title: String) {
@@ -34,6 +35,7 @@ private enum class NativeTab(val title: String) {
   DISCOVER("Discover"),
   FESTIVALS("Festivals"),
   PRACTICE("Practice"),
+  SETTINGS("Settings"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +61,8 @@ fun SpiritualCompanionApp(
   onSaveLocation: (String) -> Unit,
   onClearLocation: () -> Unit,
   onSaveReadingComfort: (ReadingComfort) -> Unit,
+  onSaveThemeMode: (ThemeMode) -> Unit,
+  onOpenNotificationSettings: () -> Unit,
   onDismissNotice: () -> Unit,
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
@@ -101,6 +105,7 @@ fun SpiritualCompanionApp(
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
         onOpenFestivals = { selectedTab = NativeTab.FESTIVALS },
         onOpenDiscover = { selectedTab = NativeTab.DISCOVER },
+        onOpenSettings = { selectedTab = NativeTab.SETTINGS },
         onSaveAlarm = onSaveAlarm,
         onSetAlarmEnabled = onSetAlarmEnabled,
         onDeleteAlarm = onDeleteAlarm,
@@ -141,6 +146,15 @@ fun SpiritualCompanionApp(
         playback = state.playback,
         onPlayOfflineSoundscape = onPlayOfflineSoundscape,
         onStopPlayback = onStopTonePreview,
+      )
+      NativeTab.SETTINGS -> SettingsScreen(
+        contentPadding = padding,
+        themeMode = state.content.themeMode,
+        readingComfort = state.content.readingComfort,
+        onSaveThemeMode = onSaveThemeMode,
+        onSaveReadingComfort = onSaveReadingComfort,
+        onOpenNotificationSettings = onOpenNotificationSettings,
+        onNavigateBack = { selectedTab = NativeTab.TODAY },
       )
     }
   }

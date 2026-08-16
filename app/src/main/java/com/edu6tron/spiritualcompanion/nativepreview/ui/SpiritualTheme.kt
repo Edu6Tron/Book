@@ -1,5 +1,6 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
+import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
 
 private val LightColors = lightColorScheme(
   primary = Color(0xFFAA540D),
@@ -28,8 +30,14 @@ private val DarkColors = darkColorScheme(
 @Composable
 fun SpiritualCompanionNativeTheme(
   readingComfort: ReadingComfort = ReadingComfort.STANDARD,
+  themeMode: ThemeMode = ThemeMode.LIGHT,
   content: @Composable () -> Unit,
 ) {
+  val useDarkTheme = when (themeMode) {
+    ThemeMode.LIGHT -> false
+    ThemeMode.DARK -> true
+    ThemeMode.SYSTEM -> isSystemInDarkTheme()
+  }
   val baseTypography = remember { Typography() }
   val typography = remember(readingComfort, baseTypography) {
     val scale = readingComfort.textScale
@@ -48,7 +56,7 @@ fun SpiritualCompanionNativeTheme(
     )
   }
   MaterialTheme(
-    colorScheme = LightColors,
+    colorScheme = if (useDarkTheme) DarkColors else LightColors,
     typography = typography,
     content = content,
   )

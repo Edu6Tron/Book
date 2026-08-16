@@ -46,3 +46,6 @@
 - [x] Curate a broader, source-labelled offline catalogue of Aartis, festival observances, and government-authorised temples across regions.
 - [x] Add a compact daily scripture-reflection experience and supporting accessibility refinements without background network work or private logging.
 - [x] Add regression coverage and publish a validated native candidate for the catalogue and daily-experience expansion.
+- [x] Audit native navigation, theme, and Room preference boundaries for a dedicated offline Settings experience.
+- [x] Add a native Settings tab with persisted theme, notification, and app-information controls without background network work or private logging.
+- [ ] Add regression coverage and publish a validated native candidate for the Settings experience.
