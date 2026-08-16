@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.2.1-rc.11 — 16 August 2026
+
+The offline catalogue now contains **30 Aartis**, **35 festival guides**, and **35 address-only temple records**. The new devotional material adds concise Tamil, Telugu, Kannada, Bengali, Sanskrit, and Hindi/Marathi-oriented entries, while the festival calendar now includes spring Navratri, selected Ekadashi guidance, Ganga Dussehra, Shravan Somvar, Durga Puja, Kartik Purnima, and Vaikuntha Ekadashi. All observances remain indicative and explicitly ask users to verify time-sensitive local dates with a published Panchang.
+
+The temple directory now adds twelve clearly named Himachal Pradesh acquired institutions from the state Temples Trust listing. Every one retains an address-style description, authority label, and user-opened source link; no map, GPS, background lookup, or location inference was added.
+
+The Practice tab also adds a compact seven-day **Scripture reflection** cycle. It presents a plain-language reflection, source reference, and small practical action; it is explicitly labelled as a reflection rather than an authoritative translation or ritual instruction. The cycle is deterministic, device-bundled, and has no network, sign-in, or background-refresh requirement.
+
 ## v1.2.0-rc.10 — 15 August 2026
 
 The Practice tab now includes an original, device-bundled offline soundscape library: **Sacred dawn**, **Evening lamp**, and **Focused japa**. Each soundscape is playable without a network connection, has clear Play and Stop controls, is visually presented with an original devotional artwork, and remains distinct from both local Aarti files and ritual-alarm tones.

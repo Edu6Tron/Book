@@ -43,3 +43,6 @@
 - [x] Curate and integrate additional offline devotional multimedia resources and richer content without artificial APK padding or licensing ambiguity.
 - [x] Improve native media presentation, loading feedback, and offline fallback behaviour while preserving smooth scrolling and alarm reliability.
 - [x] Add regression coverage and publish a validated native candidate for the multimedia and rich-content expansion.
+- [x] Curate a broader, source-labelled offline catalogue of Aartis, festival observances, and government-authorised temples across regions.
+- [x] Add a compact daily scripture-reflection experience and supporting accessibility refinements without background network work or private logging.
+- [ ] Add regression coverage and publish a validated native candidate for the catalogue and daily-experience expansion.

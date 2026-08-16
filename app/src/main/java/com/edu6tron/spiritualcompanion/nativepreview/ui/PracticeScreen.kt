@@ -44,7 +44,9 @@ import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.R
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyGuidance
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeDailyGuidance
+import com.edu6tron.spiritualcompanion.nativepreview.data.NativeScriptureReflection
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
+import com.edu6tron.spiritualcompanion.nativepreview.data.ScriptureReflection
 import com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState
 import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
 
@@ -62,6 +64,7 @@ fun PracticeScreen(
   onStopPlayback: () -> Unit,
 ) {
   val dailyGuidance = remember { NativeDailyGuidance.forToday() }
+  val scriptureReflection = remember { NativeScriptureReflection.forToday() }
   var showReadingComfort by remember { mutableStateOf(false) }
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -80,6 +83,7 @@ fun PracticeScreen(
       }
     }
     item(contentType = "daily-guidance") { DailyGuidanceCard(dailyGuidance) }
+    item(contentType = "scripture-reflection") { ScriptureReflectionCard(scriptureReflection) }
     item(contentType = "soundscape") {
       SacredDawnSoundscapeCard(
         playback = playback,
@@ -128,6 +132,20 @@ private fun DailyGuidanceCard(guidance: DailyGuidance) {
       Text(guidance.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
       Text(guidance.reflection, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
       Text("Try this: ${guidance.smallAction}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+    }
+  }
+}
+
+@Composable
+private fun ScriptureReflectionCard(reflection: ScriptureReflection) {
+  Card(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+      Text("Scripture reflection", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+      Text(reflection.theme, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+      Text(reflection.reflection, style = MaterialTheme.typography.bodyMedium)
+      Text("Try this: ${reflection.smallAction}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      Text(reflection.source, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      Text("A brief reflection, not an authoritative translation or ritual instruction.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
   }
 }
