@@ -75,7 +75,6 @@ fun DashboardScreen(
   onOpenRoutines: () -> Unit,
   onOpenFestivals: () -> Unit,
   onOpenDiscover: () -> Unit,
-  onOpenRoutines: () -> Unit,
   onOpenSettings: () -> Unit,
   onOpenExactAlarmSettings: () -> Unit,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
@@ -129,42 +128,6 @@ fun DashboardScreen(
     item(contentType = "japa") { DailyEntryCard(content.japaCount, onIncrementJapa) }
     item { ExploreCard(onOpenAartis, onOpenFestivals, onOpenDiscover) }
     item(contentType = "practice") { PracticeCard(content.practices, onTogglePractice) }
-  }
-}
-
-@Composable
-private fun RoutineEntryCard(
-  savedLocation: String?,
-  eveningEnabled: Boolean,
-  brahmaMuhurtaEnabled: Boolean,
-  onOpenRoutines: () -> Unit,
-) {
-  val today = LocalDateTime.now().toLocalDate()
-  val panchang = remember(today, savedLocation) {
-    PanchangCalculator.calculate(today, savedLocation)
-  }
-  val timeFormatter = remember { DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault()) }
-  Card(
-    modifier = Modifier.fillMaxWidth(),
-    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-  ) {
-    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-      Text("My routines", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-      Text(
-        "Evening Prarthana around sunset · ${panchang.sunset?.format(timeFormatter) ?: "Not available"}",
-        style = MaterialTheme.typography.bodyMedium,
-      )
-      Text(
-        "Brahma Muhurta ${panchang.brahmaMuhurtaStart?.format(timeFormatter) ?: "Not available"} – ${panchang.brahmaMuhurtaEnd?.format(timeFormatter) ?: "Not available"}",
-        style = MaterialTheme.typography.bodyMedium,
-      )
-      Text(
-        "Evening ${if (eveningEnabled) "enabled" else "not enabled"} · Dawn ${if (brahmaMuhurtaEnabled) "enabled" else "not enabled"}",
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSecondaryContainer,
-      )
-      Button(onClick = onOpenRoutines, modifier = Modifier.fillMaxWidth()) { Text("Open routines") }
-    }
   }
 }
 
