@@ -55,3 +55,6 @@
 - [x] Audit the Practice experience and choose useful, accessibility-safe immersive visual and guided-practice enhancements.
 - [x] Add original offline devotional artwork and guided-practice journeys with efficient presentation and no background network work.
 - [x] Add regression coverage and publish a validated native candidate for the visual-content and guided-practice expansion.
+- [x] Audit the existing soundscape library and choose complementary original offline audio additions.
+- [x] Add original offline devotional soundscapes with polished, accessibility-safe local playback presentation.
+- [ ] Add regression coverage and publish a validated native candidate for the expanded offline-media experience.

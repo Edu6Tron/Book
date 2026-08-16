@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.1-rc.15 — 16 August 2026
+
+The Practice tab’s original offline soundscape library has doubled from three to **six** pieces. New device-bundled additions are **Temple bells & stillness**, **Monsoon reflection**, and **Lamp-flame stillness**, complementing Sacred dawn, Focused japa, and Evening lamp.
+
+Each addition has a distinct title and purpose-forward description in the existing local playback card. The collection is designed for a broad range of quiet moments, including a dawn reset, counted japa, a rain-sheltered pause, evening reflection, or a simple period of silence. Playback remains deliberately separate from ritual alarms and provider-discovery media.
+
+All six files are original bundled audio assets. They work offline, do not require a sign-in, GPS, provider account, tracking, or background download, and retain the player’s existing preparation, stop, completion, and recovery feedback. The soundscape catalogue test now verifies six unique local resource IDs and the new entries.
+
 ## v1.3.0-rc.14 — 16 August 2026
 
 The Practice tab now has a more immersive **Guided practice journeys** collection. Three original, device-bundled devotional scenes introduce a Dawn sankalpa, an Evening deepa pause, and a Japa garden focus. The horizontally scrolling cards keep the main practice feed light, while a calm full detail sheet opens only when a user selects a journey.

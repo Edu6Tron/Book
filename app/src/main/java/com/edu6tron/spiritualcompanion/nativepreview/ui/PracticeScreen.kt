@@ -260,8 +260,13 @@ private fun SacredDawnSoundscapeCard(
       ) {
         Text("Offline soundscapes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(
-          "Three original, device-bundled soundscapes for japa and reflection. They never replace your alarm tone.",
+          "Six original, device-bundled soundscapes for japa, reflection, and quiet pauses. They never replace your alarm tone.",
           style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+          "Choose one for local playback. Each piece remains on this device, even without a connection.",
+          style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         OfflineSoundscape.entries.forEach { soundscape ->
