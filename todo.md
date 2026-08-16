@@ -31,4 +31,4 @@
 - [x] Add regression coverage and publish a validated native candidate for the improved time picker.
 - [x] Audit daily practice, dashboard, and navigation flows for the next offline-first devotional guidance and reading-comfort improvements.
 - [x] Add a lightweight daily devotional guidance experience and user-controlled reading-comfort settings without introducing network, GPS, or scroll-time overhead.
-- [ ] Add regression coverage and publish a validated native candidate for the daily-guidance and settings improvements.
+- [x] Add regression coverage and publish a validated native candidate for the daily-guidance and settings improvements.
