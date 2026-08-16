@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.2.0-rc.10 — 15 August 2026
+
+The Practice tab now includes an original, device-bundled offline soundscape library: **Sacred dawn**, **Evening lamp**, and **Focused japa**. Each soundscape is playable without a network connection, has clear Play and Stop controls, is visually presented with an original devotional artwork, and remains distinct from both local Aarti files and ritual-alarm tones.
+
+The multimedia resources are local Android assets rather than streamed provider media, so they do not require GPS, sign-in, background network work, or a provider account. Playback retains clear preparation, playing, completion, stop, and recovery feedback; the original soundscape library also has deterministic checks for distinct bundled resource identifiers.
+
 ## v1.1.6-rc.9 — 15 August 2026
 
 Ritual alarms now show an explicit **Next** date and time in the alarm list, using the same offline repeat-day calculation as the exact AlarmManager scheduling path. A paused alarm clearly shows its resume time, and a disabled alarm clearly reports that it is turned off. This makes it easier to verify an alarm before putting the phone away.

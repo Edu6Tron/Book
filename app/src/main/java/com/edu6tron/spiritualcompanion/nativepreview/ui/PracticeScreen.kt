@@ -1,12 +1,15 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,11 +37,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.edu6tron.spiritualcompanion.nativepreview.R
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyGuidance
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeDailyGuidance
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
+import com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState
+import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
 
 @Composable
 fun PracticeScreen(
@@ -49,6 +57,9 @@ fun PracticeScreen(
   onResetJapa: () -> Unit,
   readingComfort: ReadingComfort,
   onSaveReadingComfort: (ReadingComfort) -> Unit,
+  playback: DevotionalPlaybackState,
+  onPlayOfflineSoundscape: (OfflineSoundscape) -> Unit,
+  onStopPlayback: () -> Unit,
 ) {
   val dailyGuidance = remember { NativeDailyGuidance.forToday() }
   var showReadingComfort by remember { mutableStateOf(false) }
@@ -69,6 +80,13 @@ fun PracticeScreen(
       }
     }
     item(contentType = "daily-guidance") { DailyGuidanceCard(dailyGuidance) }
+    item(contentType = "soundscape") {
+      SacredDawnSoundscapeCard(
+        playback = playback,
+        onPlaySoundscape = onPlayOfflineSoundscape,
+        onStop = onStopPlayback,
+      )
+    }
     item(contentType = "japa") { JapaCounterCard(content.japaCount, onIncrementJapa, onResetJapa) }
     item(contentType = "reading-comfort") {
       ReadingComfortCard(readingComfort = readingComfort, onOpen = { showReadingComfort = true })
@@ -110,6 +128,59 @@ private fun DailyGuidanceCard(guidance: DailyGuidance) {
       Text(guidance.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
       Text(guidance.reflection, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
       Text("Try this: ${guidance.smallAction}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+    }
+  }
+}
+
+@Composable
+private fun SacredDawnSoundscapeCard(
+  playback: DevotionalPlaybackState,
+  onPlaySoundscape: (OfflineSoundscape) -> Unit,
+  onStop: () -> Unit,
+) {
+  Card(modifier = Modifier.fillMaxWidth()) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+      Box(modifier = Modifier.fillMaxWidth().height(132.dp)) {
+        Image(
+          painter = painterResource(R.drawable.sacred_dawn_mandala),
+          contentDescription = "Sunrise temple illustration for Sacred dawn ambience",
+          modifier = Modifier.fillMaxSize(),
+          contentScale = ContentScale.Crop,
+        )
+      }
+      Column(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+      ) {
+        Text("Offline soundscapes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+          "Three original, device-bundled soundscapes for japa and reflection. They never replace your alarm tone.",
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        OfflineSoundscape.entries.forEach { soundscape ->
+          val isThisSoundscape = playback.sourceLabel == soundscape.playbackLabel
+          Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(soundscape.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(soundscape.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+              Button(onClick = { onPlaySoundscape(soundscape) }) {
+                Text(if (isThisSoundscape && playback.isPlaying) "Restart" else "Play")
+              }
+              if (isThisSoundscape && (playback.isPlaying || playback.positionMs > 0L)) {
+                OutlinedButton(onClick = onStop) { Text("Stop") }
+              }
+            }
+            if (isThisSoundscape) {
+              Text(
+                if (playback.isPlaying) "Playing offline on this device" else playback.message ?: "Ready offline",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+              )
+            }
+          }
+        }
+      }
     }
   }
 }

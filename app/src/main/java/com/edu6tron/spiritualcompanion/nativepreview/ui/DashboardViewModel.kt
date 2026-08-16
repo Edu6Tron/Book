@@ -10,6 +10,7 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.SpiritualRepository
 import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
 import com.edu6tron.spiritualcompanion.nativepreview.media.NativeDevotionalPlayer
+import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -120,6 +121,8 @@ class DashboardViewModel @Inject constructor(
   }
 
   fun playFallbackTone() = player.playBundledFallback()
+
+  fun playOfflineSoundscape(soundscape: OfflineSoundscape) = player.playOfflineSoundscape(soundscape)
 
   fun stopTonePreview() = player.stop()
 

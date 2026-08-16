@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
+import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
 
 private enum class NativeTab(val title: String) {
   TODAY("Today"),
@@ -49,6 +50,7 @@ fun SpiritualCompanionApp(
   onPauseAlarm: (RitualAlarmEntity, Int) -> Unit,
   onResumeAlarm: (RitualAlarmEntity) -> Unit,
   onPlayFallbackTone: () -> Unit,
+  onPlayOfflineSoundscape: (OfflineSoundscape) -> Unit,
   onPreviewAlarmTone: (String?) -> Unit,
   onStopTonePreview: () -> Unit,
   onSaveSelectedMedia: (String, String) -> Unit,
@@ -136,6 +138,9 @@ fun SpiritualCompanionApp(
         onResetJapa = onResetJapa,
         readingComfort = state.content.readingComfort,
         onSaveReadingComfort = onSaveReadingComfort,
+        playback = state.playback,
+        onPlayOfflineSoundscape = onPlayOfflineSoundscape,
+        onStopPlayback = onStopTonePreview,
       )
     }
   }

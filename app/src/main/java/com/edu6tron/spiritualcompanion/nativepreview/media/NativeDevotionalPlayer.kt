@@ -97,6 +97,13 @@ class NativeDevotionalPlayer @Inject constructor(
     )
   }
 
+  fun playOfflineSoundscape(soundscape: OfflineSoundscape) {
+    play(
+      "android.resource://${appContext.packageName}/${soundscape.resourceId}",
+      soundscape.playbackLabel,
+    )
+  }
+
   fun stop() {
     progressHandler.removeCallbacks(progressTick)
     runCatching { player.stop() }

@@ -39,3 +39,7 @@
 - [x] Audit the remaining alarm, daily-guidance, and navigation flows for the next highest-value offline-first reliability and usability improvement.
 - [x] Implement the selected daily-use quality improvement without introducing background network work, GPS, private logging, or scroll-time overhead.
 - [x] Add regression coverage and publish a validated native candidate for the next reliability and usability improvement.
+- [x] Audit existing bundled media, playback flows, and offline catalogue coverage to select genuinely useful multimedia and rich-content expansion work.
+- [x] Curate and integrate additional offline devotional multimedia resources and richer content without artificial APK padding or licensing ambiguity.
+- [x] Improve native media presentation, loading feedback, and offline fallback behaviour while preserving smooth scrolling and alarm reliability.
+- [ ] Add regression coverage and publish a validated native candidate for the multimedia and rich-content expansion.
