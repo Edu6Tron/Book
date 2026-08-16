@@ -12,6 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalTheme
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
 
@@ -59,6 +60,35 @@ private val DarkColors = darkColorScheme(
   outline = Color(0xFFA08D7D),
 )
 
+private fun paletteColors(theme: DevotionalTheme) = run {
+  val primary = Color(theme.previewPrimaryArgb.toInt())
+  val accent = Color(theme.previewAccentArgb.toInt())
+  Pair(
+    LightColors.copy(
+      primary = primary,
+      primaryContainer = accent,
+      secondary = primary,
+      secondaryContainer = accent,
+      tertiary = primary,
+      tertiaryContainer = accent,
+    ),
+    DarkColors.copy(
+      primary = accent,
+      onPrimary = Color(0xFF211A16),
+      primaryContainer = primary,
+      onPrimaryContainer = accent,
+      secondary = accent,
+      onSecondary = Color(0xFF211A16),
+      secondaryContainer = primary,
+      onSecondaryContainer = accent,
+      tertiary = accent,
+      onTertiary = Color(0xFF211A16),
+      tertiaryContainer = primary,
+      onTertiaryContainer = accent,
+    ),
+  )
+}
+
 private val DevotionalTypography = Typography(
   displayLarge = TextStyle(
     fontFamily = FontFamily.Serif,
@@ -95,6 +125,7 @@ private val DevotionalTypography = Typography(
 fun SpiritualCompanionNativeTheme(
   readingComfort: ReadingComfort = ReadingComfort.STANDARD,
   themeMode: ThemeMode = ThemeMode.LIGHT,
+  devotionalTheme: DevotionalTheme = DevotionalTheme.SACRED_SAFFRON,
   content: @Composable () -> Unit,
 ) {
   val useDarkTheme = when (themeMode) {
@@ -122,8 +153,9 @@ fun SpiritualCompanionNativeTheme(
       labelSmall = DevotionalTypography.labelSmall.copy(fontSize = DevotionalTypography.labelSmall.fontSize * scale),
     )
   }
+  val colors = remember(devotionalTheme) { paletteColors(devotionalTheme) }
   MaterialTheme(
-    colorScheme = if (useDarkTheme) DarkColors else LightColors,
+    colorScheme = if (useDarkTheme) colors.second else colors.first,
     typography = typography,
     content = content,
   )

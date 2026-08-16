@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.Immutable
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
+import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalTheme
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.RoutineDailyProgress
@@ -39,6 +40,7 @@ data class DashboardContentState(
   val savedLocation: String? = null,
   val readingComfort: ReadingComfort = ReadingComfort.STANDARD,
   val themeMode: ThemeMode = ThemeMode.LIGHT,
+  val devotionalTheme: DevotionalTheme = DevotionalTheme.SACRED_SAFFRON,
   val eveningRoutineEnabled: Boolean = false,
   val brahmaMuhurtaRoutineEnabled: Boolean = false,
   val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
@@ -72,6 +74,7 @@ class DashboardViewModel @Inject constructor(
         savedLocation = stored.savedLocation,
         readingComfort = stored.readingComfort,
         themeMode = stored.themeMode,
+        devotionalTheme = stored.devotionalTheme,
         eveningRoutineEnabled = stored.eveningRoutineEnabled,
         brahmaMuhurtaRoutineEnabled = stored.brahmaMuhurtaRoutineEnabled,
         eveningRoutineProgress = stored.eveningRoutineProgress,
@@ -170,6 +173,10 @@ class DashboardViewModel @Inject constructor(
 
   fun saveThemeMode(themeMode: ThemeMode) {
     launchSafely("theme-mode") { repository.saveThemeMode(themeMode) }
+  }
+
+  fun saveDevotionalTheme(devotionalTheme: DevotionalTheme) {
+    launchSafely("devotional-theme") { repository.saveDevotionalTheme(devotionalTheme) }
   }
 
   fun saveEveningRoutineEnabled(enabled: Boolean) {

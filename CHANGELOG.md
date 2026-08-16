@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.5-rc.19 — 16 August 2026
+
+The native app now offers **eleven user-selectable devotional colour palettes**: the original Sacred saffron plus Temple lotus, Krishna twilight, Ganga dawn, Tulsi grove, Himalayan mist, Vithoba indigo, Deepa ember, Monsoon prayer, Rose sandal, and Moonlit silver. Each palette is intentionally named and previewed in Settings, so a personal appearance can be chosen without guessing from an abstract colour code.
+
+Appearance mode and devotional colour are deliberately separate. Light, Dark, and device-controlled appearance remain available, while the chosen devotional palette is applied consistently to the app’s Material surfaces, selected navigation state, timing panels, local player controls, routine cards, and Settings components. The selected palette is stored only on the device and restored safely after an app restart; unknown saved values fall back to Sacred saffron rather than blocking launch.
+
+The Settings selector is horizontally efficient, touch-friendly, and retains user-selected reading comfort. This is a Compose-only preference feature: it introduces no background work, network access, GPS permission, remote profile, or private-data logging. Regression coverage verifies all stable palette identifiers, the full eleven-option catalogue, and defensive restoration behaviour.
+
 ## v1.3.4-rc.18 — 16 August 2026
 
 This release gives the native app a calmer and more intentional devotional visual system. The shared warm palette now distinguishes dawn, evening, practice, and supporting surfaces with clearer contrast in both light and dark modes. A dedicated serif-led display hierarchy makes the devotional clock, routine names, and lyric-led content easier to scan without reducing the user-selected reading-comfort scaling.

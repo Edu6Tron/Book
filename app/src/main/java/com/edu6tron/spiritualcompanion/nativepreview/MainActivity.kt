@@ -32,6 +32,7 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
   SpiritualCompanionNativeTheme(
     readingComfort = state.content.readingComfort,
     themeMode = state.content.themeMode,
+    devotionalTheme = state.content.devotionalTheme,
   ) {
     Surface(color = MaterialTheme.colorScheme.background) {
       SpiritualCompanionApp(
@@ -56,6 +57,7 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
         onClearLocation = viewModel::clearLocation,
         onSaveReadingComfort = viewModel::saveReadingComfort,
         onSaveThemeMode = viewModel::saveThemeMode,
+        onSaveDevotionalTheme = viewModel::saveDevotionalTheme,
         onSaveEveningRoutineEnabled = viewModel::saveEveningRoutineEnabled,
         onSaveBrahmaMuhurtaRoutineEnabled = viewModel::saveBrahmaMuhurtaRoutineEnabled,
         onSetRoutineStepCompleted = viewModel::setRoutineStepCompleted,

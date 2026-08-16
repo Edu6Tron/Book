@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalTheme
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
@@ -63,6 +64,7 @@ fun SpiritualCompanionApp(
   onClearLocation: () -> Unit,
   onSaveReadingComfort: (ReadingComfort) -> Unit,
   onSaveThemeMode: (ThemeMode) -> Unit,
+  onSaveDevotionalTheme: (DevotionalTheme) -> Unit,
   onSaveEveningRoutineEnabled: (Boolean) -> Unit,
   onSaveBrahmaMuhurtaRoutineEnabled: (Boolean) -> Unit,
   onSetRoutineStepCompleted: (String, String, Boolean) -> Unit,
@@ -172,8 +174,10 @@ fun SpiritualCompanionApp(
       NativeTab.SETTINGS -> SettingsScreen(
         contentPadding = padding,
         themeMode = state.content.themeMode,
+        devotionalTheme = state.content.devotionalTheme,
         readingComfort = state.content.readingComfort,
         onSaveThemeMode = onSaveThemeMode,
+        onSaveDevotionalTheme = onSaveDevotionalTheme,
         onSaveReadingComfort = onSaveReadingComfort,
         onOpenNotificationSettings = onOpenNotificationSettings,
         onNavigateBack = { selectedTab = NativeTab.TODAY },

@@ -24,6 +24,7 @@ data class StoredSpiritualState(
   val savedLocation: String? = null,
   val readingComfort: ReadingComfort = ReadingComfort.STANDARD,
   val themeMode: ThemeMode = ThemeMode.LIGHT,
+  val devotionalTheme: DevotionalTheme = DevotionalTheme.SACRED_SAFFRON,
   val eveningRoutineEnabled: Boolean = false,
   val brahmaMuhurtaRoutineEnabled: Boolean = false,
   val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
@@ -48,6 +49,7 @@ class SpiritualRepository @Inject constructor(
   private val savedLocationKey = "saved_location"
   private val readingComfortKey = "reading_comfort"
   private val themeModeKey = "theme_mode"
+  private val devotionalThemeKey = "devotional_theme"
   private val eveningRoutineEnabledKey = "evening_routine_enabled"
   private val brahmaMuhurtaRoutineEnabledKey = "brahma_muhurta_routine_enabled"
   private val eveningRoutineProgressKey = "evening_routine_progress"
@@ -83,6 +85,8 @@ class SpiritualRepository @Inject constructor(
     state.copy(readingComfort = ReadingComfort.fromStored(readingComfort))
   }.combine(appStateDao.observeString(themeModeKey)) { state, themeMode ->
     state.copy(themeMode = ThemeMode.fromStored(themeMode))
+  }.combine(appStateDao.observeString(devotionalThemeKey)) { state, devotionalTheme ->
+    state.copy(devotionalTheme = DevotionalTheme.fromStored(devotionalTheme))
   }.combine(appStateDao.observeString(eveningRoutineEnabledKey)) { state, enabled ->
     state.copy(eveningRoutineEnabled = enabled.toStoredBoolean())
   }.combine(appStateDao.observeString(brahmaMuhurtaRoutineEnabledKey)) { state, enabled ->
@@ -160,6 +164,10 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun saveThemeMode(themeMode: ThemeMode) {
     appStateDao.saveStringPreference(StringPreferenceEntity(themeModeKey, themeMode.storedValue))
+  }
+
+  suspend fun saveDevotionalTheme(devotionalTheme: DevotionalTheme) {
+    appStateDao.saveStringPreference(StringPreferenceEntity(devotionalThemeKey, devotionalTheme.storedValue))
   }
 
   suspend fun saveEveningRoutineEnabled(enabled: Boolean) {
