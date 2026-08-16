@@ -35,4 +35,4 @@
 - [x] Audit the Discover tab and adjacent daily-use flows for clipped provider content, unbounded web interactions, weak recovery states, and high-impact usability defects.
 - [x] Replace the fragile embedded provider experience with a bounded, user-initiated native discovery surface that remains usable when provider pages fail or open account menus.
 - [x] Refine high-impact navigation, feedback, and daily-use interactions without introducing background network work, GPS, or scroll-time overhead.
-- [ ] Add regression coverage and publish a validated native candidate for the discovery and interaction refinements.
+- [x] Add regression coverage and publish a validated native candidate for the discovery and interaction refinements.
