@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.6-rc.20 — 16 August 2026
+
+This release completes a reconciliation pass on the timing-aware routine work and restores a clean native Android build path. The dashboard now has one clear **My routines** entry point, preserving the richer daily-rhythm card, local progress flow, lyric handoffs, special-day suggestions, and exact-reminder access introduced across the routine releases.
+
+The included `docs/PLAY_STORE_BENCHMARK_NOTES.md` and `docs/NATIVE_QUALITY_IMPLEMENTATION_PLAN.md` record the public product and Android guidance review that now informs subsequent work: a calm daily path, trustworthy offline-first timing, readable controls, accessible labels, measured Compose state, and repeatable quality gates. These documents are planning and source records; no user data, provider content, or device location is collected for the review.
+
 ## v1.3.5-rc.19 — 16 August 2026
 
 The native app now offers **eleven user-selectable devotional colour palettes**: the original Sacred saffron plus Temple lotus, Krishna twilight, Ganga dawn, Tulsi grove, Himalayan mist, Vithoba indigo, Deepa ember, Monsoon prayer, Rose sandal, and Moonlit silver. Each palette is intentionally named and previewed in Settings, so a personal appearance can be chosen without guessing from an abstract colour code.
