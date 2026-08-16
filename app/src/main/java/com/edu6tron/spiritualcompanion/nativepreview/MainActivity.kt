@@ -57,6 +57,7 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
         onSaveReadingComfort = viewModel::saveReadingComfort,
         onSaveThemeMode = viewModel::saveThemeMode,
         onOpenNotificationSettings = viewModel::openNotificationSettings,
+        onOpenExactAlarmSettings = viewModel::openExactAlarmSettings,
         onDismissNotice = viewModel::dismissNotice,
       )
     }

@@ -32,14 +32,23 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmReadiness
+import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
@@ -61,6 +70,7 @@ fun DashboardScreen(
   onOpenFestivals: () -> Unit,
   onOpenDiscover: () -> Unit,
   onOpenSettings: () -> Unit,
+  onOpenExactAlarmSettings: () -> Unit,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
   onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
@@ -82,6 +92,12 @@ fun DashboardScreen(
   ) {
     item(contentType = "heading") { DashboardHeading(onOpenSettings) }
     item(contentType = "panchang") { PanchangSection(content.savedLocation) }
+    item(contentType = "alarm-readiness") {
+      RitualAlarmReadinessCard(
+        alarms = content.ritualAlarms,
+        onOpenExactAlarmSettings = onOpenExactAlarmSettings,
+      )
+    }
     item {
       RitualAlarmSection(
         alarms = content.ritualAlarms,
@@ -98,6 +114,62 @@ fun DashboardScreen(
     item(contentType = "japa") { DailyEntryCard(content.japaCount, onIncrementJapa) }
     item { ExploreCard(onOpenAartis, onOpenFestivals, onOpenDiscover) }
     item(contentType = "practice") { PracticeCard(content.practices, onTogglePractice) }
+  }
+}
+
+@Composable
+private fun RitualAlarmReadinessCard(
+  alarms: List<RitualAlarmEntity>,
+  onOpenExactAlarmSettings: () -> Unit,
+) {
+  val context = LocalContext.current
+  val lifecycleOwner = LocalLifecycleOwner.current
+  var exactAlarmAllowed by remember(context) {
+    mutableStateOf(RitualAlarmScheduler.canScheduleExactAlarms(context))
+  }
+  val nowMillis by produceState(initialValue = System.currentTimeMillis()) {
+    while (true) {
+      delay(60_000L)
+      value = System.currentTimeMillis()
+    }
+  }
+  DisposableEffect(lifecycleOwner, context) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_RESUME) {
+        exactAlarmAllowed = RitualAlarmScheduler.canScheduleExactAlarms(context)
+      }
+    }
+    lifecycleOwner.lifecycle.addObserver(observer)
+    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+  }
+  val readiness = remember(alarms, exactAlarmAllowed, nowMillis) {
+    RitualAlarmReadiness.evaluate(alarms, exactAlarmAllowed, nowMillis)
+  }
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(
+      containerColor = if (readiness.status == RitualAlarmReadiness.Status.READY) {
+        MaterialTheme.colorScheme.tertiaryContainer
+      } else {
+        MaterialTheme.colorScheme.surfaceVariant
+      },
+    ),
+  ) {
+    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+      Text("Ritual alarm readiness", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+      Text(readiness.headline, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+      Text(readiness.detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      if (readiness.status == RitualAlarmReadiness.Status.EXACT_ALARM_PERMISSION_NEEDED) {
+        OutlinedButton(onClick = onOpenExactAlarmSettings, modifier = Modifier.fillMaxWidth()) {
+          Text("Allow exact alarms")
+        }
+      }
+      Text(
+        "After reboot, an app update, or a device time-zone change, active alarms are rescheduled locally.",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
   }
 }
 

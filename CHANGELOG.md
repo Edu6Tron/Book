@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.2.3-rc.13 — 16 August 2026
+
+The Today dashboard now shows a compact **Ritual alarm readiness** card before the detailed alarm editor. It reports only aggregate, local status: whether no alarm is active, active alarms are paused, Android exact-alarm access needs attention, or one or more alarms are ready. It deliberately does not repeat an alarm label, selected media filename, or other private user choice.
+
+When exact-alarm access is not available, the card opens Android’s own **Alarms & reminders** page. On returning to the app, it refreshes its local readiness state. The card also makes the existing reboot, app-update, device-time, and time-zone recovery behaviour visible, while the alarm editor remains the place to create, edit, pause, resume, preview, or delete a specific alarm.
+
+The GitHub debug-build and protected signing workflows now use current upstream action major versions. The automated path remains test → Android lint → APK assembly → artifact upload, while the signing workflow continues to read keystore material only from protected GitHub secrets.
+
 ## v1.2.2-rc.12 — 16 August 2026
 
 The Today dashboard now has a compact, screen-reader-labelled **Settings** action. It opens a dedicated, lightweight Settings screen rather than adding a sixth crowded bottom-navigation item. The new screen lets the user persist a Light, Dark, or device-controlled colour treatment and choose Compact, Standard, or Large reading comfort in one place.

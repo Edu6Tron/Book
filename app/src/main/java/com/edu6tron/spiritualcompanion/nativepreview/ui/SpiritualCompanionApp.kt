@@ -63,6 +63,7 @@ fun SpiritualCompanionApp(
   onSaveReadingComfort: (ReadingComfort) -> Unit,
   onSaveThemeMode: (ThemeMode) -> Unit,
   onOpenNotificationSettings: () -> Unit,
+  onOpenExactAlarmSettings: () -> Unit,
   onDismissNotice: () -> Unit,
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
@@ -106,6 +107,7 @@ fun SpiritualCompanionApp(
         onOpenFestivals = { selectedTab = NativeTab.FESTIVALS },
         onOpenDiscover = { selectedTab = NativeTab.DISCOVER },
         onOpenSettings = { selectedTab = NativeTab.SETTINGS },
+        onOpenExactAlarmSettings = onOpenExactAlarmSettings,
         onSaveAlarm = onSaveAlarm,
         onSetAlarmEnabled = onSetAlarmEnabled,
         onDeleteAlarm = onDeleteAlarm,

@@ -15,6 +15,7 @@ import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -171,6 +172,21 @@ class DashboardViewModel @Inject constructor(
       )
     }.onFailure {
       notice.value = "Android notification settings could not be opened."
+    }
+  }
+
+  fun openExactAlarmSettings() {
+    runCatching {
+      val intent = Intent(
+        Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+        Uri.parse("package:${context.packageName}"),
+      ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      check(intent.resolveActivity(context.packageManager) != null) {
+        "Exact-alarm settings are unavailable"
+      }
+      context.startActivity(intent)
+    }.onFailure {
+      notice.value = "Android exact-alarm settings could not be opened."
     }
   }
 

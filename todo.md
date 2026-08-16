@@ -49,3 +49,6 @@
 - [x] Audit native navigation, theme, and Room preference boundaries for a dedicated offline Settings experience.
 - [x] Add a dashboard-routed native Settings screen with persisted theme, notification, and app-information controls without background network work or private logging.
 - [x] Add regression coverage and publish a validated native candidate for the Settings experience.
+- [x] Audit exact-alarm readiness signals, dashboard entry points, and GitHub Actions maintenance warnings.
+- [x] Add an actionable offline ritual-alarm readiness summary with device-settings recovery guidance and maintain the release workflow actions.
+- [ ] Add regression coverage and publish a validated native candidate for alarm readiness and workflow maintenance.
