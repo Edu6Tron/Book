@@ -70,4 +70,4 @@
 - [x] Validate and publish the refined native Android interface.
 - [x] Audit the existing persisted theme system and define ten additional accessible devotional theme options.
 - [x] Implement selectable devotional palettes throughout the Compose visual system and Settings interface, with regression coverage.
-- [ ] Validate and publish the expanded native theme collection.
+- [x] Validate and publish the expanded native theme collection.
