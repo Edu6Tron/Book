@@ -81,3 +81,4 @@
 - [x] Validate and publish the upgraded native Android experience.
 - [ ] Audit and strengthen the one-owner local player contract, including predictable release and an always-reachable stop action.
 - [ ] Audit remaining non-text controls and all eleven palettes for accessible labels, touch targets, and readable contrast.
+- [x] Determine whether an existing Android release signing identity is available and document a GitHub-Secrets-only provisioning path without exposing credentials.
