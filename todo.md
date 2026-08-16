@@ -42,4 +42,4 @@
 - [x] Audit existing bundled media, playback flows, and offline catalogue coverage to select genuinely useful multimedia and rich-content expansion work.
 - [x] Curate and integrate additional offline devotional multimedia resources and richer content without artificial APK padding or licensing ambiguity.
 - [x] Improve native media presentation, loading feedback, and offline fallback behaviour while preserving smooth scrolling and alarm reliability.
-- [ ] Add regression coverage and publish a validated native candidate for the multimedia and rich-content expansion.
+- [x] Add regression coverage and publish a validated native candidate for the multimedia and rich-content expansion.
