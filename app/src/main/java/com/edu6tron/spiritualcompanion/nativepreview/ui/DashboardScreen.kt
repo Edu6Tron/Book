@@ -69,6 +69,7 @@ fun DashboardScreen(
   onOpenAartis: () -> Unit,
   onOpenFestivals: () -> Unit,
   onOpenDiscover: () -> Unit,
+  onOpenRoutines: () -> Unit,
   onOpenSettings: () -> Unit,
   onOpenExactAlarmSettings: () -> Unit,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
@@ -92,6 +93,14 @@ fun DashboardScreen(
   ) {
     item(contentType = "heading") { DashboardHeading(onOpenSettings) }
     item(contentType = "panchang") { PanchangSection(content.savedLocation) }
+    item(contentType = "routines") {
+      RoutineEntryCard(
+        savedLocation = content.savedLocation,
+        eveningEnabled = content.eveningRoutineEnabled,
+        brahmaMuhurtaEnabled = content.brahmaMuhurtaRoutineEnabled,
+        onOpenRoutines = onOpenRoutines,
+      )
+    }
     item(contentType = "alarm-readiness") {
       RitualAlarmReadinessCard(
         alarms = content.ritualAlarms,
@@ -263,6 +272,47 @@ private fun TimingRow(label: String, value: String) {
 }
 
 private fun LocalTime?.asDisplay(): String = this?.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault())) ?: "Not available"
+
+@Composable
+private fun RoutineEntryCard(
+  savedLocation: String?,
+  eveningEnabled: Boolean,
+  brahmaMuhurtaEnabled: Boolean,
+  onOpenRoutines: () -> Unit,
+) {
+  val now by produceState(initialValue = LocalDateTime.now()) {
+    while (true) {
+      value = LocalDateTime.now()
+      delay(60_000L)
+    }
+  }
+  val panchang = remember(savedLocation, now.toLocalDate()) {
+    PanchangCalculator.calculate(now.toLocalDate(), savedLocation)
+  }
+  val enabledCount = listOf(eveningEnabled, brahmaMuhurtaEnabled).count { it }
+  Card(
+    modifier = Modifier.fillMaxWidth(),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+  ) {
+    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+      Text("My routines", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+      Text(
+        "Sunset ${panchang.sunset.asDisplay()} · Brahma Muhurta ${panchang.brahmaMuhurtaStart.asDisplay()}",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onTertiaryContainer,
+      )
+      Text(
+        if (enabledCount == 0) "Choose and personalise your daily devotional routine."
+        else "$enabledCount personal routine${if (enabledCount == 1) "" else "s"} enabled on this device.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onTertiaryContainer,
+      )
+      TextButton(onClick = onOpenRoutines, modifier = Modifier.fillMaxWidth()) {
+        Text("Open routines")
+      }
+    }
+  }
+}
 
 @Composable
 private fun DailyEntryCard(japaCount: Int, onIncrementJapa: () -> Unit) {

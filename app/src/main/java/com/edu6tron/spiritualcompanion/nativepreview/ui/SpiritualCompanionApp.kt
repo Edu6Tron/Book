@@ -1,6 +1,5 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
@@ -36,6 +35,7 @@ private enum class NativeTab(val title: String) {
   FESTIVALS("Festivals"),
   PRACTICE("Practice"),
   SETTINGS("Settings"),
+  ROUTINE("My routines"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,11 +62,14 @@ fun SpiritualCompanionApp(
   onClearLocation: () -> Unit,
   onSaveReadingComfort: (ReadingComfort) -> Unit,
   onSaveThemeMode: (ThemeMode) -> Unit,
+  onSaveEveningRoutineEnabled: (Boolean) -> Unit,
+  onSaveBrahmaMuhurtaRoutineEnabled: (Boolean) -> Unit,
   onOpenNotificationSettings: () -> Unit,
   onOpenExactAlarmSettings: () -> Unit,
   onDismissNotice: () -> Unit,
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
+  var requestedAartiId by remember { mutableStateOf<String?>(null) }
   val snackbarHostState = remember { SnackbarHostState() }
   LaunchedEffect(state.notice) {
     state.notice?.let { message ->
@@ -78,21 +81,23 @@ fun SpiritualCompanionApp(
     modifier = Modifier.fillMaxSize(),
     snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     bottomBar = {
-      NavigationBar {
-        listOf(
-          Triple(NativeTab.TODAY, Icons.Outlined.Home, "Today"),
-          Triple(NativeTab.AARTIS, Icons.Outlined.LibraryMusic, "Aartis"),
-          Triple(NativeTab.DISCOVER, Icons.Outlined.AutoAwesome, "Discover"),
-          Triple(NativeTab.FESTIVALS, Icons.Outlined.CalendarMonth, "Festivals"),
-          Triple(NativeTab.PRACTICE, Icons.Outlined.Spa, "Practice"),
-        ).forEach { (tab, icon, label) ->
-          NavigationBarItem(
-            selected = selectedTab == tab,
-            onClick = { selectedTab = tab },
-            icon = { Icon(icon, contentDescription = label) },
-            label = { Text(label) },
-            colors = NavigationBarItemDefaults.colors(),
-          )
+      if (selectedTab != NativeTab.SETTINGS && selectedTab != NativeTab.ROUTINE) {
+        NavigationBar {
+          listOf(
+            Triple(NativeTab.TODAY, Icons.Outlined.Home, "Today"),
+            Triple(NativeTab.AARTIS, Icons.Outlined.LibraryMusic, "Aartis"),
+            Triple(NativeTab.DISCOVER, Icons.Outlined.AutoAwesome, "Discover"),
+            Triple(NativeTab.FESTIVALS, Icons.Outlined.CalendarMonth, "Festivals"),
+            Triple(NativeTab.PRACTICE, Icons.Outlined.Spa, "Practice"),
+          ).forEach { (tab, icon, label) ->
+            NavigationBarItem(
+              selected = selectedTab == tab,
+              onClick = { selectedTab = tab },
+              icon = { Icon(icon, contentDescription = label) },
+              label = { Text(label) },
+              colors = NavigationBarItemDefaults.colors(),
+            )
+          }
         }
       }
     },
@@ -106,6 +111,7 @@ fun SpiritualCompanionApp(
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
         onOpenFestivals = { selectedTab = NativeTab.FESTIVALS },
         onOpenDiscover = { selectedTab = NativeTab.DISCOVER },
+        onOpenRoutines = { selectedTab = NativeTab.ROUTINE },
         onOpenSettings = { selectedTab = NativeTab.SETTINGS },
         onOpenExactAlarmSettings = onOpenExactAlarmSettings,
         onSaveAlarm = onSaveAlarm,
@@ -131,6 +137,8 @@ fun SpiritualCompanionApp(
         savedLocation = state.content.savedLocation,
         onSaveLocation = onSaveLocation,
         onClearLocation = onClearLocation,
+        initialAartiId = requestedAartiId,
+        onInitialAartiConsumed = { requestedAartiId = null },
       )
       NativeTab.DISCOVER -> DiscoverDevotionalsScreen(
         contentPadding = padding,
@@ -157,6 +165,17 @@ fun SpiritualCompanionApp(
         onSaveReadingComfort = onSaveReadingComfort,
         onOpenNotificationSettings = onOpenNotificationSettings,
         onNavigateBack = { selectedTab = NativeTab.TODAY },
+      )
+      NativeTab.ROUTINE -> DevotionalRoutineScreen(
+        content = state.content,
+        contentPadding = padding,
+        onNavigateBack = { selectedTab = NativeTab.TODAY },
+        onOpenAarti = { aartiId ->
+          requestedAartiId = aartiId
+          selectedTab = NativeTab.AARTIS
+        },
+        onSaveEveningRoutineEnabled = onSaveEveningRoutineEnabled,
+        onSaveBrahmaMuhurtaRoutineEnabled = onSaveBrahmaMuhurtaRoutineEnabled,
       )
     }
   }

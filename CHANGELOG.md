@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.2-rc.16 — 16 August 2026
+
+The Today dashboard now leads to a focused, fully offline **My routines** experience for the app’s core daily rhythm. It presents the requested **Evening Prarthana** in the sequence *Shubham Karoti → Vakratunda Mahakaya → Sukhkarta Dukhharta → Shirdi Majhe Pandharpur*, anchored transparently to the selected city’s local sunset estimate. A companion **Brahma Muhurta start** routine is anchored to the existing offline pre-sunrise calculation.
+
+Each routine can be saved as enabled or disabled on the device, retains the existing exact-alarm and bundled fallback-tone path for user-created reminders, and clearly separates personal routine settings from formal ritual authority. Short local recitation views are included for Shubham Karoti and Vakratunda Mahakaya; catalogue-backed steps open the existing offline lyric-led Aarti interface without background loading or provider auto-playback.
+
+When the local Panchang estimate identifies Ekadashi or Purnima, the routine screen provides optional, clearly labelled suggestions that link only to already bundled local Aartis. Routine preferences, timing estimates, guidance, and lyrics remain local to the device. Regression tests cover the requested evening order, offline recitation text, Brahma Muhurta anchoring, and both special-day suggestion paths.
+
 ## v1.3.1-rc.15 — 16 August 2026
 
 The Practice tab’s original offline soundscape library has doubled from three to **six** pieces. New device-bundled additions are **Temple bells & stillness**, **Monsoon reflection**, and **Lamp-flame stillness**, complementing Sacred dawn, Focused japa, and Evening lamp.

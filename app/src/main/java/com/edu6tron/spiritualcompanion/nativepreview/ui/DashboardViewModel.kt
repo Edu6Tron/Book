@@ -38,6 +38,8 @@ data class DashboardContentState(
   val savedLocation: String? = null,
   val readingComfort: ReadingComfort = ReadingComfort.STANDARD,
   val themeMode: ThemeMode = ThemeMode.LIGHT,
+  val eveningRoutineEnabled: Boolean = false,
+  val brahmaMuhurtaRoutineEnabled: Boolean = false,
 )
 
 @Immutable
@@ -67,6 +69,8 @@ class DashboardViewModel @Inject constructor(
         savedLocation = stored.savedLocation,
         readingComfort = stored.readingComfort,
         themeMode = stored.themeMode,
+        eveningRoutineEnabled = stored.eveningRoutineEnabled,
+        brahmaMuhurtaRoutineEnabled = stored.brahmaMuhurtaRoutineEnabled,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
@@ -161,6 +165,14 @@ class DashboardViewModel @Inject constructor(
 
   fun saveThemeMode(themeMode: ThemeMode) {
     launchSafely("theme-mode") { repository.saveThemeMode(themeMode) }
+  }
+
+  fun saveEveningRoutineEnabled(enabled: Boolean) {
+    launchSafely("evening-routine") { repository.saveEveningRoutineEnabled(enabled) }
+  }
+
+  fun saveBrahmaMuhurtaRoutineEnabled(enabled: Boolean) {
+    launchSafely("brahma-muhurta-routine") { repository.saveBrahmaMuhurtaRoutineEnabled(enabled) }
   }
 
   fun openNotificationSettings() {

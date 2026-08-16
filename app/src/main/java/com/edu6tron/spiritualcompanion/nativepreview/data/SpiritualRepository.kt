@@ -23,6 +23,8 @@ data class StoredSpiritualState(
   val savedLocation: String? = null,
   val readingComfort: ReadingComfort = ReadingComfort.STANDARD,
   val themeMode: ThemeMode = ThemeMode.LIGHT,
+  val eveningRoutineEnabled: Boolean = false,
+  val brahmaMuhurtaRoutineEnabled: Boolean = false,
 )
 
 @Singleton
@@ -43,6 +45,8 @@ class SpiritualRepository @Inject constructor(
   private val savedLocationKey = "saved_location"
   private val readingComfortKey = "reading_comfort"
   private val themeModeKey = "theme_mode"
+  private val eveningRoutineEnabledKey = "evening_routine_enabled"
+  private val brahmaMuhurtaRoutineEnabledKey = "brahma_muhurta_routine_enabled"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -74,6 +78,10 @@ class SpiritualRepository @Inject constructor(
     state.copy(readingComfort = ReadingComfort.fromStored(readingComfort))
   }.combine(appStateDao.observeString(themeModeKey)) { state, themeMode ->
     state.copy(themeMode = ThemeMode.fromStored(themeMode))
+  }.combine(appStateDao.observeString(eveningRoutineEnabledKey)) { state, enabled ->
+    state.copy(eveningRoutineEnabled = enabled.toStoredBoolean())
+  }.combine(appStateDao.observeString(brahmaMuhurtaRoutineEnabledKey)) { state, enabled ->
+    state.copy(brahmaMuhurtaRoutineEnabled = enabled.toStoredBoolean())
   }
 
   suspend fun togglePractice(id: String) {
@@ -144,4 +152,14 @@ class SpiritualRepository @Inject constructor(
   suspend fun saveThemeMode(themeMode: ThemeMode) {
     appStateDao.saveStringPreference(StringPreferenceEntity(themeModeKey, themeMode.storedValue))
   }
+
+  suspend fun saveEveningRoutineEnabled(enabled: Boolean) {
+    appStateDao.saveStringPreference(StringPreferenceEntity(eveningRoutineEnabledKey, enabled.toString()))
+  }
+
+  suspend fun saveBrahmaMuhurtaRoutineEnabled(enabled: Boolean) {
+    appStateDao.saveStringPreference(StringPreferenceEntity(brahmaMuhurtaRoutineEnabledKey, enabled.toString()))
+  }
+
+  private fun String?.toStoredBoolean(): Boolean = equals("true", ignoreCase = true)
 }

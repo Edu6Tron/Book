@@ -58,3 +58,7 @@
 - [x] Audit the existing soundscape library and choose complementary original offline audio additions.
 - [x] Add original offline devotional soundscapes with polished, accessibility-safe local playback presentation.
 - [x] Add regression coverage and publish a validated native candidate for the expanded offline-media experience.
+- [x] Define the Brahma Muhurta and sunset-prayer routine architecture, legal playback boundaries, and user-control model.
+- [x] Add configurable offline-first Evening Prarthana and Brahma Muhurta routines with dependable local reminders and safe media fallbacks.
+- [x] Add offline special-day suggestions and a lyric-led recitation experience for the core prayer sequence without provider auto-playback.
+- [x] Add deterministic routine regression coverage and publish a validated native candidate for the integrated devotional-routine experience.

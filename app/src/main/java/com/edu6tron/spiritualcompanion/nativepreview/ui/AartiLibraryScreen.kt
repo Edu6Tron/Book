@@ -35,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,11 +70,19 @@ fun AartiLibraryScreen(
   savedLocation: String?,
   onSaveLocation: (String) -> Unit,
   onClearLocation: () -> Unit,
+  initialAartiId: String? = null,
+  onInitialAartiConsumed: () -> Unit = {},
 ) {
   var query by rememberSaveable { mutableStateOf("") }
   var category by rememberSaveable { mutableStateOf("All") }
   var locationDraft by rememberSaveable(savedLocation) { mutableStateOf(savedLocation.orEmpty()) }
   var selectedAarti by remember { mutableStateOf<AartiItem?>(null) }
+  LaunchedEffect(initialAartiId) {
+    initialAartiId?.let { aartiId ->
+      selectedAarti = NativeCatalogue.aartis.firstOrNull { it.id == aartiId }
+      onInitialAartiConsumed()
+    }
+  }
   val context = LocalContext.current
   val mediaPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
     uri ?: return@rememberLauncherForActivityResult
