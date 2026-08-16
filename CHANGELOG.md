@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.7-rc.21 — 16 August 2026
+
+The Today dashboard now offers an original, timing-aware **NOW / NEXT / PERSONAL PLAN** focus cue. It changes locally according to the selected city’s offline Panchang estimate, the current device time, and the user’s enabled Brahma Muhurta or Evening Prarthana routine. It can therefore point into an active Brahma Muhurta window, gently prepare the evening sequence ahead of the local sunset estimate, or make an unconfigured personal routine visible without fabricating an alarm state. The focus cue is a personal aid, not ritual authority, and neither the city, routine choices, nor current focus leave the device.
+
+This candidate also adds Android Baseline Profile packaging through the supported ProfileInstaller dependency, together with a small startup-focused rule set. The optimization is only applied by Android for production-style releases, while the development build remains fast to install. The source-attributed study and original product blueprint added under `docs/` distinguish lawful pattern learning from copied code, assets, or branding; they guide the next quality work on player ownership, reminder hand-off, and accessible interactions.
+
+Unit coverage now confirms the active Brahma Muhurta, next Evening Prarthana, and unconfigured-plan focus states. The native debug APK assembly succeeds with the profile dependency and no network, GPS, background refresh, or private-data logging has been added.
+
 ## v1.3.6-rc.20 — 16 August 2026
 
 This release completes a reconciliation pass on the timing-aware routine work and restores a clean native Android build path. The dashboard now has one clear **My routines** entry point, preserving the richer daily-rhythm card, local progress flow, lyric handoffs, special-day suggestions, and exact-reminder access introduced across the routine releases.

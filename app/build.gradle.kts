@@ -19,8 +19,8 @@ android {
     applicationId = "com.edu6tron.spiritualcompanion.nativepreview"
     minSdk = 26
     targetSdk = 35
-    versionCode = 21
-    versionName = "1.3.6-rc.20"
+    versionCode = 22
+    versionName = "1.3.7-rc.21"
   }
 
   buildFeatures {
@@ -97,6 +97,7 @@ dependencies {
 
   implementation("androidx.media3:media3-exoplayer:1.5.1")
   implementation("androidx.media3:media3-common:1.5.1")
+  implementation("androidx.profileinstaller:profileinstaller:1.4.1")
 
   testImplementation("junit:junit:4.13.2")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")

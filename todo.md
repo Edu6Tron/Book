@@ -75,3 +75,9 @@
 - [x] Translate the benchmark into a privacy-first, Kotlin-first implementation plan tailored to the app’s timing-aware devotional routines and offline media.
 - [x] Reconcile the timing-aware routine foundation and apply targeted Compose freshness and accessibility refinements without weakening offline reliability.
 - [x] Validate and publish the resulting native Android quality release.
+- [x] Study the supplied Kotlin reference projects and relevant public material for lawful architecture, playback, scheduling, navigation, and design patterns.
+- [x] Create a source-attributed improvement blueprint that adapts useful patterns into an original privacy-first Spiritual Companion experience.
+- [x] Implement and test the highest-impact original Kotlin and Compose improvements from the reference-informed blueprint.
+- [ ] Validate and publish the upgraded native Android experience.
+- [ ] Audit and strengthen the one-owner local player contract, including predictable release and an always-reachable stop action.
+- [ ] Audit remaining non-text controls and all eleven palettes for accessible labels, touch targets, and readable contrast.

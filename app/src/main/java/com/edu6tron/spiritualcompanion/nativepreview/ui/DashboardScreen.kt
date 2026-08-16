@@ -55,6 +55,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmReadiness
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
+import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalFocusResolver
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
@@ -315,15 +316,30 @@ private fun RoutineEntryCard(
   val panchang = remember(savedLocation, now.toLocalDate()) {
     PanchangCalculator.calculate(now.toLocalDate(), savedLocation)
   }
+  val focus = remember(panchang, now.toLocalTime(), eveningEnabled, brahmaMuhurtaEnabled) {
+    DevotionalFocusResolver.resolve(
+      snapshot = panchang,
+      now = now.toLocalTime(),
+      brahmaMuhurtaEnabled = brahmaMuhurtaEnabled,
+      eveningRoutineEnabled = eveningEnabled,
+    )
+  }
   val enabledCount = listOf(eveningEnabled, brahmaMuhurtaEnabled).count { it }
   Card(
-    modifier = Modifier.fillMaxWidth(),
+    modifier = Modifier
+      .fillMaxWidth()
+      .semantics { contentDescription = "Daily devotional focus. ${focus.label}. ${focus.title}. ${focus.detail}" },
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
     shape = RoundedCornerShape(28.dp),
   ) {
     Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-      Text("DAILY RHYTHM", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
-      Text("My routines", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+      Text(focus.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
+      Text(focus.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+      Text(
+        focus.detail,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onTertiaryContainer,
+      )
       Text(
         "Sunset ${panchang.sunset.asDisplay()} · Brahma Muhurta ${panchang.brahmaMuhurtaStart.asDisplay()}",
         style = MaterialTheme.typography.bodyMedium,
