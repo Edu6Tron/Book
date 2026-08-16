@@ -1,6 +1,7 @@
 package com.edu6tron.spiritualcompanion.nativepreview.data
 
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
+import java.time.LocalDate
 import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -54,6 +55,25 @@ class DevotionalRoutineTest {
     assertEquals("Purnima suggestion", guidance?.title)
     assertEquals(listOf("om-jai-jagdish-hare", "om-jai-lakshmi-mata"), guidance?.suggestedAartiIds)
     assertTrue(guidance?.detail?.contains("own tradition", ignoreCase = true) == true)
+  }
+
+  @Test
+  fun `daily routine progress is stable today and naturally resets for a new day`() {
+    val today = LocalDate.of(2026, 8, 16)
+    val progress = RoutineDailyProgress(today, setOf("vakratunda", "shubham-karoti"))
+
+    val restored = RoutineDailyProgress.fromStored(progress.toStoredValue())
+
+    assertEquals(setOf("vakratunda", "shubham-karoti"), restored.completedStepsFor(today))
+    assertEquals(emptySet<String>(), restored.completedStepsFor(today.plusDays(1)))
+    assertEquals("2026-08-16|shubham-karoti,vakratunda", progress.toStoredValue())
+  }
+
+  @Test
+  fun `invalid routine progress is ignored safely`() {
+    val restored = RoutineDailyProgress.fromStored("not-a-date|wake")
+
+    assertEquals(emptySet<String>(), restored.completedStepsFor(LocalDate.of(2026, 8, 16)))
   }
 
   private fun snapshot(tithi: String) = PanchangSnapshot(

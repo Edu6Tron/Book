@@ -3,6 +3,7 @@ package com.edu6tron.spiritualcompanion.nativepreview.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +26,8 @@ data class StoredSpiritualState(
   val themeMode: ThemeMode = ThemeMode.LIGHT,
   val eveningRoutineEnabled: Boolean = false,
   val brahmaMuhurtaRoutineEnabled: Boolean = false,
+  val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
+  val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
 )
 
 @Singleton
@@ -47,6 +50,8 @@ class SpiritualRepository @Inject constructor(
   private val themeModeKey = "theme_mode"
   private val eveningRoutineEnabledKey = "evening_routine_enabled"
   private val brahmaMuhurtaRoutineEnabledKey = "brahma_muhurta_routine_enabled"
+  private val eveningRoutineProgressKey = "evening_routine_progress"
+  private val brahmaMuhurtaRoutineProgressKey = "brahma_muhurta_routine_progress"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -82,6 +87,10 @@ class SpiritualRepository @Inject constructor(
     state.copy(eveningRoutineEnabled = enabled.toStoredBoolean())
   }.combine(appStateDao.observeString(brahmaMuhurtaRoutineEnabledKey)) { state, enabled ->
     state.copy(brahmaMuhurtaRoutineEnabled = enabled.toStoredBoolean())
+  }.combine(appStateDao.observeString(eveningRoutineProgressKey)) { state, progress ->
+    state.copy(eveningRoutineProgress = RoutineDailyProgress.fromStored(progress))
+  }.combine(appStateDao.observeString(brahmaMuhurtaRoutineProgressKey)) { state, progress ->
+    state.copy(brahmaMuhurtaRoutineProgress = RoutineDailyProgress.fromStored(progress))
   }
 
   suspend fun togglePractice(id: String) {
@@ -159,6 +168,33 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun saveBrahmaMuhurtaRoutineEnabled(enabled: Boolean) {
     appStateDao.saveStringPreference(StringPreferenceEntity(brahmaMuhurtaRoutineEnabledKey, enabled.toString()))
+  }
+
+  suspend fun setRoutineStepCompleted(routineId: String, stepId: String, completed: Boolean) {
+    val preferenceKey = progressPreferenceKey(routineId) ?: return
+    val today = LocalDate.now()
+    val currentSteps = RoutineDailyProgress.fromStored(appStateDao.getString(preferenceKey))
+      .completedStepsFor(today)
+      .toMutableSet()
+    if (completed) currentSteps += stepId else currentSteps -= stepId
+    val updated = RoutineDailyProgress(date = today, completedStepIds = currentSteps)
+    val storedValue = updated.toStoredValue()
+    if (storedValue == null) {
+      appStateDao.deleteStringPreference(preferenceKey)
+    } else {
+      appStateDao.saveStringPreference(StringPreferenceEntity(preferenceKey, storedValue))
+    }
+  }
+
+  suspend fun resetRoutineProgress(routineId: String) {
+    val preferenceKey = progressPreferenceKey(routineId) ?: return
+    appStateDao.deleteStringPreference(preferenceKey)
+  }
+
+  private fun progressPreferenceKey(routineId: String): String? = when (routineId) {
+    NativeDevotionalRoutines.eveningPrarthana.id -> eveningRoutineProgressKey
+    NativeDevotionalRoutines.brahmaMuhurta.id -> brahmaMuhurtaRoutineProgressKey
+    else -> null
   }
 
   private fun String?.toStoredBoolean(): Boolean = equals("true", ignoreCase = true)

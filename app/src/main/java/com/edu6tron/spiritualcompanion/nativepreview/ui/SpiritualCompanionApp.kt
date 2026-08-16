@@ -64,6 +64,8 @@ fun SpiritualCompanionApp(
   onSaveThemeMode: (ThemeMode) -> Unit,
   onSaveEveningRoutineEnabled: (Boolean) -> Unit,
   onSaveBrahmaMuhurtaRoutineEnabled: (Boolean) -> Unit,
+  onSetRoutineStepCompleted: (String, String, Boolean) -> Unit,
+  onResetRoutineProgress: (String) -> Unit,
   onOpenNotificationSettings: () -> Unit,
   onOpenExactAlarmSettings: () -> Unit,
   onDismissNotice: () -> Unit,
@@ -176,6 +178,9 @@ fun SpiritualCompanionApp(
         },
         onSaveEveningRoutineEnabled = onSaveEveningRoutineEnabled,
         onSaveBrahmaMuhurtaRoutineEnabled = onSaveBrahmaMuhurtaRoutineEnabled,
+        onSetRoutineStepCompleted = onSetRoutineStepCompleted,
+        onResetRoutineProgress = onResetRoutineProgress,
+        onOpenAlarmTools = { selectedTab = NativeTab.TODAY },
       )
     }
   }

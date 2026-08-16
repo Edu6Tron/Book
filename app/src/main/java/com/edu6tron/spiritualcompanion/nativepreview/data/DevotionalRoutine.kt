@@ -1,6 +1,7 @@
 package com.edu6tron.spiritualcompanion.nativepreview.data
 
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
+import java.time.LocalDate
 
 enum class DevotionalRoutineAnchor(val title: String) {
   BRAHMA_MUHURTA("Brahma Muhurta"),
@@ -28,6 +29,38 @@ data class RoutineSpecialDayGuidance(
   val detail: String,
   val suggestedAartiIds: List<String>,
 )
+
+/**
+ * A small, local-only completion record. It automatically starts fresh when the calendar date
+ * changes, while keeping the user's current-day progress intact across navigation or restarts.
+ */
+data class RoutineDailyProgress(
+  val date: LocalDate? = null,
+  val completedStepIds: Set<String> = emptySet(),
+) {
+  fun completedStepsFor(today: LocalDate): Set<String> =
+    completedStepIds.takeIf { date == today }.orEmpty()
+
+  fun toStoredValue(): String? = date?.let { savedDate ->
+    "$savedDate|${completedStepIds.sorted().joinToString(",")}".takeIf { completedStepIds.isNotEmpty() }
+  }
+
+  companion object {
+    fun fromStored(value: String?): RoutineDailyProgress {
+      val pieces = value?.split("|", limit = 2).orEmpty()
+      val date = pieces.firstOrNull()?.let { encodedDate ->
+        runCatching { LocalDate.parse(encodedDate) }.getOrNull()
+      } ?: return RoutineDailyProgress()
+      val completedIds = pieces.getOrNull(1)
+        ?.split(",")
+        ?.map(String::trim)
+        ?.filter(String::isNotBlank)
+        ?.toSet()
+        .orEmpty()
+      return RoutineDailyProgress(date = date, completedStepIds = completedIds)
+    }
+  }
+}
 
 /**
  * Offline, user-editable routine definitions. These are suggestions, not authoritative ritual

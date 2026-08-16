@@ -7,6 +7,7 @@ import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
+import com.edu6tron.spiritualcompanion.nativepreview.data.RoutineDailyProgress
 import com.edu6tron.spiritualcompanion.nativepreview.data.SpiritualRepository
 import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
 import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
@@ -40,6 +41,8 @@ data class DashboardContentState(
   val themeMode: ThemeMode = ThemeMode.LIGHT,
   val eveningRoutineEnabled: Boolean = false,
   val brahmaMuhurtaRoutineEnabled: Boolean = false,
+  val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
+  val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
 )
 
 @Immutable
@@ -71,6 +74,8 @@ class DashboardViewModel @Inject constructor(
         themeMode = stored.themeMode,
         eveningRoutineEnabled = stored.eveningRoutineEnabled,
         brahmaMuhurtaRoutineEnabled = stored.brahmaMuhurtaRoutineEnabled,
+        eveningRoutineProgress = stored.eveningRoutineProgress,
+        brahmaMuhurtaRoutineProgress = stored.brahmaMuhurtaRoutineProgress,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
@@ -173,6 +178,14 @@ class DashboardViewModel @Inject constructor(
 
   fun saveBrahmaMuhurtaRoutineEnabled(enabled: Boolean) {
     launchSafely("brahma-muhurta-routine") { repository.saveBrahmaMuhurtaRoutineEnabled(enabled) }
+  }
+
+  fun setRoutineStepCompleted(routineId: String, stepId: String, completed: Boolean) {
+    launchSafely("routine-progress") { repository.setRoutineStepCompleted(routineId, stepId, completed) }
+  }
+
+  fun resetRoutineProgress(routineId: String) {
+    launchSafely("routine-progress-reset") { repository.resetRoutineProgress(routineId) }
   }
 
   fun openNotificationSettings() {

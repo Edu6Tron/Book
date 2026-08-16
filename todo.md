@@ -62,3 +62,6 @@
 - [x] Add configurable offline-first Evening Prarthana and Brahma Muhurta routines with dependable local reminders and safe media fallbacks.
 - [x] Add offline special-day suggestions and a lyric-led recitation experience for the core prayer sequence without provider auto-playback.
 - [x] Add deterministic routine regression coverage and publish a validated native candidate for the integrated devotional-routine experience.
+- [x] Audit the newly released routine experience for the highest-impact devotional-flow, personal-control, and usability refinements.
+- [x] Implement and test the selected offline-first routine refinements without weakening alarm reliability or privacy boundaries.
+- [ ] Validate and publish an improved native Android devotional-routine release.

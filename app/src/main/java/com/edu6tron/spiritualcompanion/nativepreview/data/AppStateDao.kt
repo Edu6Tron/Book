@@ -32,6 +32,9 @@ interface AppStateDao {
   @Query("SELECT value FROM string_preference WHERE `key` = :key LIMIT 1")
   fun observeString(key: String): Flow<String?>
 
+  @Query("SELECT value FROM string_preference WHERE `key` = :key LIMIT 1")
+  suspend fun getString(key: String): String?
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun saveStringPreference(preference: StringPreferenceEntity)
 

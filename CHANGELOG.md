@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.3-rc.17 — 16 August 2026
+
+**My routines** now feels more like a daily companion than a static reading list. It shows the next upcoming personal moment from the local Brahma Muhurta and sunset estimates, including a calm time-until label that refreshes on-device. The timing card also has a direct **Open reminder controls** action, which returns to the established exact-alarm controls instead of leaving the reminder path implicit.
+
+Each daily routine now has a simple local progress indicator and a completion mark for every step. Marks are retained across navigation and app restarts for the current calendar day, clear naturally when a new day begins, and can be cleared manually at any time. The app never sends this progress, timing, prayer choice, or city information off-device.
+
+The completion model validates stored dates defensively and ignores malformed data rather than blocking the app. The refined interface continues to keep user-owned exact alarms separate from the sunset estimate, bundled local lyrics separate from provider playback, and personal suggestions separate from ritual authority.
+
 ## v1.3.2-rc.16 — 16 August 2026
 
 The Today dashboard now leads to a focused, fully offline **My routines** experience for the app’s core daily rhythm. It presents the requested **Evening Prarthana** in the sequence *Shubham Karoti → Vakratunda Mahakaya → Sukhkarta Dukhharta → Shirdi Majhe Pandharpur*, anchored transparently to the selected city’s local sunset estimate. A companion **Brahma Muhurta start** routine is anchored to the existing offline pre-sunrise calculation.
