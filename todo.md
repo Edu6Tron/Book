@@ -108,4 +108,4 @@
 - [x] Audit the current offline celestial-timing calculation and selected-place precision boundaries against an authoritative online timing source.
 - [x] Add a user-controlled online refresh for sunrise, sunset, moonrise, and moonset with visible source, freshness, and offline-fallback status.
 - [x] Add deterministic tests for refreshed timing cache validity, failure handling, privacy boundaries, and date-range coverage.
-- [ ] Validate and publish a signed native Android candidate for the accurate online-timing refresh.
+- [x] Validate and publish a signed native Android candidate for the accurate online-timing refresh.
