@@ -102,3 +102,6 @@
 - [x] Define and document inclusion rules for public-domain, openly licensed, or permission-backed whole Aarti texts and recordings.
 - [x] Curate and integrate an expanded source-attributed offline Aarti library without copying restricted website or book content.
 - [x] Validate catalogue provenance, search, playback, accessibility, and signed native release artifacts for the Aarti-library expansion.
+- [x] Audit authoritative Maharashtra festival, public-holiday, and Panchang-source boundaries for an original rich-event calendar schema.
+- [x] Implement a source-tiered Maharashtra rich-event and Panchang calendar data model with transparent estimate and provenance labels.
+- [ ] Validate calendar event integrity and accessibility, then publish a signed native Android candidate.

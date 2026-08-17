@@ -58,7 +58,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.FestivalItem
 import com.edu6tron.spiritualcompanion.nativepreview.data.MaharashtraCalendar
-import com.edu6tron.spiritualcompanion.nativepreview.data.MaharashtraCalendarObservance
+import com.edu6tron.spiritualcompanion.nativepreview.data.MaharashtraCalendarSourceTier
+import com.edu6tron.spiritualcompanion.nativepreview.data.MaharashtraRichCalendarEvent
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeCatalogue
 import com.edu6tron.spiritualcompanion.nativepreview.data.TempleItem
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
@@ -220,8 +221,7 @@ private fun MaharashtraMonthCalendar(
   val cells = remember(displayedMonth) { MaharashtraCalendar.monthGrid(displayedMonth) }
   val officialDates = remember(displayedMonth) { MaharashtraCalendar.observanceDatesIn(displayedMonth) }
   val snapshot = remember(selectedDate, savedLocation) { PanchangCalculator.calculate(selectedDate, savedLocation) }
-  val officialObservances = remember(selectedDate) { MaharashtraCalendar.observancesOn(selectedDate) }
-  val panchangMarkers = remember(snapshot) { MaharashtraCalendar.panchangMarkers(snapshot) }
+  val richEvents = remember(selectedDate, snapshot) { MaharashtraCalendar.richEventsOn(selectedDate, snapshot) }
   val today = LocalDate.now()
 
   Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -282,8 +282,7 @@ private fun MaharashtraMonthCalendar(
     SelectedDayCard(
       date = selectedDate,
       snapshot = snapshot,
-      officialObservances = officialObservances,
-      panchangMarkers = panchangMarkers,
+      richEvents = richEvents,
     )
   }
 }
@@ -343,8 +342,7 @@ private fun CalendarDayCell(
 private fun SelectedDayCard(
   date: LocalDate,
   snapshot: PanchangSnapshot,
-  officialObservances: List<MaharashtraCalendarObservance>,
-  panchangMarkers: List<String>,
+  richEvents: List<MaharashtraRichCalendarEvent>,
 ) {
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -357,23 +355,15 @@ private fun SelectedDayCard(
       PanchangValue("Tithi", "${snapshot.tithi} · ${snapshot.paksha}")
       PanchangValue("Nakshatra", snapshot.nakshatra)
       PanchangValue("Lunar month", "${snapshot.lunarMonthEstimate} (estimate)")
-      if (panchangMarkers.isNotEmpty()) {
-        Text("Personal practice cues", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
-        panchangMarkers.forEach { marker -> Text(marker, style = MaterialTheme.typography.bodySmall) }
-      }
-      Text("Official Maharashtra public observances", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
-      if (officialObservances.isEmpty()) {
-        Text("No bundled 2026 government public-holiday marker for this date.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      Text("Source-labelled day events", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+      if (richEvents.isEmpty()) {
+        Text(
+          "No bundled government marker or calculated personal-practice cue for this date.",
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
       } else {
-        officialObservances.forEach { observance ->
-          Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
-            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-              Text(observance.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-              Text(observance.category, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
-              Text("Source: ${observance.source}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
-            }
-          }
-        }
+        richEvents.forEach { event -> RichCalendarEventCard(event) }
       }
       Text(
         "For temple-specific or ritual-critical observance, confirm a locally published Panchang. This app provides personal guidance, not ritual authority.",
@@ -390,6 +380,35 @@ private fun PanchangValue(label: String, value: String) {
     Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Spacer(modifier = Modifier.width(12.dp))
     Text(value, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+  }
+}
+
+@Composable
+private fun RichCalendarEventCard(event: MaharashtraRichCalendarEvent) {
+  val containerColor = when (event.sourceTier) {
+    MaharashtraCalendarSourceTier.GOVERNMENT_PUBLISHED -> MaterialTheme.colorScheme.secondaryContainer
+    MaharashtraCalendarSourceTier.CURATED_DEVOTIONAL_GUIDE -> MaterialTheme.colorScheme.primaryContainer
+    MaharashtraCalendarSourceTier.LOCAL_PANCHANG_ESTIMATE -> MaterialTheme.colorScheme.tertiaryContainer
+    MaharashtraCalendarSourceTier.PERSONAL_PLAN -> MaterialTheme.colorScheme.surfaceVariant
+  }
+  val contentColor = when (event.sourceTier) {
+    MaharashtraCalendarSourceTier.GOVERNMENT_PUBLISHED -> MaterialTheme.colorScheme.onSecondaryContainer
+    MaharashtraCalendarSourceTier.CURATED_DEVOTIONAL_GUIDE -> MaterialTheme.colorScheme.onPrimaryContainer
+    MaharashtraCalendarSourceTier.LOCAL_PANCHANG_ESTIMATE -> MaterialTheme.colorScheme.onTertiaryContainer
+    MaharashtraCalendarSourceTier.PERSONAL_PLAN -> MaterialTheme.colorScheme.onSurfaceVariant
+  }
+  Card(colors = CardDefaults.cardColors(containerColor = containerColor, contentColor = contentColor)) {
+    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+      Text(event.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+      Text(event.category, style = MaterialTheme.typography.labelSmall)
+      Text(event.detail, style = MaterialTheme.typography.bodySmall)
+      Text(event.sourceTier.label, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold)
+      Text(event.sourceTier.disclosure, style = MaterialTheme.typography.labelSmall)
+      Text("Source: ${event.sourceLabel}", style = MaterialTheme.typography.labelSmall)
+      if (event.isEstimate) {
+        Text("Timing and observance are estimates; confirm locally when needed.", style = MaterialTheme.typography.labelSmall)
+      }
+    }
   }
 }
 

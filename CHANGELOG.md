@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.2-rc.26 — 17 August 2026
+
+The Maharashtra calendar now presents an original, selected-day **rich-event feed** instead of mixing government observances and calculated devotional cues without visible provenance. Each event has a title, category, source label, optional source URL, estimate flag, and clear source-tier disclosure. The four tiers are **Government-published date**, **Curated devotional guide**, **Local Panchang estimate**, and **Personal plan**, enabling future expansion without representing a personal suggestion as an official calendar declaration.
+
+Bundled 2026 Maharashtra public holidays continue to appear as non-estimated government-published entries. Ekadashi, Purnima, Amavasya, Chaturthi, and Shravana cues are now independent local Panchang estimates with an explicit prompt to confirm ritual-critical timing locally. The selected-day view uses distinct visual treatments for each tier and repeats the source and disclosure at the event itself rather than hiding this context in a general disclaimer.
+
+The release adds focused unit coverage for government event provenance, estimate flags, Ekadashi/Purnima/Chaturthi cue generation, and source-tier labels. Native unit tests and Android lint passed before this candidate was prepared; it introduces no GPS, network lookup, background refresh, or logging of private timing or location inputs.
+
 ## v1.4.1-rc.25 — 17 August 2026
 
 The offline Aarti reader now distinguishes short guided reading excerpts from a **verified whole-text** inclusion. **Om Jai Shiv Omkara** is bundled as a complete, source-attributed text adapted only for accessible line breaks from Sanskrit Wikisource’s reviewed permanent revision. Its reader card identifies the CC BY-SA 4.0 licence, contributor attribution, stable source URL, and licence URL; both links open only after a user taps them.

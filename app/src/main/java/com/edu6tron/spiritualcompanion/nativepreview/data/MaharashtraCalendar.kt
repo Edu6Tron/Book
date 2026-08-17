@@ -4,6 +4,29 @@ import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
 import java.time.LocalDate
 import java.time.YearMonth
 
+/** Explains how a calendar item entered the app so a calculated cue is never confused with a published date. */
+enum class MaharashtraCalendarSourceTier(
+  val label: String,
+  val disclosure: String,
+) {
+  GOVERNMENT_PUBLISHED(
+    label = "Government-published date",
+    disclosure = "Bundled from the listed Maharashtra public-holiday source for 2026.",
+  ),
+  CURATED_DEVOTIONAL_GUIDE(
+    label = "Curated devotional guide",
+    disclosure = "A reading or practice suggestion, not an official date declaration.",
+  ),
+  LOCAL_PANCHANG_ESTIMATE(
+    label = "Local Panchang estimate",
+    disclosure = "Calculated offline for the selected place; confirm ritual-critical timing locally.",
+  ),
+  PERSONAL_PLAN(
+    label = "Personal plan",
+    disclosure = "Created by the person using this device.",
+  ),
+}
+
 data class MaharashtraCalendarObservance(
   val id: String,
   val name: String,
@@ -14,14 +37,35 @@ data class MaharashtraCalendarObservance(
 )
 
 /**
- * Bundled, source-labelled calendar facts for the Maharashtra public-holiday list.
+ * A selected-day event contract for the original Maharashtra calendar.
  *
- * These dates are deliberately separate from the offline Panchang estimate. They are exact only
- * for the published 2026 government list; lunar dates remain clearly labelled as estimates.
+ * The model preserves date provenance, distinguishes exact civic dates from calculated Panchang
+ * cues, and leaves room for separately reviewed devotional-guide and personal-plan integrations.
+ */
+data class MaharashtraRichCalendarEvent(
+  val id: String,
+  val title: String,
+  val date: LocalDate,
+  val category: String,
+  val sourceTier: MaharashtraCalendarSourceTier,
+  val detail: String,
+  val sourceLabel: String,
+  val sourceUrl: String? = null,
+  val isEstimate: Boolean = false,
+  val linkedGuideId: String? = null,
+)
+
+/**
+ * Original offline Maharashtra calendar facts and calculated selected-day cues.
+ *
+ * Civic observances are fixed facts only for the bundled 2026 official list. Lunar cues are
+ * deliberately calculated only for a selected date and saved place, rather than being hard-coded
+ * into a commercial-almanac-style annual table.
  */
 object MaharashtraCalendar {
   const val publicHolidaySource = "MMRDA public holidays — 2026"
   const val publicHolidaySourceUrl = "https://mmrda.maharashtra.gov.in/en/public-holidays"
+  const val localPanchangSource = "Spiritual Companion offline Panchang calculation"
 
   val publicHolidays2026: List<MaharashtraCalendarObservance> = listOf(
     holiday("republic-day", "Republic Day", 1, 26),
@@ -53,6 +97,25 @@ object MaharashtraCalendar {
   fun observancesOn(date: LocalDate): List<MaharashtraCalendarObservance> =
     publicHolidays2026.filter { it.date == date }
 
+  /** Returns a source-labelled, selected-day event feed. No hidden background lookup is performed. */
+  fun richEventsOn(date: LocalDate, snapshot: PanchangSnapshot): List<MaharashtraRichCalendarEvent> = buildList {
+    observancesOn(date).forEach { observance ->
+      add(
+        MaharashtraRichCalendarEvent(
+          id = observance.id,
+          title = observance.name,
+          date = observance.date,
+          category = observance.category,
+          sourceTier = MaharashtraCalendarSourceTier.GOVERNMENT_PUBLISHED,
+          detail = "Published civil observance for Maharashtra in the bundled 2026 list.",
+          sourceLabel = observance.source,
+          sourceUrl = observance.sourceUrl,
+        ),
+      )
+    }
+    addAll(panchangRichEvents(date, snapshot))
+  }
+
   fun observanceDatesIn(month: YearMonth): Set<LocalDate> =
     publicHolidays2026.asSequence().filter { YearMonth.from(it.date) == month }.map { it.date }.toSet()
 
@@ -66,14 +129,53 @@ object MaharashtraCalendar {
     return cells
   }
 
-  fun panchangMarkers(snapshot: PanchangSnapshot): List<String> = buildList {
-    when {
-      snapshot.tithi.contains("Ekadashi", ignoreCase = true) -> add("Ekadashi personal-practice cue")
-      snapshot.tithi.equals("Purnima", ignoreCase = true) -> add("Purnima personal-practice cue")
-      snapshot.tithi.equals("Amavasya", ignoreCase = true) -> add("Amavasya personal-practice cue")
+  /** Compatibility summary for compact calendar cells; detailed provenance is exposed by [richEventsOn]. */
+  fun panchangMarkers(snapshot: PanchangSnapshot): List<String> =
+    panchangRichEvents(LocalDate.now(), snapshot).map { it.title }
+
+  private fun panchangRichEvents(date: LocalDate, snapshot: PanchangSnapshot): List<MaharashtraRichCalendarEvent> = buildList {
+    fun cue(id: String, title: String, detail: String) {
+      add(
+        MaharashtraRichCalendarEvent(
+          id = "panchang-$id-${date}",
+          title = title,
+          date = date,
+          category = "Personal devotional cue",
+          sourceTier = MaharashtraCalendarSourceTier.LOCAL_PANCHANG_ESTIMATE,
+          detail = detail,
+          sourceLabel = localPanchangSource,
+          isEstimate = true,
+        ),
+      )
     }
-    if (snapshot.lunarMonthEstimate == "Shravana" && snapshot.tithi.contains("Shukla", ignoreCase = true)) {
-      add("Shravana season estimate")
+    when {
+      snapshot.tithi.contains("Ekadashi", ignoreCase = true) -> cue(
+        "ekadashi",
+        "Ekadashi personal-practice cue",
+        "The local Tithi estimate indicates Ekadashi. Consider your chosen Vithoba or reflective practice.",
+      )
+      snapshot.tithi.equals("Purnima", ignoreCase = true) -> cue(
+        "purnima",
+        "Purnima personal-practice cue",
+        "The local Tithi estimate indicates Purnima. Consider a quiet reading or prayer practice.",
+      )
+      snapshot.tithi.equals("Amavasya", ignoreCase = true) -> cue(
+        "amavasya",
+        "Amavasya personal-practice cue",
+        "The local Tithi estimate indicates Amavasya. Choose any personal remembrance practice that is meaningful to you.",
+      )
+      snapshot.tithi.contains("Chaturthi", ignoreCase = true) -> cue(
+        "chaturthi",
+        "Chaturthi personal-practice cue",
+        "The local Tithi estimate indicates Chaturthi. Consider your chosen Ganapati reflection or Aarti.",
+      )
+    }
+    if (snapshot.lunarMonthEstimate.equals("Shravana", ignoreCase = true)) {
+      cue(
+        "shravana",
+        "Shravana devotional season estimate",
+        "The local lunar-month estimate is Shravana. Regional observance dates and practices vary; confirm locally when needed.",
+      )
     }
   }
 
