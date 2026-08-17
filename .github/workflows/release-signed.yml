@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/spiritual-companion-release.p12"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > "$RUNNER_TEMP/spiritual-companion-release.p12"
           chmod 600 "$RUNNER_TEMP/spiritual-companion-release.p12"
 
       - name: Build signed APK and Android App Bundle
