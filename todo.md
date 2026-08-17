@@ -119,4 +119,4 @@
 - [x] Implement user-initiated official YouTube search and compliant playback hand-off alongside the existing local-media synchronized player.
 - [x] Implement a clear-consent, user-managed official YouTube playlist hand-off; the app does not access accounts or create playlists silently.
 - [ ] Future enhancement: add programmatic YouTube playlist creation only after a separately approved Google OAuth client and explicit just-in-time confirmation are available.
-- [ ] Validate and publish a signed native Android candidate for the lawful dual-path media experience.
+- [x] Validate and publish a signed native Android candidate for the lawful dual-path media experience.
