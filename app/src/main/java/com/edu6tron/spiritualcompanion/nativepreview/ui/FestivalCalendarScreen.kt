@@ -1,30 +1,42 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ChevronLeft
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,20 +48,40 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.FestivalItem
+import com.edu6tron.spiritualcompanion.nativepreview.data.MaharashtraCalendar
+import com.edu6tron.spiritualcompanion.nativepreview.data.MaharashtraCalendarObservance
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeCatalogue
 import com.edu6tron.spiritualcompanion.nativepreview.data.TempleItem
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+private val monthFormatter = DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH)
+private val fullDateFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM uuuu", Locale.ENGLISH)
+private val weekdayLabels = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FestivalCalendarScreen(contentPadding: PaddingValues) {
+fun FestivalCalendarScreen(contentPadding: PaddingValues, savedLocation: String?) {
   var selectedSection by rememberSaveable { mutableIntStateOf(0) }
   var month by rememberSaveable { mutableStateOf("All") }
   var templeQuery by rememberSaveable { mutableStateOf("") }
   var templeCity by rememberSaveable { mutableStateOf("All") }
+  var displayedMonth by rememberSaveable { mutableStateOf(YearMonth.now()) }
+  var selectedDate by rememberSaveable { mutableStateOf(LocalDate.now()) }
   var selectedFestival by remember { mutableStateOf<FestivalItem?>(null) }
   var selectedTemple by remember { mutableStateOf<TempleItem?>(null) }
   val festivals = remember(month) { NativeCatalogue.festivals.filter { month == "All" || it.hinduMonth == month } }
@@ -74,69 +106,294 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues) {
     verticalArrangement = Arrangement.spacedBy(12.dp),
   ) {
     item {
-      Text(if (selectedSection == 0) "Festival calendar" else "Temple directory", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+      Text(
+        when (selectedSection) {
+          0 -> "Maharashtra calendar"
+          1 -> "Festival guides"
+          else -> "Temple directory"
+        },
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+      )
     }
     item {
       SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        listOf("Festivals", "Temples").forEachIndexed { index, label ->
+        listOf("Calendar", "Guides", "Temples").forEachIndexed { index, label ->
           SegmentedButton(
             selected = selectedSection == index,
             onClick = { selectedSection = index },
-            shape = SegmentedButtonDefaults.itemShape(index = index, count = 2),
+            shape = SegmentedButtonDefaults.itemShape(index = index, count = 3),
             label = { Text(label) },
           )
         }
       }
     }
-    if (selectedSection == 0) {
-      item {
-        Text("Indicative observances — verify regional dates with your local Panchang.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-      }
-      item {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          items(NativeCatalogue.hinduMonths, key = { it }) { chip ->
-            FilterChip(selected = month == chip, onClick = { month = chip }, label = { Text(chip) })
-          }
-        }
-      }
-      items(festivals, key = { it.id }, contentType = { "festival" }) { festival ->
-        FestivalCard(festival, onClick = { selectedFestival = festival })
-      }
-    } else {
-      item {
-        Text("Offline government and trust-source directory. No GPS or map tracking is used.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-      }
-      item {
-        OutlinedTextField(
-          value = templeQuery,
-          onValueChange = { templeQuery = it },
-          modifier = Modifier.fillMaxWidth(),
-          singleLine = true,
-          label = { Text("Search temple, city, state, or authority") },
+    when (selectedSection) {
+      0 -> item {
+        MaharashtraMonthCalendar(
+          displayedMonth = displayedMonth,
+          selectedDate = selectedDate,
+          savedLocation = savedLocation,
+          onPreviousMonth = {
+            displayedMonth = displayedMonth.minusMonths(1)
+            selectedDate = displayedMonth.atDay(1)
+          },
+          onNextMonth = {
+            displayedMonth = displayedMonth.plusMonths(1)
+            selectedDate = displayedMonth.atDay(1)
+          },
+          onSelectDate = { date ->
+            selectedDate = date
+            displayedMonth = YearMonth.from(date)
+          },
         )
       }
-      item {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-          items(templeCities, key = { it }) { city ->
-            FilterChip(selected = templeCity == city, onClick = { templeCity = city }, label = { Text(city) })
-          }
-        }
-      }
-      if (temples.isEmpty()) {
+      1 -> {
         item {
-          Card(modifier = Modifier.fillMaxWidth()) {
-            Text("No authorised directory record matches this search.", modifier = Modifier.padding(20.dp))
+          Text(
+            "Thirty-five offline devotional guides grouped by lunar month. Regional dates and temple timings should be verified with a published local Panchang.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+        item {
+          LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(NativeCatalogue.hinduMonths, key = { it }) { chip ->
+              FilterChip(selected = month == chip, onClick = { month = chip }, label = { Text(chip) })
+            }
           }
         }
+        items(festivals, key = { it.id }, contentType = { "festival" }) { festival ->
+          FestivalCard(festival, onClick = { selectedFestival = festival })
+        }
       }
-      items(temples, key = { it.id }, contentType = { "temple" }) { temple ->
-        TempleCard(temple, onClick = { selectedTemple = temple })
+      else -> {
+        item {
+          Text(
+            "Offline government and trust-source directory. No GPS or map tracking is used.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+        item {
+          OutlinedTextField(
+            value = templeQuery,
+            onValueChange = { templeQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text("Search temple, city, state, or authority") },
+          )
+        }
+        item {
+          LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(templeCities, key = { it }) { city ->
+              FilterChip(selected = templeCity == city, onClick = { templeCity = city }, label = { Text(city) })
+            }
+          }
+        }
+        if (temples.isEmpty()) {
+          item {
+            Card(modifier = Modifier.fillMaxWidth()) {
+              Text("No authorised directory record matches this search.", modifier = Modifier.padding(20.dp))
+            }
+          }
+        }
+        items(temples, key = { it.id }, contentType = { "temple" }) { temple ->
+          TempleCard(temple, onClick = { selectedTemple = temple })
+        }
       }
     }
   }
   selectedFestival?.let { festival -> FestivalDetailDialog(festival, onDismiss = { selectedFestival = null }) }
   selectedTemple?.let { temple -> TempleDetailDialog(temple, onDismiss = { selectedTemple = null }) }
 }
+
+@Composable
+private fun MaharashtraMonthCalendar(
+  displayedMonth: YearMonth,
+  selectedDate: LocalDate,
+  savedLocation: String?,
+  onPreviousMonth: () -> Unit,
+  onNextMonth: () -> Unit,
+  onSelectDate: (LocalDate) -> Unit,
+) {
+  val cells = remember(displayedMonth) { MaharashtraCalendar.monthGrid(displayedMonth) }
+  val officialDates = remember(displayedMonth) { MaharashtraCalendar.observanceDatesIn(displayedMonth) }
+  val snapshot = remember(selectedDate, savedLocation) { PanchangCalculator.calculate(selectedDate, savedLocation) }
+  val officialObservances = remember(selectedDate) { MaharashtraCalendar.observancesOn(selectedDate) }
+  val panchangMarkers = remember(snapshot) { MaharashtraCalendar.panchangMarkers(snapshot) }
+  val today = LocalDate.now()
+
+  Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+      Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("An original offline calendar for Maharashtra", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+          "Public-holiday markers are bundled from the 2026 official list. Panchang values are local estimates for your selected place, not ritual authority.",
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+      }
+    }
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+      IconButton(onClick = onPreviousMonth, modifier = Modifier.semantics { contentDescription = "Show previous month" }) {
+        Icon(Icons.Outlined.ChevronLeft, contentDescription = null)
+      }
+      Text(
+        displayedMonth.format(monthFormatter),
+        modifier = Modifier.weight(1f),
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+      )
+      IconButton(onClick = onNextMonth, modifier = Modifier.semantics { contentDescription = "Show next month" }) {
+        Icon(Icons.Outlined.ChevronRight, contentDescription = null)
+      }
+    }
+    Row(modifier = Modifier.fillMaxWidth()) {
+      weekdayLabels.forEach { label ->
+        Text(
+          label,
+          modifier = Modifier.weight(1f),
+          textAlign = TextAlign.Center,
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+    }
+    cells.chunked(7).forEach { week ->
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        week.forEach { date ->
+          if (date == null) {
+            Spacer(modifier = Modifier.weight(1f).height(56.dp))
+          } else {
+            CalendarDayCell(
+              date = date,
+              isSelected = date == selectedDate,
+              isToday = date == today,
+              publicHolidayCount = if (date in officialDates) MaharashtraCalendar.observancesOn(date).size else 0,
+              modifier = Modifier.weight(1f),
+              onClick = { onSelectDate(date) },
+            )
+          }
+        }
+      }
+    }
+    SelectedDayCard(
+      date = selectedDate,
+      snapshot = snapshot,
+      officialObservances = officialObservances,
+      panchangMarkers = panchangMarkers,
+    )
+  }
+}
+
+@Composable
+private fun CalendarDayCell(
+  date: LocalDate,
+  isSelected: Boolean,
+  isToday: Boolean,
+  publicHolidayCount: Int,
+  modifier: Modifier,
+  onClick: () -> Unit,
+) {
+  val background = when {
+    isSelected -> MaterialTheme.colorScheme.primary
+    isToday -> MaterialTheme.colorScheme.primaryContainer
+    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+  }
+  val foreground = when {
+    isSelected -> MaterialTheme.colorScheme.onPrimary
+    isToday -> MaterialTheme.colorScheme.onPrimaryContainer
+    else -> MaterialTheme.colorScheme.onSurface
+  }
+  val dayDescription = buildString {
+    append(date.format(fullDateFormatter))
+    if (publicHolidayCount > 0) append(", $publicHolidayCount official public-holiday marker")
+  }
+  Box(
+    modifier = modifier
+      .height(56.dp)
+      .clip(RoundedCornerShape(14.dp))
+      .background(background)
+      .clickable(onClick = onClick)
+      .semantics {
+        contentDescription = dayDescription
+        stateDescription = if (isSelected) "Selected day" else "Select day"
+      },
+    contentAlignment = Alignment.Center,
+  ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp)) {
+      Text(date.dayOfMonth.toString(), color = foreground, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+      if (publicHolidayCount > 0) {
+        Box(
+          modifier = Modifier
+            .size(6.dp)
+            .clip(CircleShape)
+            .background(if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary),
+        )
+      } else {
+        Spacer(modifier = Modifier.height(6.dp))
+      }
+    }
+  }
+}
+
+@Composable
+private fun SelectedDayCard(
+  date: LocalDate,
+  snapshot: PanchangSnapshot,
+  officialObservances: List<MaharashtraCalendarObservance>,
+  panchangMarkers: List<String>,
+) {
+  Card(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+      Text(date.format(fullDateFormatter), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+      Text("${snapshot.placeLabel} · ${snapshot.sakaDate}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+      Text("Selected-day Panchang estimate", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+      PanchangValue("Brahma Muhurta", "${snapshot.brahmaMuhurtaStart.displayTime()} – ${snapshot.brahmaMuhurtaEnd.displayTime()}")
+      PanchangValue("Sunrise / sunset", "${snapshot.sunrise.displayTime()} / ${snapshot.sunset.displayTime()}")
+      PanchangValue("Moonrise / moonset", "${snapshot.moonrise.displayTime()} / ${snapshot.moonset.displayTime()}")
+      PanchangValue("Tithi", "${snapshot.tithi} · ${snapshot.paksha}")
+      PanchangValue("Nakshatra", snapshot.nakshatra)
+      PanchangValue("Lunar month", "${snapshot.lunarMonthEstimate} (estimate)")
+      if (panchangMarkers.isNotEmpty()) {
+        Text("Personal practice cues", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+        panchangMarkers.forEach { marker -> Text(marker, style = MaterialTheme.typography.bodySmall) }
+      }
+      Text("Official Maharashtra public observances", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+      if (officialObservances.isEmpty()) {
+        Text("No bundled 2026 government public-holiday marker for this date.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+      } else {
+        officialObservances.forEach { observance ->
+          Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+              Text(observance.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+              Text(observance.category, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+              Text("Source: ${observance.source}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
+          }
+        }
+      }
+      Text(
+        "For temple-specific or ritual-critical observance, confirm a locally published Panchang. This app provides personal guidance, not ritual authority.",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
+  }
+}
+
+@Composable
+private fun PanchangValue(label: String, value: String) {
+  Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+    Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Spacer(modifier = Modifier.width(12.dp))
+    Text(value, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+  }
+}
+
+private fun LocalTime?.displayTime(): String = this?.format(DateTimeFormatter.ofPattern("h:mm a")) ?: "Unavailable"
 
 @Composable
 private fun FestivalCard(festival: FestivalItem, onClick: () -> Unit) {
@@ -198,7 +455,7 @@ private fun TempleDetailDialog(temple: TempleItem, onDismiss: () -> Unit) {
     },
     confirmButton = {
       TextButton(onClick = {
-        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(temple.sourceUrl))
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(temple.sourceUrl))
         if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
       }) { Text("Open source") }
     },

@@ -175,7 +175,10 @@ fun SpiritualCompanionApp(
         contentPadding = padding,
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
       )
-      NativeTab.FESTIVALS -> FestivalCalendarScreen(contentPadding = padding)
+      NativeTab.FESTIVALS -> FestivalCalendarScreen(
+        contentPadding = padding,
+        savedLocation = state.content.savedLocation,
+      )
       NativeTab.PRACTICE -> PracticeScreen(
         contentPadding = padding,
         content = state.content,

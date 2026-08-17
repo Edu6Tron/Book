@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.0-rc.24 — 17 August 2026
+
+The Festivals tab now opens with an original, richer **Maharashtra calendar** built for the app rather than a copied almanac. It offers a Sunday-first month grid, accessible day selection, selected-day sunrise and sunset, moonrise and moonset, Brahma Muhurta, Tithi, Paksha, Nakshatra, lunar-month estimate, and Saka date. All timing content comes from the app’s existing offline Panchang calculation for the selected saved place and is explicitly identified as a personal estimate, not ritual authority.
+
+The first bundled government-observance layer includes 24 source-labelled 2026 Maharashtra public-holiday markers. Each selected day identifies any included official observance and its MMRDA public-holiday source. The calendar retains the existing 35 local devotional guides and source-labelled offline temple directory in dedicated sections, with no GPS, automatic network work, copied third-party calendar content, or tracking.
+
+The release also adds an original calendar-design record and focused tests for official-date data, Sunday-first month grids, and personal-practice markers. Native unit tests and Android lint passed before publication.
+
 ## v1.3.9-rc.23 — 17 August 2026
 
 **My routines** can now hand a timing-aware personal suggestion directly into the established exact-alarm editor. A Brahma Muhurta action pre-fills today’s offline Brahma Muhurta start, while an Evening Prarthana action pre-fills today’s offline sunset estimate. The hand-off gives each alarm a clear purpose label and then leaves the time, repeat days, sound, and final save entirely under the user’s control.
