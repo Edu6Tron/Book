@@ -10,9 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -27,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -35,10 +32,10 @@ fun DiscoverDevotionalsScreen(
   contentPadding: PaddingValues,
   onOpenAartis: () -> Unit,
 ) {
-  val context = LocalContext.current
   var query by rememberSaveable { mutableStateOf("") }
   var lastOpenedQuery by rememberSaveable { mutableStateOf<String?>(null) }
-  var providerUnavailable by rememberSaveable { mutableStateOf(false) }
+  var youTubePlayerQuery by rememberSaveable { mutableStateOf("") }
+  var showYouTubePlayer by rememberSaveable { mutableStateOf(false) }
   val suggestedQueries = listOf(
     "Ganesh Aarti lyrics",
     "Shiva Aarti",
@@ -50,11 +47,8 @@ fun DiscoverDevotionalsScreen(
   fun openSearch() {
     val resolvedQuery = ProviderSearchPolicy.normaliseQuery(query)
     lastOpenedQuery = resolvedQuery
-    openProviderSearch(
-      context = context,
-      query = resolvedQuery,
-      onUnavailable = { providerUnavailable = true },
-    )
+    youTubePlayerQuery = resolvedQuery
+    showYouTubePlayer = true
   }
 
   LazyColumn(
@@ -84,7 +78,7 @@ fun DiscoverDevotionalsScreen(
         ) {
           Text("Search online", style = MaterialTheme.typography.titleMedium)
           Text(
-            "Provider search opens in a secure app tab with a visible browser toolbar. This keeps account menus and provider pages out of the app layout, so they cannot cover the tab bar or be clipped on smaller screens.",
+            "Official YouTube opens inside Spiritual Companion. Its controls, branding, account menus, and advertising remain provided by YouTube.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
           OutlinedTextField(
@@ -101,8 +95,8 @@ fun DiscoverDevotionalsScreen(
             }
           }
           Button(onClick = ::openSearch, modifier = Modifier.fillMaxWidth()) {
-            Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
-            Text(" Open secure provider search")
+            Icon(Icons.Outlined.Search, contentDescription = null)
+            Text(" Search YouTube here")
           }
         }
       }
@@ -116,7 +110,7 @@ fun DiscoverDevotionalsScreen(
           ) {
             Text("Return to your practice anytime", style = MaterialTheme.typography.titleMedium)
             Text(
-              "The provider tab is separate from your devotional data. Close it or use Back to return here.",
+              "YouTube stays separate from your devotional data. Close YouTube or use Back to return here.",
               color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             TextButton(onClick = ::openSearch) {
@@ -144,20 +138,10 @@ fun DiscoverDevotionalsScreen(
     }
   }
 
-  if (providerUnavailable) {
-    AlertDialog(
-      onDismissRequest = { providerUnavailable = false },
-      title = { Text("Online search is unavailable") },
-      text = { Text("No browser or compatible provider tab was available. You can keep using the offline Aarti library and try online search again later.") },
-      confirmButton = {
-        Button(onClick = {
-          providerUnavailable = false
-          openSearch()
-        }) { Text("Try again") }
-      },
-      dismissButton = {
-        TextButton(onClick = { providerUnavailable = false }) { Text("Use offline library") }
-      },
+  if (showYouTubePlayer) {
+    InAppYouTubePlayer(
+      query = youTubePlayerQuery,
+      onDismiss = { showYouTubePlayer = false },
     )
   }
 }

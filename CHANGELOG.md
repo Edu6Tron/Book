@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.6-rc.30 — 17 August 2026
+
+YouTube now opens **inside Spiritual Companion** instead of leaving the app for a browser or the YouTube app. The Aarti library, the Aarti reader’s contextual YouTube action, playlist guidance, and the Discover tab all use the same full-screen in-app official YouTube window. The window has a clear **Close YouTube** action; Android Back first follows YouTube’s own page history and then returns to the spiritual-practice screen.
+
+The embedded experience preserves YouTube’s own controls, branding, account pages, and provider advertising. Spiritual Companion does not block ads, download or extract provider media, add controls over YouTube playback, copy captions, or associate its local lyric timing with a YouTube recording. Unusual external-app link schemes are not handed off outside the app.
+
+The local synchronized-lyrics player remains a separate offline path for a person’s chosen on-device audio. Closing YouTube clears that WebView session’s history, cache, cookies, and web storage; the app does not retain YouTube searches, account identity, watch activity, or provider media data. Native unit tests, Android lint, and debug APK packaging were run for this candidate.
+
 ## v1.4.5-rc.29 — 17 August 2026
 
 The Aarti library now makes its two distinct media paths explicit. A new **Official YouTube discovery** card opens a person’s deliberately entered devotional search in a browser-managed official YouTube tab. Each Aarti reader also has a contextual **Search this Aarti on YouTube** action. Provider video is never treated as app-owned audio: the interface states that YouTube’s own controls, branding, and any provider advertising remain present, and online results cannot become an alarm tone, be downloaded by the app, or be synchronised to its devotional text.

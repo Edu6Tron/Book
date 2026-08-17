@@ -19,4 +19,12 @@ class ProviderSearchPolicyTest {
     assertTrue(url.contains("Shiva+aarti+%26+lyrics"))
     assertFalse(url.contains("Shiva aarti & lyrics"))
   }
+
+  @Test
+  fun defaultSearchUrlIsAnOfficialSecureYouTubeResult() {
+    val url = ProviderSearchPolicy.providerSearchUrl(ProviderSearchPolicy.defaultQuery)
+
+    assertTrue(url.startsWith("https://www.youtube.com/results?search_query="))
+    assertFalse(url.startsWith("http://"))
+  }
 }

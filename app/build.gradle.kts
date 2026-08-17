@@ -19,8 +19,8 @@ android {
     applicationId = "com.edu6tron.spiritualcompanion.nativepreview"
     minSdk = 26
     targetSdk = 35
-    versionCode = 30
-    versionName = "1.4.5-rc.29"
+    versionCode = 31
+    versionName = "1.4.6-rc.30"
   }
 
   buildFeatures {
@@ -76,7 +76,6 @@ dependencies {
   implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
   implementation("androidx.activity:activity-compose:1.10.0")
-  implementation("androidx.browser:browser:1.8.0")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
   implementation(platform("androidx.compose:compose-bom:2024.12.01"))

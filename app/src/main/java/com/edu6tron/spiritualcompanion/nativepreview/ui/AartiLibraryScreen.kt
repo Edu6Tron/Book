@@ -94,8 +94,9 @@ fun AartiLibraryScreen(
   var category by rememberSaveable { mutableStateOf("All") }
   var locationDraft by rememberSaveable(savedLocation) { mutableStateOf(savedLocation.orEmpty()) }
   var providerQuery by rememberSaveable { mutableStateOf(ProviderSearchPolicy.defaultQuery) }
-  var providerStatus by rememberSaveable { mutableStateOf<String?>(null) }
   var showPlaylistBoundary by rememberSaveable { mutableStateOf(false) }
+  var showYouTubePlayer by rememberSaveable { mutableStateOf(false) }
+  var youTubePlayerQuery by rememberSaveable { mutableStateOf("") }
   var selectedAarti by remember { mutableStateOf<AartiItem?>(null) }
   LaunchedEffect(initialAartiId) {
     initialAartiId?.let { aartiId ->
@@ -196,7 +197,7 @@ fun AartiLibraryScreen(
           Text("OFFICIAL YOUTUBE DISCOVERY", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
           Text("Search YouTube when you choose", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
           Text(
-            "This opens the official YouTube experience in an in-app browser. YouTube controls, branding, and any provider advertising remain intact.",
+            "YouTube plays inside this app. Provider controls, branding, and advertising remain intact.",
             color = MaterialTheme.colorScheme.onPrimaryContainer,
           )
           OutlinedTextField(
@@ -208,19 +209,10 @@ fun AartiLibraryScreen(
           )
           Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = {
-              providerStatus = null
-              openProviderSearch(
-                context = context,
-                query = providerQuery,
-                onUnavailable = {
-                  providerStatus = "YouTube could not be opened on this device. Check your connection or YouTube availability."
-                },
-              )
-            }) { Text("Open official YouTube") }
+              youTubePlayerQuery = providerQuery
+              showYouTubePlayer = true
+            }) { Text("Open YouTube here") }
             TextButton(onClick = { showPlaylistBoundary = true }) { Text("Playlist options") }
-          }
-          providerStatus?.let { status ->
-            Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
           }
           Text(
             "Search text is not saved by Spiritual Companion. Online video is separate from the private offline lyrics player and is never used as an alarm tone or downloaded by this app.",
@@ -334,6 +326,10 @@ fun AartiLibraryScreen(
         savedPersonalOffsetsMs = personalLyricTimingByAarti[aarti.id].orEmpty(),
         onSavePersonalOffsets = { offsets -> onSavePersonalLyricTiming(aarti.id, offsets) },
         onClearPersonalOffsets = { onClearPersonalLyricTiming(aarti.id) },
+        onOpenYouTube = { searchQuery ->
+          youTubePlayerQuery = searchQuery
+          showYouTubePlayer = true
+        },
         onDismiss = { selectedAarti = null },
     )
   }
@@ -350,16 +346,20 @@ fun AartiLibraryScreen(
       confirmButton = {
         TextButton(onClick = {
           showPlaylistBoundary = false
-          openProviderSearch(
-            context = context,
-            query = "create devotional Aarti playlist",
-            onUnavailable = { providerStatus = "YouTube could not be opened on this device." },
-          )
+          youTubePlayerQuery = "create devotional Aarti playlist"
+          showYouTubePlayer = true
         }) { Text("Open YouTube") }
       },
       dismissButton = {
         TextButton(onClick = { showPlaylistBoundary = false }) { Text("Not now") }
       },
+    )
+  }
+
+  if (showYouTubePlayer) {
+    InAppYouTubePlayer(
+      query = youTubePlayerQuery,
+      onDismiss = { showYouTubePlayer = false },
     )
   }
 }
@@ -410,6 +410,7 @@ private fun AartiLyricsDialog(
   savedPersonalOffsetsMs: List<Long>,
   onSavePersonalOffsets: (List<Long>) -> Unit,
   onClearPersonalOffsets: () -> Unit,
+  onOpenYouTube: (String) -> Unit,
   onDismiss: () -> Unit,
 ) {
   val context = LocalContext.current
@@ -578,11 +579,7 @@ private fun AartiLyricsDialog(
               color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
             TextButton(onClick = {
-              openProviderSearch(
-                context = context,
-                query = "${aarti.title} ${aarti.deity}",
-                onUnavailable = {},
-              )
+              onOpenYouTube("${aarti.title} ${aarti.deity}")
             }) { Text("Search this Aarti on YouTube") }
           }
         }
