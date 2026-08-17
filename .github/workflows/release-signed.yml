@@ -21,7 +21,6 @@ jobs:
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -40,7 +39,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for variable in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+          for variable in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS; do
             if [ -z "${!variable}" ]; then
               echo "Missing required production signing secret: ${variable}" >&2
               exit 1
@@ -63,7 +62,7 @@ jobs:
             -PRELEASE_STORE_FILE="$RUNNER_TEMP/spiritual-companion-release.jks" \
             -PRELEASE_STORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD" \
             -PRELEASE_KEY_ALIAS="$ANDROID_KEY_ALIAS" \
-            -PRELEASE_KEY_PASSWORD="$ANDROID_KEY_PASSWORD"
+            -PRELEASE_KEY_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
 
       - name: Calculate artifact checksums
         shell: bash

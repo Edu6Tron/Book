@@ -82,3 +82,8 @@
 - [ ] Audit and strengthen the one-owner local player contract, including predictable release and an always-reachable stop action.
 - [ ] Audit remaining non-text controls and all eleven palettes for accessible labels, touch targets, and readable contrast.
 - [x] Determine whether an existing Android release signing identity is available and document a GitHub-Secrets-only provisioning path without exposing credentials.
+- [ ] Validate the user-managed production signing identity, then attach signed v1.3.7 artifacts without exposing credentials.
+- [x] Guide a local, non-destructive private-key verification after the first temporary-file location was not writable.
+- [x] Replace the unusable signing identity with a locally verified fresh keystore and refresh all four repository signing secrets.
+- [x] Confirm the fresh keystore private key unlocks locally before re-running GitHub release signing.
+- [x] Simplify the signing workflow to use the locally verified keystore password for both matching JKS credentials.
