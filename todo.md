@@ -123,4 +123,4 @@
 - [x] Audit the current external YouTube hand-off and define the required in-app official player replacement without weakening offline local playback.
 - [x] Implement an in-app official YouTube player window with explicit provider notice, loading and failure states, and an accessible return to the local synchronized player.
 - [x] Add deterministic coverage for embedded-player URL validation, provider-boundary messaging, and local-player coexistence.
-- [ ] Validate and publish a signed native Android candidate for the in-app embedded YouTube player.
+- [x] Validate and publish a signed native Android candidate for the in-app embedded YouTube player.
