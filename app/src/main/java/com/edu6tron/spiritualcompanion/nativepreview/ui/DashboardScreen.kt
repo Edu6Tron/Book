@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
@@ -25,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -60,6 +62,9 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalFocusResolve
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCache
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangTimingSource
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.withOnlineAstronomyTiming
 import com.edu6tron.spiritualcompanion.nativepreview.util.PracticeMath
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
@@ -79,6 +84,8 @@ fun DashboardScreen(
   onOpenDiscover: () -> Unit,
   onOpenSettings: () -> Unit,
   onOpenExactAlarmSettings: () -> Unit,
+  onRefreshOnlineTimings: () -> Unit,
+  timingRefreshInProgress: Boolean,
   onSaveAlarm: (RitualAlarmEntity) -> Unit,
   onSetAlarmEnabled: (RitualAlarmEntity, Boolean) -> Unit,
   onDeleteAlarm: (RitualAlarmEntity) -> Unit,
@@ -101,7 +108,14 @@ fun DashboardScreen(
     verticalArrangement = Arrangement.spacedBy(14.dp),
   ) {
     item(contentType = "heading") { DashboardHeading(onOpenSettings) }
-    item(contentType = "panchang") { PanchangSection(content.savedLocation) }
+    item(contentType = "panchang") {
+      PanchangSection(
+        savedLocation = content.savedLocation,
+        onlineAstronomyCache = content.onlineAstronomyCache,
+        timingRefreshInProgress = timingRefreshInProgress,
+        onRefreshOnlineTimings = onRefreshOnlineTimings,
+      )
+    }
     item(contentType = "routines") {
       RoutineEntryCard(
         savedLocation = content.savedLocation,
@@ -194,19 +208,35 @@ private fun RitualAlarmReadinessCard(
 }
 
 @Composable
-private fun PanchangSection(savedLocation: String?) {
+private fun PanchangSection(
+  savedLocation: String?,
+  onlineAstronomyCache: OnlineAstronomyCache?,
+  timingRefreshInProgress: Boolean,
+  onRefreshOnlineTimings: () -> Unit,
+) {
   val now by produceState(initialValue = LocalDateTime.now()) {
     while (true) {
       value = LocalDateTime.now()
       delay(30_000L)
     }
   }
-  val panchang = remember(savedLocation, now.toLocalDate()) {
-    PanchangCalculator.calculate(now.toLocalDate(), savedLocation)
+  val panchang = remember(savedLocation, onlineAstronomyCache, now.toLocalDate()) {
+    val offlineSnapshot = PanchangCalculator.calculate(now.toLocalDate(), savedLocation)
+    offlineSnapshot.withOnlineAstronomyTiming(
+      onlineAstronomyCache?.timingFor(
+        date = now.toLocalDate(),
+        expectedLocationCacheKey = PanchangCalculator.onlineTimingLocation(savedLocation)?.cacheKey,
+      ),
+    )
   }
   Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
     PanchangHero(now, panchang)
-    TimingCard(panchang)
+    TimingCard(
+      panchang = panchang,
+      onlineAstronomyCache = onlineAstronomyCache,
+      timingRefreshInProgress = timingRefreshInProgress,
+      onRefreshOnlineTimings = onRefreshOnlineTimings,
+    )
   }
 }
 
@@ -263,7 +293,12 @@ private fun PanchangHero(now: LocalDateTime, panchang: PanchangSnapshot) {
 }
 
 @Composable
-private fun TimingCard(panchang: PanchangSnapshot) {
+private fun TimingCard(
+  panchang: PanchangSnapshot,
+  onlineAstronomyCache: OnlineAstronomyCache?,
+  timingRefreshInProgress: Boolean,
+  onRefreshOnlineTimings: () -> Unit,
+) {
   Card(
     modifier = Modifier.fillMaxWidth(),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
@@ -272,8 +307,13 @@ private fun TimingCard(panchang: PanchangSnapshot) {
     Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
       Text("Sacred windows", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
       Text(
-        if (panchang.usesRecognisedCity) "Offline astronomical estimate for ${panchang.placeLabel}"
-        else "Set a supported city in Aartis for local astronomical estimates",
+        when {
+          panchang.timingSource == PanchangTimingSource.ONLINE_ASTRONOMICAL_REFERENCE -> {
+            "Online astronomical reference · U.S. Naval Observatory"
+          }
+          panchang.usesRecognisedCity -> "Offline astronomical estimate for ${panchang.placeLabel}"
+          else -> "Set a supported city in Aartis for local astronomical estimates"
+        },
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
@@ -285,8 +325,40 @@ private fun TimingCard(panchang: PanchangSnapshot) {
       TimingRow("Tithi", "${panchang.tithi} · ${panchang.paksha}")
       TimingRow("Lunar month", "${panchang.lunarMonthEstimate} (estimate)")
       TimingRow("Indian National Calendar", panchang.sakaDate)
+      if (panchang.usesRecognisedCity) {
+        OutlinedButton(
+          onClick = onRefreshOnlineTimings,
+          enabled = !timingRefreshInProgress,
+          modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        ) {
+          if (timingRefreshInProgress) {
+            CircularProgressIndicator(
+              modifier = Modifier.size(18.dp),
+              strokeWidth = 2.dp,
+              color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.width(10.dp))
+            Text("Refreshing online timing data")
+          } else {
+            Text("Refresh next 31 days online")
+          }
+        }
+      }
+      if (panchang.timingSource == PanchangTimingSource.ONLINE_ASTRONOMICAL_REFERENCE) {
+        onlineAstronomyCache?.coverageEnd()?.let { coverageEnd ->
+          Text(
+            "Cached through ${coverageEnd.format(DateTimeFormatter.ofPattern("d MMMM", Locale.getDefault()))}. The app will return to offline estimates outside this range.",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+      }
       Text(
-        "For temple observance, confirm local published Panchang timing; sunrise, lunar position and Tithi are calculated offline.",
+        if (panchang.usesRecognisedCity) {
+          "Refresh is optional and only happens when you tap it. The request uses bundled coordinates and a date, never GPS or your city text. Confirm ritual-critical timing with a local published Panchang."
+        } else {
+          "For temple observance, confirm local published Panchang timing; sunrise, lunar position and Tithi are calculated offline."
+        },
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(top = 8.dp),

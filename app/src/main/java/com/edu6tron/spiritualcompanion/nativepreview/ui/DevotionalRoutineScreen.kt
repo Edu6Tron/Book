@@ -55,6 +55,8 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.RoutineDailyProgress
 import com.edu6tron.spiritualcompanion.nativepreview.data.RoutineSpecialDayGuidance
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangTimingSource
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.withOnlineAstronomyTiming
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -85,8 +87,14 @@ fun DevotionalRoutineScreen(
       delay(60_000L)
     }
   }
-  val panchang = remember(content.savedLocation, now.toLocalDate()) {
-    PanchangCalculator.calculate(now.toLocalDate(), content.savedLocation)
+  val panchang = remember(content.savedLocation, content.onlineAstronomyCache, now.toLocalDate()) {
+    val offlineSnapshot = PanchangCalculator.calculate(now.toLocalDate(), content.savedLocation)
+    offlineSnapshot.withOnlineAstronomyTiming(
+      content.onlineAstronomyCache?.timingFor(
+        date = now.toLocalDate(),
+        expectedLocationCacheKey = PanchangCalculator.onlineTimingLocation(content.savedLocation)?.cacheKey,
+      ),
+    )
   }
   val specialGuidance = remember(panchang.tithi) {
     NativeDevotionalRoutines.specialDayGuidance(panchang)
@@ -222,7 +230,9 @@ private fun RoutineTimingCard(
         color = MaterialTheme.colorScheme.onPrimaryContainer,
       )
       Text(
-        if (snapshot.usesRecognisedCity) {
+        if (snapshot.timingSource == PanchangTimingSource.ONLINE_ASTRONOMICAL_REFERENCE) {
+          "Online astronomical reference is active for today."
+        } else if (snapshot.usesRecognisedCity) {
           "Offline estimate for ${snapshot.placeLabel}."
         } else {
           "Set a supported city in Aartis for a local offline estimate."

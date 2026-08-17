@@ -71,6 +71,7 @@ fun SpiritualCompanionApp(
   onPlaySelectedMedia: (String, String) -> Unit,
   onSaveLocation: (String) -> Unit,
   onClearLocation: () -> Unit,
+  onRefreshOnlineTimings: () -> Unit,
   onSaveReadingComfort: (ReadingComfort) -> Unit,
   onSaveThemeMode: (ThemeMode) -> Unit,
   onSaveDevotionalTheme: (DevotionalTheme) -> Unit,
@@ -143,6 +144,8 @@ fun SpiritualCompanionApp(
         onOpenRoutines = { selectedTab = NativeTab.ROUTINE },
         onOpenSettings = { selectedTab = NativeTab.SETTINGS },
         onOpenExactAlarmSettings = onOpenExactAlarmSettings,
+        onRefreshOnlineTimings = onRefreshOnlineTimings,
+        timingRefreshInProgress = state.timingRefreshInProgress,
         onSaveAlarm = onSaveAlarm,
         onSetAlarmEnabled = onSetAlarmEnabled,
         onDeleteAlarm = onDeleteAlarm,
@@ -178,6 +181,7 @@ fun SpiritualCompanionApp(
       NativeTab.FESTIVALS -> FestivalCalendarScreen(
         contentPadding = padding,
         savedLocation = state.content.savedLocation,
+        onlineAstronomyCache = state.content.onlineAstronomyCache,
       )
       NativeTab.PRACTICE -> PracticeScreen(
         contentPadding = padding,

@@ -64,6 +64,8 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.NativeCatalogue
 import com.edu6tron.spiritualcompanion.nativepreview.data.TempleItem
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangSnapshot
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCache
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.withOnlineAstronomyTiming
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
@@ -76,7 +78,11 @@ private val weekdayLabels = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sa
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FestivalCalendarScreen(contentPadding: PaddingValues, savedLocation: String?) {
+fun FestivalCalendarScreen(
+  contentPadding: PaddingValues,
+  savedLocation: String?,
+  onlineAstronomyCache: OnlineAstronomyCache?,
+) {
   var selectedSection by rememberSaveable { mutableIntStateOf(0) }
   var month by rememberSaveable { mutableStateOf("All") }
   var templeQuery by rememberSaveable { mutableStateOf("") }
@@ -135,6 +141,7 @@ fun FestivalCalendarScreen(contentPadding: PaddingValues, savedLocation: String?
           displayedMonth = displayedMonth,
           selectedDate = selectedDate,
           savedLocation = savedLocation,
+          onlineAstronomyCache = onlineAstronomyCache,
           onPreviousMonth = {
             displayedMonth = displayedMonth.minusMonths(1)
             selectedDate = displayedMonth.atDay(1)
@@ -214,13 +221,22 @@ private fun MaharashtraMonthCalendar(
   displayedMonth: YearMonth,
   selectedDate: LocalDate,
   savedLocation: String?,
+  onlineAstronomyCache: OnlineAstronomyCache?,
   onPreviousMonth: () -> Unit,
   onNextMonth: () -> Unit,
   onSelectDate: (LocalDate) -> Unit,
 ) {
   val cells = remember(displayedMonth) { MaharashtraCalendar.monthGrid(displayedMonth) }
   val officialDates = remember(displayedMonth) { MaharashtraCalendar.observanceDatesIn(displayedMonth) }
-  val snapshot = remember(selectedDate, savedLocation) { PanchangCalculator.calculate(selectedDate, savedLocation) }
+  val snapshot = remember(selectedDate, savedLocation, onlineAstronomyCache) {
+    val offlineSnapshot = PanchangCalculator.calculate(selectedDate, savedLocation)
+    offlineSnapshot.withOnlineAstronomyTiming(
+      onlineAstronomyCache?.timingFor(
+        date = selectedDate,
+        expectedLocationCacheKey = PanchangCalculator.onlineTimingLocation(savedLocation)?.cacheKey,
+      ),
+    )
+  }
   val richEvents = remember(selectedDate, snapshot) { MaharashtraCalendar.richEventsOn(selectedDate, snapshot) }
   val today = LocalDate.now()
 

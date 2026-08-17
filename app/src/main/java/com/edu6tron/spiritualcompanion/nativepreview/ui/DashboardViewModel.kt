@@ -14,6 +14,9 @@ import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
 import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
 import com.edu6tron.spiritualcompanion.nativepreview.media.NativeDevotionalPlayer
 import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCache
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.UsnoAstronomyClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import android.content.Intent
@@ -45,6 +48,7 @@ data class DashboardContentState(
   val brahmaMuhurtaRoutineEnabled: Boolean = false,
   val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
+  val onlineAstronomyCache: OnlineAstronomyCache? = null,
 )
 
 @Immutable
@@ -52,15 +56,18 @@ data class DashboardUiState(
   val content: DashboardContentState = DashboardContentState(),
   val playback: com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState = com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState(),
   val notice: String? = null,
+  val timingRefreshInProgress: Boolean = false,
 )
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
   private val repository: SpiritualRepository,
   private val player: NativeDevotionalPlayer,
+  private val usnoAstronomyClient: UsnoAstronomyClient,
   @ApplicationContext private val context: Context,
 ) : ViewModel() {
   private val notice = MutableStateFlow<String?>(null)
+  private val timingRefreshInProgress = MutableStateFlow(false)
 
   val content: StateFlow<DashboardContentState> = repository.observeState()
     .map { stored ->
@@ -79,12 +86,17 @@ class DashboardViewModel @Inject constructor(
         brahmaMuhurtaRoutineEnabled = stored.brahmaMuhurtaRoutineEnabled,
         eveningRoutineProgress = stored.eveningRoutineProgress,
         brahmaMuhurtaRoutineProgress = stored.brahmaMuhurtaRoutineProgress,
+        onlineAstronomyCache = stored.onlineAstronomyCache,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
 
-  val state: StateFlow<DashboardUiState> = combine(content, player.playback, notice) { content, playback, currentNotice ->
+  private val dashboardState = combine(content, player.playback, notice) { content, playback, currentNotice ->
     DashboardUiState(content = content, playback = playback, notice = currentNotice)
+  }
+
+  val state: StateFlow<DashboardUiState> = combine(dashboardState, timingRefreshInProgress) { dashboard, refreshing ->
+    dashboard.copy(timingRefreshInProgress = refreshing)
   }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())
 
   fun togglePractice(id: String) {
@@ -165,6 +177,42 @@ class DashboardViewModel @Inject constructor(
 
   fun clearLocation() {
     launchSafely("clear-city") { repository.clearLocation() }
+  }
+
+  fun refreshOnlineAstronomyTimings() {
+    if (timingRefreshInProgress.value) return
+    val location = PanchangCalculator.onlineTimingLocation(content.value.savedLocation)
+    if (location == null) {
+      notice.value = "Choose a supported city before refreshing online timing data."
+      return
+    }
+    viewModelScope.launch {
+      timingRefreshInProgress.value = true
+      runCatching {
+        usnoAstronomyClient.refreshNextThirtyOneDays(location)
+      }.onSuccess { result ->
+        if (result.timings.isEmpty()) {
+          notice.value = "Online timing data is unavailable. Offline estimates remain in use."
+        } else {
+          repository.saveOnlineAstronomyCache(
+            OnlineAstronomyCache(
+              locationCacheKey = result.locationCacheKey,
+              refreshedAtEpochMillis = System.currentTimeMillis(),
+              entries = result.timings,
+            ),
+          )
+          notice.value = if (result.timings.size == result.requestedDays) {
+            "Online astronomical timing data saved for the next ${result.requestedDays} days."
+          } else {
+            "Online timing data saved for ${result.timings.size} days; offline estimates cover the rest."
+          }
+        }
+      }.onFailure { error ->
+        NativeDiagnostics.recordFailure("online-timing-refresh", error)
+        notice.value = "Online timing data could not be refreshed. Offline estimates remain in use."
+      }
+      timingRefreshInProgress.value = false
+    }
   }
 
   fun saveReadingComfort(readingComfort: ReadingComfort) {

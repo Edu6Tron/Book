@@ -2,6 +2,16 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.3-rc.27 — 17 August 2026
+
+The devotional clock can now refresh **sunrise, sunset, moonrise, and moonset** on demand from the U.S. Naval Observatory’s documented Sun and Moon timing service for the user’s already selected supported place. A visible **Refresh online timings** action downloads a bounded 31-day window, stays responsive while progress is shown, and stores the resulting timing values locally for future offline use.
+
+The dashboard, personal routine guidance, and selected-day Maharashtra calendar present the saved official-source rise/set values whenever available. Brahma Muhurta is recalculated from the refreshed next-day sunrise. If a day is missing, the source cannot be reached, the response has an unexpected date, or the selected place is not supported by the accuracy source, the app keeps its existing local Panchang estimate instead of blocking the screen or fabricating a timing.
+
+The refresh is strictly user initiated: it performs no automatic, scheduled, or background network work. The on-device cache has no city name, free-text address, URL, GPS permission, user account, or diagnostic logging. It contains only the opaque supported-place key, date, timing values, source label, and refresh timestamp needed to decide whether a stored value is valid. The source selection and safeguards are recorded in `docs/ONLINE_TIMING_SOURCE_RESEARCH.md`.
+
+Focused tests cover official-response parsing without live network access, wrong-date rejection, place-bound cache lookup, absence of city labels from the encoded cache, coverage dates, and safe offline overlays. Native unit tests, Android lint, a debug APK assembly, and a live response-shape check against the documented official endpoint passed before this candidate was prepared.
+
 ## v1.4.2-rc.26 — 17 August 2026
 
 The Maharashtra calendar now presents an original, selected-day **rich-event feed** instead of mixing government observances and calculated devotional cues without visible provenance. Each event has a title, category, source label, optional source URL, estimate flag, and clear source-tier disclosure. The four tiers are **Government-published date**, **Curated devotional guide**, **Local Panchang estimate**, and **Personal plan**, enabling future expansion without representing a personal suggestion as an official calendar declaration.

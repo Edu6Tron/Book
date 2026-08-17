@@ -38,6 +38,13 @@ data class PanchangSnapshot(
   val nakshatra: String,
   val lunarMonthEstimate: String,
   val sakaDate: String,
+  val timingSource: PanchangTimingSource = PanchangTimingSource.OFFLINE_ESTIMATE,
+)
+
+data class PanchangTimingLocation(
+  val cacheKey: String,
+  val latitude: Double,
+  val longitude: Double,
 )
 
 private data class GeoLocation(
@@ -148,6 +155,21 @@ object PanchangCalculator {
 
   /** Cities with bundled coordinates for offline Panchang estimates. */
   fun supportedPlaceLabels(): List<String> = cities.map { it.label }
+
+  /**
+   * Provides only bundled coordinates for an explicitly selected supported place. Unrecognised
+   * free-text locations never trigger online timing lookups.
+   */
+  fun onlineTimingLocation(cityOrState: String?): PanchangTimingLocation? {
+    val resolution = resolveLocation(cityOrState)
+    if (!resolution.third) return null
+    val location = resolution.first
+    return PanchangTimingLocation(
+      cacheKey = "place-${location.label.lowercase().hashCode().toUInt().toString(16)}",
+      latitude = location.latitude,
+      longitude = location.longitude,
+    )
+  }
 
   private fun resolveLocation(input: String?): Triple<GeoLocation, String, Boolean> {
     val normalized = input.orEmpty().lowercase().trim()

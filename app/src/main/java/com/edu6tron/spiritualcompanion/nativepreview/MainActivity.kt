@@ -55,6 +55,7 @@ private fun SpiritualCompanionRoot(viewModel: DashboardViewModel = hiltViewModel
         onPlaySelectedMedia = viewModel::playSelectedMedia,
         onSaveLocation = viewModel::saveLocation,
         onClearLocation = viewModel::clearLocation,
+        onRefreshOnlineTimings = viewModel::refreshOnlineAstronomyTimings,
         onSaveReadingComfort = viewModel::saveReadingComfort,
         onSaveThemeMode = viewModel::saveThemeMode,
         onSaveDevotionalTheme = viewModel::saveDevotionalTheme,

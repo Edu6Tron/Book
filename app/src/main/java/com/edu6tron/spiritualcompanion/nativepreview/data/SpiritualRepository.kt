@@ -3,6 +3,8 @@ package com.edu6tron.spiritualcompanion.nativepreview.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCache
+import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCacheCodec
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,6 +31,7 @@ data class StoredSpiritualState(
   val brahmaMuhurtaRoutineEnabled: Boolean = false,
   val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
+  val onlineAstronomyCache: OnlineAstronomyCache? = null,
 )
 
 @Singleton
@@ -54,6 +57,7 @@ class SpiritualRepository @Inject constructor(
   private val brahmaMuhurtaRoutineEnabledKey = "brahma_muhurta_routine_enabled"
   private val eveningRoutineProgressKey = "evening_routine_progress"
   private val brahmaMuhurtaRoutineProgressKey = "brahma_muhurta_routine_progress"
+  private val onlineAstronomyCacheKey = "online_astronomy_cache_v1"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -95,6 +99,8 @@ class SpiritualRepository @Inject constructor(
     state.copy(eveningRoutineProgress = RoutineDailyProgress.fromStored(progress))
   }.combine(appStateDao.observeString(brahmaMuhurtaRoutineProgressKey)) { state, progress ->
     state.copy(brahmaMuhurtaRoutineProgress = RoutineDailyProgress.fromStored(progress))
+  }.combine(appStateDao.observeString(onlineAstronomyCacheKey)) { state, cache ->
+    state.copy(onlineAstronomyCache = OnlineAstronomyCacheCodec.decode(cache))
   }
 
   suspend fun togglePractice(id: String) {
@@ -152,10 +158,18 @@ class SpiritualRepository @Inject constructor(
     } else {
       appStateDao.saveStringPreference(StringPreferenceEntity(savedLocationKey, cleaned))
     }
+    appStateDao.deleteStringPreference(onlineAstronomyCacheKey)
   }
 
   suspend fun clearLocation() {
     appStateDao.deleteStringPreference(savedLocationKey)
+    appStateDao.deleteStringPreference(onlineAstronomyCacheKey)
+  }
+
+  suspend fun saveOnlineAstronomyCache(cache: OnlineAstronomyCache) {
+    appStateDao.saveStringPreference(
+      StringPreferenceEntity(onlineAstronomyCacheKey, OnlineAstronomyCacheCodec.encode(cache)),
+    )
   }
 
   suspend fun saveReadingComfort(readingComfort: ReadingComfort) {
