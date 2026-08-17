@@ -50,8 +50,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/spiritual-companion-release.jks"
-          chmod 600 "$RUNNER_TEMP/spiritual-companion-release.jks"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/spiritual-companion-release.p12"
+          chmod 600 "$RUNNER_TEMP/spiritual-companion-release.p12"
 
       - name: Build signed APK and Android App Bundle
         shell: bash
@@ -59,7 +59,7 @@ jobs:
           set -euo pipefail
           chmod +x gradlew
           ./gradlew --no-daemon :app:assembleRelease :app:bundleRelease \
-            -PRELEASE_STORE_FILE="$RUNNER_TEMP/spiritual-companion-release.jks" \
+            -PRELEASE_STORE_FILE="$RUNNER_TEMP/spiritual-companion-release.p12" \
             -PRELEASE_STORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD" \
             -PRELEASE_KEY_ALIAS="$ANDROID_KEY_ALIAS" \
             -PRELEASE_KEY_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"

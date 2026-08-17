@@ -89,3 +89,4 @@
 - [x] Simplify the signing workflow to use the locally verified keystore password for both matching JKS credentials.
 - [x] Recreate the signing keystore with explicitly supplied matching store and private-key credentials after repeated runner decryption failures.
 - [x] Declare the JKS store type explicitly in Gradle release signing so Java does not resolve the verified keystore through a different default store type.
+- [x] Replace the incompatible JKS signing identity with a deterministically generated PKCS12 identity and refresh release secrets.
