@@ -50,8 +50,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > "$RUNNER_TEMP/spiritual-companion-release.p12"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --ignore-garbage --decode > "$RUNNER_TEMP/spiritual-companion-release.p12"
           chmod 600 "$RUNNER_TEMP/spiritual-companion-release.p12"
+          test -s "$RUNNER_TEMP/spiritual-companion-release.p12"
+          keytool -list \
+            -keystore "$RUNNER_TEMP/spiritual-companion-release.p12" \
+            -storetype PKCS12 \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" \
+            >/dev/null
 
       - name: Build signed APK and Android App Bundle
         shell: bash
