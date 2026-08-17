@@ -99,3 +99,6 @@
 - [x] Add focused regression coverage and publish a validated native Android candidate for the routine-to-alarm hand-off.
 - [x] Research and design an original, offline-first Maharashtra devotional calendar that offers richer observance breadth without copying Kalnirnay content or branding.
 - [x] Implement source-labelled calendar expansion, test its date and accessibility behaviour, and publish a validated native Android candidate.
+- [x] Define and document inclusion rules for public-domain, openly licensed, or permission-backed whole Aarti texts and recordings.
+- [x] Curate and integrate an expanded source-attributed offline Aarti library without copying restricted website or book content.
+- [ ] Validate catalogue provenance, search, playback, accessibility, and signed native release artifacts for the Aarti-library expansion.

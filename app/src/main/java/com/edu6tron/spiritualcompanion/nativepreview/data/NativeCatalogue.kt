@@ -11,6 +11,20 @@ data class AartiItem(
   val summary: String,
   val source: String,
   val verses: List<String>,
+  val textAttribution: AartiTextAttribution? = null,
+)
+
+/**
+ * Provenance carried with a bundled devotional text. A null value deliberately means that the
+ * catalogue entry is a short guided excerpt, not a newly claimed or licensed full transcription.
+ */
+data class AartiTextAttribution(
+  val sourceTitle: String,
+  val sourceUrl: String,
+  val licence: String,
+  val licenceUrl: String,
+  val attribution: String,
+  val includesWholeText: Boolean,
 )
 
 data class FestivalItem(
@@ -42,7 +56,35 @@ object NativeCatalogue {
   val aartis = listOf(
     AartiItem("om-jai-jagdish-hare", "Om Jai Jagdish Hare", "Vishnu", "Vishnu", listOf("Hindi", "Sanskrit"), "5 min", "Om jai Jagdish hare, swami jai Jagdish hare…", "A widely sung evening Aarti offered to Vishnu as the sustaining presence in all beings.", "Gita Press devotional tradition", listOf("Om jai Jagdish hare, swami jai Jagdish hare; bhakt jano ke sankat, kshan mein door kare.", "Jo dhyave phal pave, dukh binse man ka; sukh sampatti ghar aave, kasht mite tan ka.", "Mata pita tum mere, sharan gahoon kiski; tum bin aur na dooja, aas karoon jiski.")),
     AartiItem("jai-ganesh-deva", "Jai Ganesh Deva", "Ganesha", "Ganesh", listOf("Hindi"), "4 min", "Jai Ganesh, jai Ganesh, jai Ganesh deva…", "A compact invocation to Ganesha, traditionally sung before beginning a new task or puja.", "North Indian Aarti tradition", listOf("Jai Ganesh, jai Ganesh, jai Ganesh deva; mata jaki Parvati, pita Mahadeva.", "Ek dant dayavant, char bhuja dhari; mathe sindoor sohe, moose ki sawari.", "Andhan ko aankh det, kodhin ko kaya; baanjhan ko putra det, nirdhan ko maya.")),
-    AartiItem("om-jai-shiv-omkara", "Om Jai Shiv Omkara", "Shiva", "Shiva", listOf("Hindi", "Sanskrit"), "5 min", "Om jai Shiv Omkara, prabhu jai Shiv Omkara…", "A devotional praise of Shiva’s many forms, suited to a quiet morning or Pradosh practice.", "Shaiva devotional tradition", listOf("Om jai Shiv Omkara, prabhu jai Shiv Omkara; Brahma Vishnu Sadashiv, ardhangi dhara.", "Ek anan chaturanan panchanan raje; hansasan garudasan vrishvahan saje.", "Do bhuja char chaturbhuj, dashbhuj ati sohe; trin roop nirakhata, tribhuvan jan mohe.")),
+    AartiItem(
+      "om-jai-shiv-omkara",
+      "Om Jai Shiv Omkara",
+      "Shiva",
+      "Shiva",
+      listOf("Hindi", "Sanskrit"),
+      "5 min",
+      "Om jai Shiv Omkara, prabhu jai Shiv Omkara…",
+      "A complete, source-attributed Shiva Aarti suitable for a quiet morning or Pradosh practice. Its wording is bundled under the stated open licence; local recordings remain chosen by the user.",
+      "Sanskrit Wikisource, Shiva Aarti",
+      listOf(
+        "Om jai Shiv Omkara, prabhu jai Shiv Omkara; Brahma Vishnu Sadashiv, ardhangi dhara.",
+        "Ek anan chaturanan panchanan raje; hansasan garudasan vrishvahan saje.",
+        "Do bhuja char chaturbhuj dashbhuj ati sohe; trin roop nirakhata tribhuvan jan mohe.",
+        "Akshamala vanamala mundamala dhari; chandan mrigmad sohe, bhale shashidhaari.",
+        "Shvetambar pitambar baghambar ange; sanakadik garunadik bhutadik sange.",
+        "Kar ke madhya kamandal chakra trishuldhari; jagkartaa jagbhartaa jagpalankari.",
+        "Brahma Vishnu Sadashiv jaanat aviveka; pranavakshar ke madhye ye tino eka.",
+        "Trigun swami ki aarti jo koi nar gave; kahat Shivanand swami manvanchhit phal pave.",
+      ),
+      textAttribution = AartiTextAttribution(
+        sourceTitle = "Shiva Aarti — Sanskrit Wikisource",
+        sourceUrl = "https://sa.wikisource.org/w/index.php?title=%E0%A4%B6%E0%A4%BF%E0%A4%B5_%E0%A4%86%E0%A4%B0%E0%A4%A4%E0%A5%80&oldid=33009",
+        licence = "CC BY-SA 4.0",
+        licenceUrl = "https://creativecommons.org/licenses/by-sa/4.0/",
+        attribution = "Adapted only for accessible line breaks from Sanskrit Wikisource contributors, Shiva Aarti, under CC BY-SA 4.0.",
+        includesWholeText = true,
+      ),
+    ),
     AartiItem("jai-ambe-gauri", "Jai Ambe Gauri", "Devi", "Devi", listOf("Hindi"), "5 min", "Jai Ambe Gauri, maiya jai Shyama Gauri…", "A reverent Aarti to the Divine Mother, often included in Navratri and daily Devi worship.", "Shakta devotional tradition", listOf("Jai Ambe Gauri, maiya jai Shyama Gauri; tumko nishdin dhyavat, Hari Brahma Shivri.", "Maang sindoor virajat, tiko mrigmad ko; ujjwal se do naina, chandravadan niko.", "Kanak saman kalevar, raktambar raje; rakt pushp gal mala, kanthan par saje.")),
     AartiItem("om-jai-lakshmi-mata", "Om Jai Lakshmi Mata", "Lakshmi", "Evening", listOf("Hindi", "Sanskrit"), "4 min", "Om jai Lakshmi mata, maiya jai Lakshmi mata…", "An evening prayer for inner abundance, gratitude, and responsible stewardship.", "Lakshmi puja devotional tradition", listOf("Om jai Lakshmi mata, maiya jai Lakshmi mata; tumko nishdin sevat, Hari Vishnu vidhata.", "Uma Rama Brahmani, tum hi jag mata; surya chandrama dhyavat, Narad rishi gata.", "Durga roop niranjani, sukh sampatti data; jo koi tumko dhyata, riddhi siddhi dhana pata.")),
     AartiItem("kakad-aarti", "Kakad Aarti", "Morning Invocation", "Morning", listOf("Marathi", "Hindi"), "6 min", "Utha utha ho sakalika, vache smaraava Gajamukha…", "A gentle dawn Aarti tradition that frames the day with remembrance and steadiness.", "Maharashtra temple tradition", listOf("Utha utha ho sakalika, vache smaraava Gajamukha; riddhi siddhicha naayaka, sukhdaayaka bhaktansi.", "Angani ha vishwacha, jyoti prakatli bhavachi; prabhati naam smarata, shantata manachi.", "Karuna sindhu deva, dinancha tu aadhaar; prabhat vandana ghe, raksha kar sansar.")),

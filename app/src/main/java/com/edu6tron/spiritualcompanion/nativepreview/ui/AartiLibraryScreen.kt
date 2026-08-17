@@ -125,7 +125,7 @@ fun AartiLibraryScreen(
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("OFFLINE LYRICS & AUDIO", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
         Text("Aarti library", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Curated lyrics and your chosen local audio, ready whenever you need them", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Curated reading excerpts, verified whole texts, and your chosen local audio — ready whenever you need them", color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
     item {
@@ -312,6 +312,7 @@ private fun AartiLyricsDialog(
   onStopPlayback: () -> Unit,
   onDismiss: () -> Unit,
 ) {
+  val context = LocalContext.current
   val activeVerseIndex = if (playback.isPlaying) {
     LyricTiming.activeVerseIndex(playback.positionMs, playback.durationMs, aarti.verses.size)
   } else -1
@@ -331,6 +332,27 @@ private fun AartiLyricsDialog(
         verticalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         Text(aarti.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        aarti.textAttribution?.let { attribution ->
+          Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+              Text(
+                if (attribution.includesWholeText) "VERIFIED WHOLE TEXT" else "SOURCE-ATTRIBUTED TEXT",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.tertiary,
+              )
+              Text(attribution.licence, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+              Text(attribution.attribution, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
+              Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = {
+                  context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(attribution.sourceUrl)))
+                }) { Text("Open source") }
+                TextButton(onClick = {
+                  context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(attribution.licenceUrl)))
+                }) { Text("Open licence") }
+              }
+            }
+          }
+        }
         Text(
           "Use your local recording while reading. When duration is available, the current verse is highlighted proportionally; recordings can have different exact timings.",
           style = MaterialTheme.typography.bodySmall,
@@ -392,7 +414,15 @@ private fun AartiLyricsDialog(
             }
           }
           item {
-            Text("Source: ${aarti.source}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+              if (aarti.textAttribution == null) {
+                "Guide source: ${aarti.source}. This screen provides a short reading excerpt; full-text rights are not represented as verified."
+              } else {
+                "Text source: ${aarti.source}"
+              },
+              style = MaterialTheme.typography.labelSmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
           }
         }
         TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Close") }

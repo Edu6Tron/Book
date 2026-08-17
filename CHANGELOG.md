@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.1-rc.25 — 17 August 2026
+
+The offline Aarti reader now distinguishes short guided reading excerpts from a **verified whole-text** inclusion. **Om Jai Shiv Omkara** is bundled as a complete, source-attributed text adapted only for accessible line breaks from Sanskrit Wikisource’s reviewed permanent revision. Its reader card identifies the CC BY-SA 4.0 licence, contributor attribution, stable source URL, and licence URL; both links open only after a user taps them.
+
+This release introduces an explicit source policy for devotional texts and recordings. It allows complete offline text only when a public-domain rationale, compatible open licence, or recorded permission has been verified. Current catalogue entries without a verified work-level source remain clearly labelled as short guided reading excerpts rather than being represented as full authorised transcriptions. Commercial lyric sites, scans without a reusable licence, third-party recordings, and provider media remain excluded from offline ingestion.
+
+The Aarti library continues to support user-chosen local audio, but it does not bundle third-party recordings or synchronise text to online provider media. This preserves the app’s offline-first and privacy-first boundaries while making provenance visible at the point of reading.
+
 ## v1.4.0-rc.24 — 17 August 2026
 
 The Festivals tab now opens with an original, richer **Maharashtra calendar** built for the app rather than a copied almanac. It offers a Sunday-first month grid, accessible day selection, selected-day sunrise and sunset, moonrise and moonset, Brahma Muhurta, Tithi, Paksha, Nakshatra, lunar-month estimate, and Saka date. All timing content comes from the app’s existing offline Panchang calculation for the selected saved place and is explicitly identified as a personal estimate, not ritual authority.
