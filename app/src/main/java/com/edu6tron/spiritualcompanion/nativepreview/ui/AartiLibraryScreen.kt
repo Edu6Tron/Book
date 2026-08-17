@@ -145,13 +145,17 @@ fun AartiLibraryScreen(
             Text(if (selectedMediaUri == null) "Choose local audio" else "Change audio")
           }
           if (selectedMediaUri != null) {
+            val isSelectedAudioPlaying = playback.isPlaying &&
+              playback.sourceLabel == (selectedMediaLabel ?: "Selected devotional audio")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
               TextButton(onClick = { onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio") }) {
-                Text(if (playback.isPlaying) "Restart" else "Play")
+                Text(if (isSelectedAudioPlaying) "Restart" else "Play")
               }
-              TextButton(onClick = onStopPlayback) { Text("Stop") }
               TextButton(onClick = onClearSelectedMedia) { Text("Clear") }
             }
+          }
+          if (playback.isPlaying) {
+            TextButton(onClick = onStopPlayback) { Text("Stop playing audio") }
           }
           playback.sourceLabel?.let { source ->
             Text(
@@ -333,6 +337,8 @@ private fun AartiLyricsDialog(
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         if (selectedMediaUri != null) {
+          val isSelectedAudioPlaying = playback.isPlaying &&
+            playback.sourceLabel == (selectedMediaLabel ?: "Selected devotional audio")
           Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
             Row(
               modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -349,8 +355,10 @@ private fun AartiLyricsDialog(
               }
               TextButton(onClick = {
                 onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio")
-              }) { Text(if (playback.isPlaying) "Restart" else "Play") }
-              TextButton(onClick = onStopPlayback) { Text("Stop") }
+              }) { Text(if (isSelectedAudioPlaying) "Restart" else "Play") }
+              if (playback.isPlaying) {
+                TextButton(onClick = onStopPlayback) { Text("Stop") }
+              }
             }
           }
         } else {

@@ -42,6 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.R
@@ -111,7 +114,14 @@ fun PracticeScreen(
     items(content.practices, key = { it.id }, contentType = { "practice" }) { practice ->
       Card(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-          Checkbox(checked = practice.completed, onCheckedChange = { onTogglePractice(practice.id) })
+          Checkbox(
+            checked = practice.completed,
+            onCheckedChange = { onTogglePractice(practice.id) },
+            modifier = Modifier.semantics {
+              contentDescription = "Mark ${practice.title} complete"
+              stateDescription = if (practice.completed) "Completed" else "Not completed"
+            },
+          )
           Spacer(Modifier.size(8.dp))
           Column(modifier = Modifier.weight(1f)) {
             Text(practice.title, fontWeight = FontWeight.Medium)
@@ -269,6 +279,20 @@ private fun SacredDawnSoundscapeCard(
           style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (playback.isPlaying) {
+          Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+            Row(
+              modifier = Modifier.fillMaxWidth().padding(12.dp),
+              verticalAlignment = Alignment.CenterVertically,
+            ) {
+              Column(modifier = Modifier.weight(1f)) {
+                Text("Playing now", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+                Text(playback.sourceLabel ?: "Local devotional audio", style = MaterialTheme.typography.bodySmall)
+              }
+              OutlinedButton(onClick = onStop) { Text("Stop") }
+            }
+          }
+        }
         OfflineSoundscape.entries.forEach { soundscape ->
           val isThisSoundscape = playback.sourceLabel == soundscape.playbackLabel
           Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -277,9 +301,6 @@ private fun SacredDawnSoundscapeCard(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
               Button(onClick = { onPlaySoundscape(soundscape) }) {
                 Text(if (isThisSoundscape && playback.isPlaying) "Restart" else "Play")
-              }
-              if (isThisSoundscape && (playback.isPlaying || playback.positionMs > 0L)) {
-                OutlinedButton(onClick = onStop) { Text("Stop") }
               }
             }
             if (isThisSoundscape) {
@@ -352,7 +373,10 @@ private fun JapaCounterCard(count: Int, onIncrement: (Int) -> Unit, onReset: () 
       Text("Japa repetitions today", color = MaterialTheme.colorScheme.onPrimaryContainer)
       LinearProgressIndicator(
         progress = { currentMala / 108f },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().semantics {
+          contentDescription = "Japa progress"
+          stateDescription = "$currentMala of 108 repetitions in the current mala"
+        },
         color = MaterialTheme.colorScheme.primary,
         trackColor = MaterialTheme.colorScheme.surface,
       )

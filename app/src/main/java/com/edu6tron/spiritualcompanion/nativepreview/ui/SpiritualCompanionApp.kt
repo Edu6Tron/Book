@@ -1,6 +1,9 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.CalendarMonth
@@ -8,7 +11,10 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LibraryMusic
 import androidx.compose.material.icons.outlined.Spa
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -16,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,12 +30,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalTheme
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.ThemeMode
 import com.edu6tron.spiritualcompanion.nativepreview.media.OfflineSoundscape
+import com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState
 
 private enum class NativeTab(val title: String) {
   TODAY("Today"),
@@ -87,7 +96,11 @@ fun SpiritualCompanionApp(
     snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     bottomBar = {
       if (selectedTab != NativeTab.SETTINGS && selectedTab != NativeTab.ROUTINE) {
-        NavigationBar(
+        Column {
+          if (state.playback.isPlaying) {
+            SharedPlaybackBar(playback = state.playback, onStop = onStopTonePreview)
+          }
+          NavigationBar(
           containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
           tonalElevation = 10.dp,
         ) {
@@ -112,6 +125,7 @@ fun SpiritualCompanionApp(
               ),
             )
           }
+        }
         }
       }
     },
@@ -196,6 +210,31 @@ fun SpiritualCompanionApp(
         onResetRoutineProgress = onResetRoutineProgress,
         onOpenAlarmTools = { selectedTab = NativeTab.TODAY },
       )
+    }
+  }
+}
+
+@Composable
+private fun SharedPlaybackBar(playback: DevotionalPlaybackState, onStop: () -> Unit) {
+  Card(
+    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+  ) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+      Text(
+        "Playing on this device",
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.secondary,
+      )
+      Text(
+        playback.sourceLabel ?: "Local devotional audio",
+        style = MaterialTheme.typography.bodyMedium,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+      )
+      TextButton(onClick = onStop, modifier = Modifier.fillMaxWidth()) {
+        Text("Stop playback")
+      }
     }
   }
 }

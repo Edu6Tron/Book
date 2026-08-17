@@ -79,8 +79,8 @@
 - [x] Create a source-attributed improvement blueprint that adapts useful patterns into an original privacy-first Spiritual Companion experience.
 - [x] Implement and test the highest-impact original Kotlin and Compose improvements from the reference-informed blueprint.
 - [x] Validate and publish the upgraded native Android experience.
-- [ ] Audit and strengthen the one-owner local player contract, including predictable release and an always-reachable stop action.
-- [ ] Audit remaining non-text controls and all eleven palettes for accessible labels, touch targets, and readable contrast.
+- [x] Audit and strengthen the one-owner local player contract, including predictable release and an always-reachable stop action.
+- [x] Audit remaining non-text controls and all eleven palettes for accessible labels, touch targets, and readable contrast.
 - [x] Determine whether an existing Android release signing identity is available and document a GitHub-Secrets-only provisioning path without exposing credentials.
 - [x] Validate the user-managed production signing identity, then attach signed v1.3.7 artifacts without exposing credentials.
 - [x] Guide a local, non-destructive private-key verification after the first temporary-file location was not writable.
@@ -93,3 +93,5 @@
 - [x] Re-encode and replace the malformed PKCS12 Base64 repository secret without exposing its contents.
 - [x] Validate the decoded PKCS12 keystore on the release runner before Gradle signing and tolerate harmless mobile-paste garbage.
 - [x] Verify the local PKCS12 Base64 round trip before replacing the repository secret again.
+- [x] Implement an audit-backed single-owner local media contract with predictable resource release and an always-reachable stop action.
+- [x] Complete an interaction accessibility audit for labels, touch targets, and readable text across the devotional palettes.

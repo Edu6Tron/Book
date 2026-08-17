@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -417,7 +418,14 @@ private fun PracticeCard(practices: List<DailyPractice>, onTogglePractice: (Stri
       Spacer(Modifier.height(8.dp))
       practices.forEach { practice ->
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-          Checkbox(checked = practice.completed, onCheckedChange = { onTogglePractice(practice.id) })
+          Checkbox(
+            checked = practice.completed,
+            onCheckedChange = { onTogglePractice(practice.id) },
+            modifier = Modifier.semantics {
+              contentDescription = "Mark ${practice.title} complete"
+              stateDescription = if (practice.completed) "Completed" else "Not completed"
+            },
+          )
           Column(modifier = Modifier.weight(1f)) {
             Text(practice.title, textDecoration = if (practice.completed) androidx.compose.ui.text.style.TextDecoration.LineThrough else null)
             Text(practice.detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

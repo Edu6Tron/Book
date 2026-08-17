@@ -43,6 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
@@ -110,7 +113,14 @@ fun RitualAlarmSection(
                 Text("Next: ${DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(nextScheduledAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
               }
             }
-            Switch(checked = alarm.enabled, onCheckedChange = { onSetEnabled(alarm, it) })
+            Switch(
+              checked = alarm.enabled,
+              onCheckedChange = { onSetEnabled(alarm, it) },
+              modifier = Modifier.semantics {
+                contentDescription = "Enable ${alarm.label}"
+                stateDescription = if (alarm.enabled) "Enabled" else "Disabled"
+              },
+            )
             IconButton(onClick = { if (alarm.isPaused()) onResume(alarm) else pausing = alarm }) {
               Icon(Icons.Outlined.PauseCircleOutline, contentDescription = if (alarm.isPaused()) "Resume ${alarm.label}" else "Pause ${alarm.label}")
             }

@@ -40,6 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -268,7 +271,14 @@ private fun RoutineDefinitionCard(
             style = MaterialTheme.typography.labelLarge,
           )
         }
-        Switch(checked = enabled, onCheckedChange = onEnabledChange)
+        Switch(
+          checked = enabled,
+          onCheckedChange = onEnabledChange,
+          modifier = Modifier.semantics {
+            contentDescription = "Enable ${definition.title}"
+            stateDescription = if (enabled) "Enabled" else "Disabled"
+          },
+        )
       }
       Text(definition.timingNote, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       LinearProgressIndicator(
@@ -322,7 +332,14 @@ private fun RoutineStepRow(
   onOpenRecitation: (DevotionalRoutineStep) -> Unit,
 ) {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-    Checkbox(checked = completed, onCheckedChange = onCompletedChange)
+    Checkbox(
+      checked = completed,
+      onCheckedChange = onCompletedChange,
+      modifier = Modifier.semantics {
+        contentDescription = "Mark ${step.title} complete"
+        stateDescription = if (completed) "Completed" else "Not completed"
+      },
+    )
     Surface(
       modifier = Modifier.padding(start = 4.dp, end = 8.dp),
       shape = RoundedCornerShape(10.dp),

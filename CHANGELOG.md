@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.8-rc.22 — 17 August 2026
+
+This quality candidate makes the app’s in-app media behaviour easier to trust. Preview, local Aarti, and offline-soundscape playback are now explicitly governed by one local player contract, while exact ritual alarms remain separate in their foreground alarm service. The player is released when the app’s activity-scoped dashboard owner is destroyed, guarded against later use, and stops its progress work before releasing resources. No playback URI, city, alarm label, or user input is written to diagnostics.
+
+Whenever in-app audio is playing, every main tab now retains a compact **Playing on this device** control directly above navigation, with a clear **Stop playback** action. This means local audio started in one tab cannot become unreachable after changing tabs or closing an Aarti lyrics view. The Aarti library and Practice screen also make their local stop state more explicit.
+
+The candidate adds screen-reader labels and state descriptions for daily-practice checks, routine steps, routine switches, alarm switches, and Japa progress. All eleven devotional palettes now have regression coverage that verifies readable foreground contrast in their light and dark control assignments. The update remains offline-first and does not add network work, GPS, tracking, or background refresh.
+
 ## v1.3.7-rc.21 — 16 August 2026
 
 The Today dashboard now offers an original, timing-aware **NOW / NEXT / PERSONAL PLAN** focus cue. It changes locally according to the selected city’s offline Panchang estimate, the current device time, and the user’s enabled Brahma Muhurta or Evening Prarthana routine. It can therefore point into an active Brahma Muhurta window, gently prepare the evening sequence ahead of the local sunset estimate, or make an unconfigured personal routine visible without fabricating an alarm state. The focus cue is a personal aid, not ritual authority, and neither the city, routine choices, nor current focus leave the device.

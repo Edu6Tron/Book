@@ -236,7 +236,7 @@ class DashboardViewModel @Inject constructor(
   }
 
   override fun onCleared() {
-    player.stop()
+    player.release()
     super.onCleared()
   }
 }
