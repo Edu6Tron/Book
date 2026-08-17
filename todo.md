@@ -98,4 +98,4 @@
 - [x] Add an offline-first hand-off from Brahma Muhurta and sunset routine guidance into the exact-alarm editor with clear timing context.
 - [x] Add focused regression coverage and publish a validated native Android candidate for the routine-to-alarm hand-off.
 - [x] Research and design an original, offline-first Maharashtra devotional calendar that offers richer observance breadth without copying Kalnirnay content or branding.
-- [ ] Implement source-labelled calendar expansion, test its date and accessibility behaviour, and publish a validated native Android candidate.
+- [x] Implement source-labelled calendar expansion, test its date and accessibility behaviour, and publish a validated native Android candidate.
