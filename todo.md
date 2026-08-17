@@ -104,4 +104,4 @@
 - [x] Validate catalogue provenance, search, playback, accessibility, and signed native release artifacts for the Aarti-library expansion.
 - [x] Audit authoritative Maharashtra festival, public-holiday, and Panchang-source boundaries for an original rich-event calendar schema.
 - [x] Implement a source-tiered Maharashtra rich-event and Panchang calendar data model with transparent estimate and provenance labels.
-- [ ] Validate calendar event integrity and accessibility, then publish a signed native Android candidate.
+- [x] Validate calendar event integrity and accessibility, then publish a signed native Android candidate.
