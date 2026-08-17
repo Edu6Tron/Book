@@ -87,3 +87,5 @@
 - [x] Replace the unusable signing identity with a locally verified fresh keystore and refresh all four repository signing secrets.
 - [x] Confirm the fresh keystore private key unlocks locally before re-running GitHub release signing.
 - [x] Simplify the signing workflow to use the locally verified keystore password for both matching JKS credentials.
+- [x] Recreate the signing keystore with explicitly supplied matching store and private-key credentials after repeated runner decryption failures.
+- [x] Declare the JKS store type explicitly in Gradle release signing so Java does not resolve the verified keystore through a different default store type.
