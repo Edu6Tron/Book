@@ -2,7 +2,7 @@ package com.edu6tron.spiritualcompanion.nativepreview.ui
 
 import java.util.Calendar
 
-internal data class AlarmTimeSelection(
+data class AlarmTimeSelection(
   val hour: Int,
   val minute: Int,
 ) {

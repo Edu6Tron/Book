@@ -84,6 +84,7 @@ fun SpiritualCompanionApp(
 ) {
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
   var requestedAartiId by remember { mutableStateOf<String?>(null) }
+  var routineAlarmSuggestion by remember { mutableStateOf<RoutineAlarmSuggestion?>(null) }
   val snackbarHostState = remember { SnackbarHostState() }
   LaunchedEffect(state.notice) {
     state.notice?.let { message ->
@@ -150,6 +151,8 @@ fun SpiritualCompanionApp(
         onPlayFallbackTone = onPlayFallbackTone,
         onPreviewAlarmTone = onPreviewAlarmTone,
         onStopTonePreview = onStopTonePreview,
+        routineAlarmSuggestion = routineAlarmSuggestion,
+        onRoutineAlarmSuggestionConsumed = { routineAlarmSuggestion = null },
       )
       NativeTab.AARTIS -> AartiLibraryScreen(
         contentPadding = padding,
@@ -208,7 +211,10 @@ fun SpiritualCompanionApp(
         onSaveBrahmaMuhurtaRoutineEnabled = onSaveBrahmaMuhurtaRoutineEnabled,
         onSetRoutineStepCompleted = onSetRoutineStepCompleted,
         onResetRoutineProgress = onResetRoutineProgress,
-        onOpenAlarmTools = { selectedTab = NativeTab.TODAY },
+        onCreateRoutineAlarm = { suggestion ->
+          routineAlarmSuggestion = suggestion
+          selectedTab = NativeTab.TODAY
+        },
       )
     }
   }

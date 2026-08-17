@@ -77,7 +77,7 @@ fun DevotionalRoutineScreen(
   onSaveBrahmaMuhurtaRoutineEnabled: (Boolean) -> Unit,
   onSetRoutineStepCompleted: (String, String, Boolean) -> Unit,
   onResetRoutineProgress: (String) -> Unit,
-  onOpenAlarmTools: () -> Unit,
+  onCreateRoutineAlarm: (RoutineAlarmSuggestion) -> Unit,
 ) {
   val now by produceState(initialValue = LocalDateTime.now()) {
     while (true) {
@@ -104,7 +104,13 @@ fun DevotionalRoutineScreen(
     verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     item { RoutineHeader(onNavigateBack) }
-    item { RoutineTimingCard(snapshot = panchang, now = now, onOpenAlarmTools = onOpenAlarmTools) }
+    item {
+      RoutineTimingCard(
+        snapshot = panchang,
+        now = now,
+        onCreateRoutineAlarm = onCreateRoutineAlarm,
+      )
+    }
     item {
       RoutineDefinitionCard(
         definition = NativeDevotionalRoutines.eveningPrarthana,
@@ -120,6 +126,7 @@ fun DevotionalRoutineScreen(
         onResetProgress = { onResetRoutineProgress(NativeDevotionalRoutines.eveningPrarthana.id) },
         onOpenAarti = onOpenAarti,
         onOpenRecitation = { selectedRecitation = it },
+        onCreateRoutineAlarm = onCreateRoutineAlarm,
       )
     }
     item {
@@ -137,6 +144,7 @@ fun DevotionalRoutineScreen(
         onResetProgress = { onResetRoutineProgress(NativeDevotionalRoutines.brahmaMuhurta.id) },
         onOpenAarti = onOpenAarti,
         onOpenRecitation = { selectedRecitation = it },
+        onCreateRoutineAlarm = onCreateRoutineAlarm,
       )
     }
     specialGuidance?.let { guidance ->
@@ -176,8 +184,19 @@ private fun RoutineHeader(onNavigateBack: () -> Unit) {
 private fun RoutineTimingCard(
   snapshot: PanchangSnapshot,
   now: LocalDateTime,
-  onOpenAlarmTools: () -> Unit,
+  onCreateRoutineAlarm: (RoutineAlarmSuggestion) -> Unit,
 ) {
+  val date = now.toLocalDate()
+  val brahmaSuggestion = RoutineAlarmSuggestion.from(
+    context = RoutineAlarmContext.BRAHMA_MUHURTA,
+    estimatedTime = snapshot.brahmaMuhurtaStart,
+    referenceDate = date,
+  )
+  val sunsetSuggestion = RoutineAlarmSuggestion.from(
+    context = RoutineAlarmContext.EVENING_PRARTHANA,
+    estimatedTime = snapshot.sunset,
+    referenceDate = date,
+  )
   Card(
     modifier = Modifier.fillMaxWidth(),
     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -211,7 +230,23 @@ private fun RoutineTimingCard(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onPrimaryContainer,
       )
-      TextButton(onClick = onOpenAlarmTools) { Text("Open reminder controls") }
+      Text(
+        "Choose an anchor to review it in the exact-alarm editor. The saved reminder repeats at your chosen clock time, so review it as seasonal timings change.",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+      )
+      Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(
+          enabled = brahmaSuggestion != null,
+          onClick = { brahmaSuggestion?.let(onCreateRoutineAlarm) },
+          modifier = Modifier.weight(1f),
+        ) { Text("Set dawn reminder") }
+        OutlinedButton(
+          enabled = sunsetSuggestion != null,
+          onClick = { sunsetSuggestion?.let(onCreateRoutineAlarm) },
+          modifier = Modifier.weight(1f),
+        ) { Text("Set sunset reminder") }
+      }
     }
   }
 }
@@ -237,6 +272,7 @@ private fun RoutineDefinitionCard(
   onResetProgress: () -> Unit,
   onOpenAarti: (String) -> Unit,
   onOpenRecitation: (DevotionalRoutineStep) -> Unit,
+  onCreateRoutineAlarm: (RoutineAlarmSuggestion) -> Unit,
 ) {
   val anchorTime = when (definition.anchor) {
     DevotionalRoutineAnchor.SUNSET -> snapshot.sunset
@@ -249,6 +285,11 @@ private fun RoutineDefinitionCard(
   val completedSteps = progress.completedStepsFor(today)
   val completedCount = definition.steps.count { it.id in completedSteps }
   val isComplete = completedCount == definition.steps.size
+  val alarmSuggestion = RoutineAlarmSuggestion.from(
+    context = RoutineAlarmContext.from(definition.anchor),
+    estimatedTime = anchorTime,
+    referenceDate = today,
+  )
   Card(
     modifier = Modifier.fillMaxWidth(),
     colors = CardDefaults.cardColors(
@@ -309,9 +350,17 @@ private fun RoutineDefinitionCard(
           Text("Clear today’s marks")
         }
       }
+      alarmSuggestion?.let { suggestion ->
+        OutlinedButton(
+          onClick = { onCreateRoutineAlarm(suggestion) },
+          modifier = Modifier.fillMaxWidth(),
+        ) {
+          Text("Review ${suggestion.time.displayText()} reminder")
+        }
+      }
       Text(
         if (enabled) {
-          "This routine is enabled on this device. Create or adjust its separate exact reminder in Today."
+          "This routine is enabled on this device. Its suggested timing opens in the separate exact-alarm editor for your review."
         } else {
           "Turn this on to save the routine as part of your personal daily plan."
         },

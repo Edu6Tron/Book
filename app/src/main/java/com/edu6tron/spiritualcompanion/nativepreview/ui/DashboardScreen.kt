@@ -87,6 +87,8 @@ fun DashboardScreen(
   onPlayFallbackTone: () -> Unit,
   onPreviewAlarmTone: (String?) -> Unit,
   onStopTonePreview: () -> Unit,
+  routineAlarmSuggestion: RoutineAlarmSuggestion?,
+  onRoutineAlarmSuggestionConsumed: () -> Unit,
 ) {
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -125,6 +127,8 @@ fun DashboardScreen(
         onPlayFallbackTone = onPlayFallbackTone,
         onPreviewTone = onPreviewAlarmTone,
         onStopTonePreview = onStopTonePreview,
+        routineAlarmSuggestion = routineAlarmSuggestion,
+        onRoutineAlarmSuggestionConsumed = onRoutineAlarmSuggestionConsumed,
       )
     }
     item(contentType = "japa") { DailyEntryCard(content.japaCount, onIncrementJapa) }

@@ -33,6 +33,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -44,8 +45,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
@@ -71,11 +70,22 @@ fun RitualAlarmSection(
   onPlayFallbackTone: () -> Unit,
   onPreviewTone: (String?) -> Unit,
   onStopTonePreview: () -> Unit,
+  routineAlarmSuggestion: RoutineAlarmSuggestion?,
+  onRoutineAlarmSuggestionConsumed: () -> Unit,
 ) {
   var editorFor by remember { mutableStateOf<RitualAlarmEntity?>(null) }
   var creating by remember { mutableStateOf(false) }
+  var suggestionFor by remember { mutableStateOf<RoutineAlarmSuggestion?>(null) }
   var pausing by remember { mutableStateOf<RitualAlarmEntity?>(null) }
   val context = LocalContext.current
+  LaunchedEffect(routineAlarmSuggestion) {
+    routineAlarmSuggestion?.let { suggestion ->
+      editorFor = null
+      creating = false
+      suggestionFor = suggestion
+      onRoutineAlarmSuggestionConsumed()
+    }
+  }
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
       Row(verticalAlignment = Alignment.CenterVertically) {
@@ -137,13 +147,14 @@ fun RitualAlarmSection(
       TextButton(onClick = onStopTonePreview, modifier = Modifier.align(Alignment.End)) { Text("Stop preview") }
     }
   }
-  if (creating || editorFor != null) {
+  if (creating || editorFor != null || suggestionFor != null) {
     AlarmEditorDialog(
       initial = editorFor,
-      onDismiss = { creating = false; editorFor = null },
+      suggestion = suggestionFor,
+      onDismiss = { creating = false; editorFor = null; suggestionFor = null },
       onPreviewTone = onPreviewTone,
       onStopTonePreview = onStopTonePreview,
-      onSave = { onSave(it); creating = false; editorFor = null },
+      onSave = { onSave(it); creating = false; editorFor = null; suggestionFor = null },
     )
   }
   pausing?.let { alarm ->
@@ -161,19 +172,20 @@ fun RitualAlarmSection(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun AlarmEditorDialog(
   initial: RitualAlarmEntity?,
+  suggestion: RoutineAlarmSuggestion?,
   onDismiss: () -> Unit,
   onPreviewTone: (String?) -> Unit,
   onStopTonePreview: () -> Unit,
   onSave: (RitualAlarmEntity) -> Unit,
 ) {
-  var label by remember(initial) { mutableStateOf(initial?.label ?: "Brahma Muhurta") }
-  val initialCalendar = remember(initial) { Calendar.getInstance() }
-  var hour by remember(initial) { mutableStateOf(initial?.hour ?: initialCalendar.get(Calendar.HOUR_OF_DAY)) }
-  var minute by remember(initial) { mutableStateOf(initial?.minute ?: initialCalendar.get(Calendar.MINUTE)) }
-  var selectedDays by remember(initial) { mutableStateOf((initial?.days() ?: (0..6).toList()).toSet()) }
-  var toneUri by remember(initial) { mutableStateOf(initial?.toneUri) }
-  var invalidTime by remember(initial) { mutableStateOf(false) }
-  var showTimePicker by remember(initial) { mutableStateOf(false) }
+  var label by remember(initial, suggestion) { mutableStateOf(initial?.label ?: suggestion?.alarmLabel ?: "Brahma Muhurta") }
+  val initialCalendar = remember(initial, suggestion) { Calendar.getInstance() }
+  var hour by remember(initial, suggestion) { mutableStateOf(initial?.hour ?: suggestion?.time?.hour ?: initialCalendar.get(Calendar.HOUR_OF_DAY)) }
+  var minute by remember(initial, suggestion) { mutableStateOf(initial?.minute ?: suggestion?.time?.minute ?: initialCalendar.get(Calendar.MINUTE)) }
+  var selectedDays by remember(initial, suggestion) { mutableStateOf((initial?.days() ?: (0..6).toList()).toSet()) }
+  var toneUri by remember(initial, suggestion) { mutableStateOf(initial?.toneUri) }
+  var invalidTime by remember(initial, suggestion) { mutableStateOf(false) }
+  var showTimePicker by remember(initial, suggestion) { mutableStateOf(false) }
   val context = LocalContext.current
   val tonePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
     uri ?: return@rememberLauncherForActivityResult
@@ -182,9 +194,22 @@ private fun AlarmEditorDialog(
   }
   AlertDialog(
     onDismissRequest = onDismiss,
-    title = { Text(if (initial == null) "New ritual alarm" else "Edit ritual alarm") },
+    title = { Text(if (initial != null) "Edit ritual alarm" else suggestion?.editorTitle ?: "New ritual alarm") },
     text = {
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        suggestion?.let { timing ->
+          Card(colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+              Text("Suggested from today’s offline timing", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+              Text("${timing.context.anchorDescription}: ${timing.time.displayText()}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+              Text(
+                "This is a starting point. Confirm the saved clock time and review it as seasonal timings change.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+              )
+            }
+          }
+        }
         OutlinedTextField(label, { label = it }, label = { Text("Label") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
         Text("Time", style = MaterialTheme.typography.labelLarge)
         OutlinedButton(
@@ -205,6 +230,9 @@ private fun AlarmEditorDialog(
             minute = now.minute
           }) { Text("Use current time") }
           TextButton(onClick = { hour = AlarmTimeSelection.brahmaMuhurta.hour; minute = AlarmTimeSelection.brahmaMuhurta.minute }) { Text("Brahma Muhurta") }
+          suggestion?.let { timing ->
+            TextButton(onClick = { hour = timing.time.hour; minute = timing.time.minute }) { Text("Use suggestion") }
+          }
         }
         Text("Repeat on", style = MaterialTheme.typography.labelLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {

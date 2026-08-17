@@ -95,3 +95,5 @@
 - [x] Verify the local PKCS12 Base64 round trip before replacing the repository secret again.
 - [x] Implement an audit-backed single-owner local media contract with predictable resource release and an always-reachable stop action.
 - [x] Complete an interaction accessibility audit for labels, touch targets, and readable text across the devotional palettes.
+- [x] Add an offline-first hand-off from Brahma Muhurta and sunset routine guidance into the exact-alarm editor with clear timing context.
+- [ ] Add focused regression coverage and publish a validated native Android candidate for the routine-to-alarm hand-off.

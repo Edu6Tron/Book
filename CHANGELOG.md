@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.3.9-rc.23 — 17 August 2026
+
+**My routines** can now hand a timing-aware personal suggestion directly into the established exact-alarm editor. A Brahma Muhurta action pre-fills today’s offline Brahma Muhurta start, while an Evening Prarthana action pre-fills today’s offline sunset estimate. The hand-off gives each alarm a clear purpose label and then leaves the time, repeat days, sound, and final save entirely under the user’s control.
+
+The editor states that the supplied value is a current offline estimate rather than ritual authority. A saved exact alarm remains a fixed clock-time reminder, so the flow explicitly asks the user to review it as seasonal timings change. The feature stays fully offline-first: it does not request GPS, add network work, create background refresh, or log timing context, city names, labels, or other private inputs.
+
+Focused unit coverage now verifies Brahma Muhurta and sunset prefill values, correct purpose labels, and safe suppression when an estimate is unavailable. Android unit tests and lint have passed for this candidate.
+
 ## v1.3.8-rc.22 — 17 August 2026
 
 This quality candidate makes the app’s in-app media behaviour easier to trust. Preview, local Aarti, and offline-soundscape playback are now explicitly governed by one local player contract, while exact ritual alarms remain separate in their foreground alarm service. The player is released when the app’s activity-scoped dashboard owner is destroyed, guarded against later use, and stops its progress work before releasing resources. No playback URI, city, alarm label, or user input is written to diagnostics.
