@@ -114,3 +114,9 @@
 - [x] Implement a full-screen local Aarti player with responsive playback controls, progress seeking, timed current-line highlighting, reading mode, and accessible fallback states.
 - [x] Add deterministic tests for lyric timing resolution, player lifecycle, accessibility semantics, source disclosure, and fallback behavior.
 - [x] Validate and publish a signed native Android candidate for the synchronized-lyrics player.
+- [x] Audit current media integration, privacy safeguards, and the lawful boundary between official YouTube playback, playlist actions, and offline local media.
+- [x] Define and document a YouTube-compliant dual-path design that does not block ads, download provider videos, or imply account access without explicit user authorisation.
+- [x] Implement user-initiated official YouTube search and compliant playback hand-off alongside the existing local-media synchronized player.
+- [x] Implement a clear-consent, user-managed official YouTube playlist hand-off; the app does not access accounts or create playlists silently.
+- [ ] Future enhancement: add programmatic YouTube playlist creation only after a separately approved Google OAuth client and explicit just-in-time confirmation are available.
+- [ ] Validate and publish a signed native Android candidate for the lawful dual-path media experience.

@@ -2,6 +2,16 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.5-rc.29 — 17 August 2026
+
+The Aarti library now makes its two distinct media paths explicit. A new **Official YouTube discovery** card opens a person’s deliberately entered devotional search in a browser-managed official YouTube tab. Each Aarti reader also has a contextual **Search this Aarti on YouTube** action. Provider video is never treated as app-owned audio: the interface states that YouTube’s own controls, branding, and any provider advertising remain present, and online results cannot become an alarm tone, be downloaded by the app, or be synchronised to its devotional text.
+
+The existing full-screen local lyrics player remains the private, offline path. It supports only user-chosen on-device audio and the previously introduced personal lyric markers. This preserves accurate personal timing without uploading local audio, reading-provider watch history, or search text to Spiritual Companion.
+
+The new **Playlist options** disclosure explains that no Google or YouTube account is connected to the app. A person can sign in and manage a playlist through official YouTube after choosing to open it, but the app neither captures an account identity nor creates playlists silently. Programmatic playlist creation remains intentionally gated behind a separately approved Google OAuth client and an immediate user confirmation at the point of creation.
+
+The source and privacy rules are documented in `docs/YOUTUBE_MEDIA_COMPLIANCE_DESIGN.md`. Native unit tests, Android lint, and debug APK packaging passed before this candidate was prepared.
+
 ## v1.4.4-rc.28 — 17 August 2026
 
 The Aarti reader now provides a full-screen, **Spotify-inspired local lyrics player** for the app’s lawful text catalogue. It has responsive play, pause, restart, stop, 15-second skip, seek-slider, elapsed/duration display, automatic scroll-to-current-line, and clear visual highlighting for the current line. A dedicated reading mode lets a person move through the available reading lines without audio and tap a line to make it the current reading focus.

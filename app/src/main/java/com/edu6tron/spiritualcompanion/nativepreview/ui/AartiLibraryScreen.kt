@@ -93,6 +93,9 @@ fun AartiLibraryScreen(
   var query by rememberSaveable { mutableStateOf("") }
   var category by rememberSaveable { mutableStateOf("All") }
   var locationDraft by rememberSaveable(savedLocation) { mutableStateOf(savedLocation.orEmpty()) }
+  var providerQuery by rememberSaveable { mutableStateOf(ProviderSearchPolicy.defaultQuery) }
+  var providerStatus by rememberSaveable { mutableStateOf<String?>(null) }
+  var showPlaylistBoundary by rememberSaveable { mutableStateOf(false) }
   var selectedAarti by remember { mutableStateOf<AartiItem?>(null) }
   LaunchedEffect(initialAartiId) {
     initialAartiId?.let { aartiId ->
@@ -180,6 +183,50 @@ fun AartiLibraryScreen(
               color = if (playback.isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondaryContainer,
             )
           }
+        }
+      }
+    }
+    item {
+      Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        shape = RoundedCornerShape(28.dp),
+      ) {
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          Text("OFFICIAL YOUTUBE DISCOVERY", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+          Text("Search YouTube when you choose", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+          Text(
+            "This opens the official YouTube experience in an in-app browser. YouTube controls, branding, and any provider advertising remain intact.",
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+          )
+          OutlinedTextField(
+            value = providerQuery,
+            onValueChange = { providerQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            label = { Text("Search YouTube") },
+          )
+          Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = {
+              providerStatus = null
+              openProviderSearch(
+                context = context,
+                query = providerQuery,
+                onUnavailable = {
+                  providerStatus = "YouTube could not be opened on this device. Check your connection or YouTube availability."
+                },
+              )
+            }) { Text("Open official YouTube") }
+            TextButton(onClick = { showPlaylistBoundary = true }) { Text("Playlist options") }
+          }
+          providerStatus?.let { status ->
+            Text(status, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+          }
+          Text(
+            "Search text is not saved by Spiritual Companion. Online video is separate from the private offline lyrics player and is never used as an alarm tone or downloaded by this app.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+          )
         }
       }
     }
@@ -288,6 +335,31 @@ fun AartiLibraryScreen(
         onSavePersonalOffsets = { offsets -> onSavePersonalLyricTiming(aarti.id, offsets) },
         onClearPersonalOffsets = { onClearPersonalLyricTiming(aarti.id) },
         onDismiss = { selectedAarti = null },
+    )
+  }
+
+  if (showPlaylistBoundary) {
+    AlertDialog(
+      onDismissRequest = { showPlaylistBoundary = false },
+      title = { Text("Your YouTube playlist") },
+      text = {
+        Text(
+          "No Google or YouTube account is connected to Spiritual Companion. Creating a playlist in your account requires a separately approved Google OAuth connection and a clear confirmation immediately before the playlist is created. For now, you can sign in within official YouTube and manage playlists there; the app does not store your account or create playlists silently.",
+        )
+      },
+      confirmButton = {
+        TextButton(onClick = {
+          showPlaylistBoundary = false
+          openProviderSearch(
+            context = context,
+            query = "create devotional Aarti playlist",
+            onUnavailable = { providerStatus = "YouTube could not be opened on this device." },
+          )
+        }) { Text("Open YouTube") }
+      },
+      dismissButton = {
+        TextButton(onClick = { showPlaylistBoundary = false }) { Text("Not now") }
+      },
     )
   }
 }
@@ -495,6 +567,23 @@ private fun AartiLyricsDialog(
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+          }
+        }
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+          Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("Official YouTube option", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(
+              "Search or play this Aarti in official YouTube. Provider playback may include ads and cannot be downloaded or synchronised with these lyrics by this app.",
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            TextButton(onClick = {
+              openProviderSearch(
+                context = context,
+                query = "${aarti.title} ${aarti.deity}",
+                onUnavailable = {},
+              )
+            }) { Text("Search this Aarti on YouTube") }
           }
         }
         LazyColumn(
