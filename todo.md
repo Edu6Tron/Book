@@ -101,4 +101,4 @@
 - [x] Implement source-labelled calendar expansion, test its date and accessibility behaviour, and publish a validated native Android candidate.
 - [x] Define and document inclusion rules for public-domain, openly licensed, or permission-backed whole Aarti texts and recordings.
 - [x] Curate and integrate an expanded source-attributed offline Aarti library without copying restricted website or book content.
-- [ ] Validate catalogue provenance, search, playback, accessibility, and signed native release artifacts for the Aarti-library expansion.
+- [x] Validate catalogue provenance, search, playback, accessibility, and signed native release artifacts for the Aarti-library expansion.
