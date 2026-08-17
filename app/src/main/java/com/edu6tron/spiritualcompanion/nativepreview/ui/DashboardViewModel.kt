@@ -49,6 +49,7 @@ data class DashboardContentState(
   val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val onlineAstronomyCache: OnlineAstronomyCache? = null,
+  val personalLyricTimingByAarti: Map<String, List<Long>> = emptyMap(),
 )
 
 @Immutable
@@ -87,6 +88,7 @@ class DashboardViewModel @Inject constructor(
         eveningRoutineProgress = stored.eveningRoutineProgress,
         brahmaMuhurtaRoutineProgress = stored.brahmaMuhurtaRoutineProgress,
         onlineAstronomyCache = stored.onlineAstronomyCache,
+        personalLyricTimingByAarti = stored.personalLyricTimingByAarti,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
@@ -166,6 +168,20 @@ class DashboardViewModel @Inject constructor(
   }
 
   fun playSelectedMedia(uri: String, label: String) = player.play(uri, label)
+
+  fun toggleSelectedMediaPlayback() = player.togglePlayPause()
+
+  fun seekSelectedMediaTo(positionMs: Long) = player.seekTo(positionMs)
+
+  fun seekSelectedMediaBy(deltaMs: Long) = player.seekBy(deltaMs)
+
+  fun savePersonalLyricTiming(aartiId: String, offsetsMs: List<Long>) {
+    launchSafely("save-lyric-timing") { repository.savePersonalLyricTiming(aartiId, offsetsMs) }
+  }
+
+  fun clearPersonalLyricTiming(aartiId: String) {
+    launchSafely("clear-lyric-timing") { repository.clearPersonalLyricTiming(aartiId) }
+  }
 
   fun previewAlarmTone(uri: String?) {
     if (uri.isNullOrBlank()) player.playBundledFallback() else player.play(uri, "Selected local alarm tone")

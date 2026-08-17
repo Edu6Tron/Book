@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCache
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCacheCodec
+import com.edu6tron.spiritualcompanion.nativepreview.media.PersonalLyricTimingCodec
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,6 +33,7 @@ data class StoredSpiritualState(
   val eveningRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val onlineAstronomyCache: OnlineAstronomyCache? = null,
+  val personalLyricTimingByAarti: Map<String, List<Long>> = emptyMap(),
 )
 
 @Singleton
@@ -58,6 +60,7 @@ class SpiritualRepository @Inject constructor(
   private val eveningRoutineProgressKey = "evening_routine_progress"
   private val brahmaMuhurtaRoutineProgressKey = "brahma_muhurta_routine_progress"
   private val onlineAstronomyCacheKey = "online_astronomy_cache_v1"
+  private val personalLyricTimingKey = "personal_lyric_timing_v1"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -101,6 +104,8 @@ class SpiritualRepository @Inject constructor(
     state.copy(brahmaMuhurtaRoutineProgress = RoutineDailyProgress.fromStored(progress))
   }.combine(appStateDao.observeString(onlineAstronomyCacheKey)) { state, cache ->
     state.copy(onlineAstronomyCache = OnlineAstronomyCacheCodec.decode(cache))
+  }.combine(appStateDao.observeString(personalLyricTimingKey)) { state, markers ->
+    state.copy(personalLyricTimingByAarti = PersonalLyricTimingCodec.decode(markers))
   }
 
   suspend fun togglePractice(id: String) {
@@ -149,6 +154,24 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun clearSelectedMedia() {
     mediaSelectionDao.clear(selectedMediaId)
+    appStateDao.deleteStringPreference(personalLyricTimingKey)
+  }
+
+  suspend fun savePersonalLyricTiming(aartiId: String, offsetsMs: List<Long>) {
+    if (!aartiId.matches(Regex("[a-z0-9-]+")) || offsetsMs.isEmpty() || offsetsMs.any { it < 0L }) return
+    val current = PersonalLyricTimingCodec.decode(appStateDao.getString(personalLyricTimingKey)).toMutableMap()
+    current[aartiId] = offsetsMs
+    val encoded = PersonalLyricTimingCodec.encode(current)
+    if (encoded == null) appStateDao.deleteStringPreference(personalLyricTimingKey)
+    else appStateDao.saveStringPreference(StringPreferenceEntity(personalLyricTimingKey, encoded))
+  }
+
+  suspend fun clearPersonalLyricTiming(aartiId: String) {
+    val current = PersonalLyricTimingCodec.decode(appStateDao.getString(personalLyricTimingKey)).toMutableMap()
+    current.remove(aartiId)
+    val encoded = PersonalLyricTimingCodec.encode(current)
+    if (encoded == null) appStateDao.deleteStringPreference(personalLyricTimingKey)
+    else appStateDao.saveStringPreference(StringPreferenceEntity(personalLyricTimingKey, encoded))
   }
 
   suspend fun saveLocation(location: String) {

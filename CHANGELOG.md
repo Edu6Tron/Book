@@ -2,6 +2,16 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.4-rc.28 — 17 August 2026
+
+The Aarti reader now provides a full-screen, **Spotify-inspired local lyrics player** for the app’s lawful text catalogue. It has responsive play, pause, restart, stop, 15-second skip, seek-slider, elapsed/duration display, automatic scroll-to-current-line, and clear visual highlighting for the current line. A dedicated reading mode lets a person move through the available reading lines without audio and tap a line to make it the current reading focus.
+
+When a person deliberately chooses a local recording stored on their device, the player offers **personal sync markers**: during playback, the person can mark each displayed line at its actual position in that particular recording. Completed markers are stored only on-device and take priority over proportional guided pacing on later plays. Incomplete, negative, non-monotonic, or recording-independent timing profiles cannot be saved, so a mistaken marker cannot produce unsafe seeking behavior.
+
+The release does not embed, download, stream, or synchronise copyrighted third-party recordings or online provider media. It preserves the source policy: verified whole-text works remain labelled with their attribution, while entries without work-level reuse verification remain clearly labelled as guided reading excerpts. The player identifies proportional timing as a guided pace rather than pretending to be a verified transcript sync. The interaction and rights model are documented in `docs/SYNCHRONIZED_LYRICS_PLAYER_DESIGN.md`.
+
+Focused regression tests cover proportional fallback, personal-marker validation, in-memory partial marker handling, personal-profile priority, invalid-profile rejection, and safe line seeking. Android unit tests, lint, and debug APK packaging passed before this candidate was prepared.
+
 ## v1.4.3-rc.27 — 17 August 2026
 
 The devotional clock can now refresh **sunrise, sunset, moonrise, and moonset** on demand from the U.S. Naval Observatory’s documented Sun and Moon timing service for the user’s already selected supported place. A visible **Refresh online timings** action downloads a bounded 31-day window, stays responsive while progress is shown, and stores the resulting timing values locally for future offline use.

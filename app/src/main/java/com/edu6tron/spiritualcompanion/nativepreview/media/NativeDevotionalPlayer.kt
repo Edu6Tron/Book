@@ -27,7 +27,8 @@ class NativeDevotionalPlayer @Inject constructor(
   @ApplicationContext private val appContext: Context,
 ) {
   private companion object {
-    const val PROGRESS_UPDATE_INTERVAL_MS = 500L
+    const val PROGRESS_UPDATE_INTERVAL_MS = 250L
+    const val SEEK_STEP_MS = 15_000L
   }
 
   private val player = ExoPlayer.Builder(appContext).build()
@@ -122,6 +123,44 @@ class NativeDevotionalPlayer @Inject constructor(
     runCatching { player.stop() }
       .onFailure { NativeDiagnostics.recordFailure("stop-playback", it) }
     _playback.value = _playback.value.copy(isPlaying = false, message = "Playback stopped", positionMs = 0L)
+  }
+
+  fun togglePlayPause() {
+    if (released || player.mediaItemCount == 0) return
+    runCatching {
+      if (player.isPlaying) {
+        player.pause()
+      } else {
+        if (player.playbackState == Player.STATE_ENDED) {
+          player.seekTo(0L)
+        }
+        player.play()
+      }
+    }.onFailure { error ->
+      NativeDiagnostics.recordFailure("toggle-local-playback", error)
+      _playback.value = _playback.value.copy(
+        isPlaying = false,
+        message = "Playback could not continue. Choose another local audio file.",
+      )
+    }
+  }
+
+  fun seekTo(positionMs: Long) {
+    if (released || player.mediaItemCount == 0) return
+    runCatching {
+      val duration = player.duration.takeIf { it > 0L && it != androidx.media3.common.C.TIME_UNSET }
+      val boundedPosition = duration?.let { positionMs.coerceIn(0L, it) } ?: positionMs.coerceAtLeast(0L)
+      player.seekTo(boundedPosition)
+      publishProgress()
+    }.onFailure { error ->
+      NativeDiagnostics.recordFailure("seek-local-playback", error)
+      _playback.value = _playback.value.copy(message = "This audio position is unavailable.")
+    }
+  }
+
+  fun seekBy(deltaMs: Long) {
+    if (released || player.mediaItemCount == 0) return
+    seekTo(player.currentPosition + deltaMs.coerceIn(-SEEK_STEP_MS, SEEK_STEP_MS))
   }
 
   fun release() {

@@ -20,24 +20,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Forward10
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Replay10
+import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -67,7 +77,13 @@ fun AartiLibraryScreen(
   onClearSelectedMedia: () -> Unit,
   onPlaySelectedMedia: (String, String) -> Unit,
   onStopPlayback: () -> Unit,
+  onTogglePlayback: () -> Unit,
+  onSeekTo: (Long) -> Unit,
+  onSeekBy: (Long) -> Unit,
   playback: DevotionalPlaybackState,
+  personalLyricTimingByAarti: Map<String, List<Long>>,
+  onSavePersonalLyricTiming: (String, List<Long>) -> Unit,
+  onClearPersonalLyricTiming: (String) -> Unit,
   savedLocation: String?,
   onSaveLocation: (String) -> Unit,
   onClearLocation: () -> Unit,
@@ -262,10 +278,16 @@ fun AartiLibraryScreen(
       aarti = aarti,
       selectedMediaUri = selectedMediaUri,
       selectedMediaLabel = selectedMediaLabel,
-      playback = playback,
-      onPlaySelectedMedia = onPlaySelectedMedia,
-      onStopPlayback = onStopPlayback,
-      onDismiss = { selectedAarti = null },
+        playback = playback,
+        onPlaySelectedMedia = onPlaySelectedMedia,
+        onStopPlayback = onStopPlayback,
+        onTogglePlayback = onTogglePlayback,
+        onSeekTo = onSeekTo,
+        onSeekBy = onSeekBy,
+        savedPersonalOffsetsMs = personalLyricTimingByAarti[aarti.id].orEmpty(),
+        onSavePersonalOffsets = { offsets -> onSavePersonalLyricTiming(aarti.id, offsets) },
+        onClearPersonalOffsets = { onClearPersonalLyricTiming(aarti.id) },
+        onDismiss = { selectedAarti = null },
     )
   }
 }
@@ -310,12 +332,40 @@ private fun AartiLyricsDialog(
   playback: DevotionalPlaybackState,
   onPlaySelectedMedia: (String, String) -> Unit,
   onStopPlayback: () -> Unit,
+  onTogglePlayback: () -> Unit,
+  onSeekTo: (Long) -> Unit,
+  onSeekBy: (Long) -> Unit,
+  savedPersonalOffsetsMs: List<Long>,
+  onSavePersonalOffsets: (List<Long>) -> Unit,
+  onClearPersonalOffsets: () -> Unit,
   onDismiss: () -> Unit,
 ) {
   val context = LocalContext.current
-  val activeVerseIndex = if (playback.isPlaying) {
-    LyricTiming.activeVerseIndex(playback.positionMs, playback.durationMs, aarti.verses.size)
+  val listState = rememberLazyListState()
+  var readingMode by rememberSaveable(aarti.id) { mutableStateOf(false) }
+  var readingLineIndex by rememberSaveable(aarti.id) { mutableStateOf(0) }
+  var personalOffsetsMs by remember(aarti.id, savedPersonalOffsetsMs) { mutableStateOf(savedPersonalOffsetsMs) }
+  val hasPersonalTiming = LyricTiming.isValidProfile(personalOffsetsMs, aarti.verses.size)
+  val selectedAudioLabel = selectedMediaLabel ?: "Selected devotional audio"
+  val isSelectedAartiAudio = selectedMediaUri != null && playback.sourceLabel == selectedAudioLabel
+  val activeVerseIndex = if (isSelectedAartiAudio && playback.durationMs > 0L && !readingMode) {
+    LyricTiming.activeLineIndex(
+      positionMs = playback.positionMs,
+      durationMs = playback.durationMs,
+      lineCount = aarti.verses.size,
+      personalOffsetsMs = personalOffsetsMs,
+    )
   } else -1
+  val currentLineIndex = if (readingMode) readingLineIndex else activeVerseIndex
+  val durationMs = playback.durationMs.coerceAtLeast(0L)
+  var sliderPosition by remember(playback.positionMs, durationMs) {
+    mutableFloatStateOf(playback.positionMs.coerceIn(0L, durationMs).toFloat())
+  }
+  LaunchedEffect(activeVerseIndex, readingMode) {
+    if (!readingMode && activeVerseIndex >= 0) {
+      listState.animateScrollToItem(activeVerseIndex + 1)
+    }
+  }
   Dialog(
     onDismissRequest = onDismiss,
     properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -331,7 +381,17 @@ private fun AartiLyricsDialog(
         modifier = Modifier.fillMaxSize().padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
       ) {
-        Text(aarti.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Column(modifier = Modifier.weight(1f)) {
+            Text(aarti.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(
+              aarti.deity + " · " + aarti.languages.joinToString(" / "),
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
+          TextButton(onClick = onDismiss) { Text("Done") }
+        }
         aarti.textAttribution?.let { attribution ->
           Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)) {
             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -353,33 +413,77 @@ private fun AartiLyricsDialog(
             }
           }
         }
-        Text(
-          "Use your local recording while reading. When duration is available, the current verse is highlighted proportionally; recordings can have different exact timings.",
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+          Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("On-device lyrics player", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(
+              when {
+                hasPersonalTiming -> "Personal sync markers are active for this local recording."
+                playback.durationMs > 0L -> "Guided pace is proportional to this local recording; it is not a third-party transcript sync."
+                else -> "Reading mode is ready. Add local audio to enable guided pacing."
+              },
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+              FilterChip(
+                selected = !readingMode,
+                onClick = { readingMode = false },
+                label = { Text(if (hasPersonalTiming) "Personal sync" else "Guided pace") },
+              )
+              FilterChip(
+                selected = readingMode,
+                onClick = { readingMode = true },
+                label = { Text("Reading mode") },
+              )
+            }
+          }
+        }
         if (selectedMediaUri != null) {
-          val isSelectedAudioPlaying = playback.isPlaying &&
-            playback.sourceLabel == (selectedMediaLabel ?: "Selected devotional audio")
+          val isSelectedAudioPlaying = playback.isPlaying && isSelectedAartiAudio
           Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
-            Row(
-              modifier = Modifier.fillMaxWidth().padding(12.dp),
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-              Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+              Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
                 Text(selectedMediaLabel ?: "Selected local audio", style = MaterialTheme.typography.titleSmall)
                 Text(
-                  if (playback.isPlaying) "Playing in this app" else playback.message ?: "Ready for offline playback",
+                  if (isSelectedAudioPlaying) "Playing privately in this app" else playback.message ?: "Ready for offline playback",
                   style = MaterialTheme.typography.bodySmall,
                   color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
               }
-              TextButton(onClick = {
-                onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio")
-              }) { Text(if (isSelectedAudioPlaying) "Restart" else "Play") }
-              if (playback.isPlaying) {
-                TextButton(onClick = onStopPlayback) { Text("Stop") }
+                TextButton(onClick = {
+                  onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio")
+                }) { Text(if (isSelectedAudioPlaying) "Restart" else "Play") }
+              }
+              if (durationMs > 0L) {
+                Slider(
+                  value = sliderPosition,
+                  onValueChange = { sliderPosition = it },
+                  onValueChangeFinished = { onSeekTo(sliderPosition.toLong()) },
+                  valueRange = 0f..durationMs.toFloat(),
+                )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                  Text(formatPlaybackTime(playback.positionMs), style = MaterialTheme.typography.labelSmall)
+                  Text(formatPlaybackTime(durationMs), style = MaterialTheme.typography.labelSmall)
+                }
+              }
+              Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                IconButton(onClick = { onSeekBy(-15_000L) }, enabled = durationMs > 0L) {
+                  Icon(Icons.Outlined.Replay10, contentDescription = "Rewind 15 seconds")
+                }
+                IconButton(onClick = onTogglePlayback, enabled = isSelectedAudioPlaying || durationMs > 0L) {
+                  Icon(
+                    if (isSelectedAudioPlaying) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
+                    contentDescription = if (isSelectedAudioPlaying) "Pause local audio" else "Resume local audio",
+                  )
+                }
+                IconButton(onClick = { onSeekBy(15_000L) }, enabled = durationMs > 0L) {
+                  Icon(Icons.Outlined.Forward10, contentDescription = "Forward 15 seconds")
+                }
+                IconButton(onClick = onStopPlayback, enabled = isSelectedAudioPlaying || playback.positionMs > 0L) {
+                  Icon(Icons.Outlined.Stop, contentDescription = "Stop local audio")
+                }
               }
             }
           }
@@ -395,21 +499,45 @@ private fun AartiLyricsDialog(
         }
         LazyColumn(
           modifier = Modifier.weight(1f),
+          state = listState,
           verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
           item { Text(aarti.summary, color = MaterialTheme.colorScheme.onSurfaceVariant) }
           items(count = aarti.verses.size, key = { it }, contentType = { "verse" }) { index ->
-            val isActive = index == activeVerseIndex
+            val isActive = index == currentLineIndex
             Card(
+              modifier = Modifier.clickable {
+                readingMode = true
+                readingLineIndex = index
+                LyricTiming.offsetForLine(personalOffsetsMs, index, aarti.verses.size)?.let(onSeekTo)
+              },
               colors = CardDefaults.cardColors(
                 containerColor = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
               ),
             ) {
-              Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+              Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (isActive) {
-                  Text("Reading now", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                  Text(if (readingMode) "Reading now" else "Current line", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
                 Text(aarti.verses[index], style = MaterialTheme.typography.bodyLarge)
+                if (isSelectedAartiAudio && durationMs > 0L) {
+                  TextButton(onClick = {
+                    val updated = LyricTiming.withOffset(
+                      currentOffsetsMs = personalOffsetsMs,
+                      lineIndex = index,
+                      positionMs = playback.positionMs,
+                      lineCount = aarti.verses.size,
+                    )
+                    if (updated != null) {
+                      personalOffsetsMs = updated
+                      if (LyricTiming.isValidProfile(updated, aarti.verses.size)) onSavePersonalOffsets(updated)
+                    }
+                  }) {
+                    Icon(Icons.Outlined.Tune, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.size(4.dp))
+                    Text("Set this line at ${formatPlaybackTime(playback.positionMs)}")
+                  }
+                }
               }
             }
           }
@@ -425,8 +553,18 @@ private fun AartiLyricsDialog(
             )
           }
         }
-        TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Close") }
+        if (hasPersonalTiming) {
+          TextButton(onClick = {
+            personalOffsetsMs = emptyList()
+            onClearPersonalOffsets()
+          }, modifier = Modifier.align(Alignment.End)) { Text("Clear personal sync") }
+        }
       }
     }
   }
+}
+
+private fun formatPlaybackTime(milliseconds: Long): String {
+  val totalSeconds = (milliseconds.coerceAtLeast(0L) / 1_000L).toInt()
+  return "${totalSeconds / 60}:${(totalSeconds % 60).toString().padStart(2, '0')}"
 }

@@ -109,3 +109,8 @@
 - [x] Add a user-controlled online refresh for sunrise, sunset, moonrise, and moonset with visible source, freshness, and offline-fallback status.
 - [x] Add deterministic tests for refreshed timing cache validity, failure handling, privacy boundaries, and date-range coverage.
 - [x] Validate and publish a signed native Android candidate for the accurate online-timing refresh.
+- [x] Audit the current Aarti reader, local-player state, lyric catalogue, and source-rights boundaries for a Spotify-like synchronized-lyrics experience.
+- [x] Define and document a lawful timed-lyric model that supports verified whole texts, guided excerpts, local audio, and absent-media states without implying rights to third-party recordings.
+- [x] Implement a full-screen local Aarti player with responsive playback controls, progress seeking, timed current-line highlighting, reading mode, and accessible fallback states.
+- [x] Add deterministic tests for lyric timing resolution, player lifecycle, accessibility semantics, source disclosure, and fallback behavior.
+- [ ] Validate and publish a signed native Android candidate for the synchronized-lyrics player.
