@@ -89,14 +89,13 @@ fun AartiLibraryScreen(
   onClearLocation: () -> Unit,
   initialAartiId: String? = null,
   onInitialAartiConsumed: () -> Unit = {},
+  onOpenYouTube: (String) -> Unit,
 ) {
   var query by rememberSaveable { mutableStateOf("") }
   var category by rememberSaveable { mutableStateOf("All") }
   var locationDraft by rememberSaveable(savedLocation) { mutableStateOf(savedLocation.orEmpty()) }
   var providerQuery by rememberSaveable { mutableStateOf(ProviderSearchPolicy.defaultQuery) }
   var showPlaylistBoundary by rememberSaveable { mutableStateOf(false) }
-  var showYouTubePlayer by rememberSaveable { mutableStateOf(false) }
-  var youTubePlayerQuery by rememberSaveable { mutableStateOf("") }
   var selectedAarti by remember { mutableStateOf<AartiItem?>(null) }
   LaunchedEffect(initialAartiId) {
     initialAartiId?.let { aartiId ->
@@ -209,8 +208,7 @@ fun AartiLibraryScreen(
           )
           Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = {
-              youTubePlayerQuery = providerQuery
-              showYouTubePlayer = true
+              onOpenYouTube(providerQuery)
             }) { Text("Open YouTube here") }
             TextButton(onClick = { showPlaylistBoundary = true }) { Text("Playlist options") }
           }
@@ -327,8 +325,7 @@ fun AartiLibraryScreen(
         onSavePersonalOffsets = { offsets -> onSavePersonalLyricTiming(aarti.id, offsets) },
         onClearPersonalOffsets = { onClearPersonalLyricTiming(aarti.id) },
         onOpenYouTube = { searchQuery ->
-          youTubePlayerQuery = searchQuery
-          showYouTubePlayer = true
+          onOpenYouTube(searchQuery)
         },
         onDismiss = { selectedAarti = null },
     )
@@ -346,8 +343,7 @@ fun AartiLibraryScreen(
       confirmButton = {
         TextButton(onClick = {
           showPlaylistBoundary = false
-          youTubePlayerQuery = "create devotional Aarti playlist"
-          showYouTubePlayer = true
+          onOpenYouTube("create devotional Aarti playlist")
         }) { Text("Open YouTube") }
       },
       dismissButton = {
@@ -356,12 +352,6 @@ fun AartiLibraryScreen(
     )
   }
 
-  if (showYouTubePlayer) {
-    InAppYouTubePlayer(
-      query = youTubePlayerQuery,
-      onDismiss = { showYouTubePlayer = false },
-    )
-  }
 }
 
 @Composable

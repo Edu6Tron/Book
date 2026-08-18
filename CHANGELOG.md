@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.8-rc.32 — 18 August 2026
+
+Corrected the remaining **left-edge clipping** in the embedded official YouTube view. The provider view no longer relies on a second Android dialog window, which could be measured or positioned incorrectly on an edge-to-edge device. It is now an app-owned overlay rendered above the main Spiritual Companion screen, so it uses the same real activity bounds as the rest of the interface.
+
+The overlay first respects Android’s safe system insets and then applies a fixed, equal 16 dp inset on all four sides before rendering the YouTube card. This guarantees that the card’s left, right, top, and bottom edges remain visible and aligned on portrait devices. The Aarti library, Aarti reader, playlist guidance, and Discover tab all route through this same corrected overlay.
+
+The provider boundary is unchanged: YouTube retains its own controls, branding, advertising, and navigation; no provider media is downloaded, altered, or made into an alarm. The independent local synchronized-lyrics player remains unchanged. Native unit tests, Android lint, and debug APK assembly passed before this candidate was prepared.
+
 ## v1.4.7-rc.31 — 18 August 2026
 
 Corrected the embedded official YouTube window on portrait Android devices. The dialog is now explicitly sized to the full application window and its YouTube card is centred, with consistent 3% side insets and 5% top-and-bottom insets. This prevents the one-sided, off-centre provider window shown in the prior candidate while keeping the full official YouTube experience comfortably within the screen.

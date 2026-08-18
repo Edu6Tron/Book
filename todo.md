@@ -126,3 +126,5 @@
 - [x] Validate and publish a signed native Android candidate for the in-app embedded YouTube player.
 - [x] Correct the embedded YouTube window’s centring, width, and inset handling on portrait Android devices without changing local lyrics playback.
 - [x] Validate and publish a signed native Android layout-fix candidate for the embedded YouTube window.
+- [x] Remove remaining left-edge clipping from the embedded YouTube dialog on portrait Android devices by using a window-safe layout strategy.
+- [ ] Validate and publish a signed native Android candidate for the left-edge clipping correction.

@@ -1,5 +1,6 @@
 package com.edu6tron.spiritualcompanion.nativepreview.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -91,6 +92,7 @@ fun SpiritualCompanionApp(
   var selectedTab by remember { mutableStateOf(NativeTab.TODAY) }
   var requestedAartiId by remember { mutableStateOf<String?>(null) }
   var routineAlarmSuggestion by remember { mutableStateOf<RoutineAlarmSuggestion?>(null) }
+  var youTubePlayerQuery by remember { mutableStateOf<String?>(null) }
   val snackbarHostState = remember { SnackbarHostState() }
   LaunchedEffect(state.notice) {
     state.notice?.let { message ->
@@ -98,10 +100,11 @@ fun SpiritualCompanionApp(
       onDismissNotice()
     }
   }
-  Scaffold(
-    modifier = Modifier.fillMaxSize(),
-    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-    bottomBar = {
+  Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+      modifier = Modifier.fillMaxSize(),
+      snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+      bottomBar = {
       if (selectedTab != NativeTab.SETTINGS && selectedTab != NativeTab.ROUTINE) {
         Column {
           if (state.playback.isPlaying) {
@@ -184,10 +187,12 @@ fun SpiritualCompanionApp(
         onClearLocation = onClearLocation,
         initialAartiId = requestedAartiId,
         onInitialAartiConsumed = { requestedAartiId = null },
+        onOpenYouTube = { query -> youTubePlayerQuery = query },
       )
       NativeTab.DISCOVER -> DiscoverDevotionalsScreen(
         contentPadding = padding,
         onOpenAartis = { selectedTab = NativeTab.AARTIS },
+        onOpenYouTube = { query -> youTubePlayerQuery = query },
       )
       NativeTab.FESTIVALS -> FestivalCalendarScreen(
         contentPadding = padding,
@@ -233,6 +238,14 @@ fun SpiritualCompanionApp(
           routineAlarmSuggestion = suggestion
           selectedTab = NativeTab.TODAY
         },
+      )
+      }
+    }
+
+    youTubePlayerQuery?.let { query ->
+      InAppYouTubePlayer(
+        query = query,
+        onDismiss = { youTubePlayerQuery = null },
       )
     }
   }

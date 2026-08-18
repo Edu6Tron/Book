@@ -31,11 +31,10 @@ import androidx.compose.ui.unit.dp
 fun DiscoverDevotionalsScreen(
   contentPadding: PaddingValues,
   onOpenAartis: () -> Unit,
+  onOpenYouTube: (String) -> Unit,
 ) {
   var query by rememberSaveable { mutableStateOf("") }
   var lastOpenedQuery by rememberSaveable { mutableStateOf<String?>(null) }
-  var youTubePlayerQuery by rememberSaveable { mutableStateOf("") }
-  var showYouTubePlayer by rememberSaveable { mutableStateOf(false) }
   val suggestedQueries = listOf(
     "Ganesh Aarti lyrics",
     "Shiva Aarti",
@@ -47,8 +46,7 @@ fun DiscoverDevotionalsScreen(
   fun openSearch() {
     val resolvedQuery = ProviderSearchPolicy.normaliseQuery(query)
     lastOpenedQuery = resolvedQuery
-    youTubePlayerQuery = resolvedQuery
-    showYouTubePlayer = true
+    onOpenYouTube(resolvedQuery)
   }
 
   LazyColumn(
@@ -136,12 +134,5 @@ fun DiscoverDevotionalsScreen(
         }
       }
     }
-  }
-
-  if (showYouTubePlayer) {
-    InAppYouTubePlayer(
-      query = youTubePlayerQuery,
-      onDismiss = { showYouTubePlayer = false },
-    )
   }
 }
