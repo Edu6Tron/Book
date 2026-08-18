@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.9-rc.33 — 18 August 2026
+
+Corrected the **provider-page viewport** that remained broken after the previous layout correction. The in-app YouTube experience now uses the full application width and height rather than placing YouTube inside an inset card. The app’s root surface is also explicitly measured to the full activity size, ensuring that the provider surface is not constrained by an intermediate Compose container.
+
+The embedded WebView now requests ordinary mobile-web rendering before its first provider URL loads: wide-page viewport and overview scaling are disabled, text scale remains at 100%, and only Android WebView identification markers are removed from the normal user agent. Spiritual Companion does not inject, restyle, or alter any YouTube page content, controls, media delivery, branding, or advertising.
+
+The YouTube header remains inside the app with a clear close action, while the provider page occupies all remaining safe screen space. The independent offline synchronized-lyrics player remains unchanged. Unit tests now cover the mobile user-agent policy; native unit tests, Android lint, and debug APK assembly passed for this candidate.
+
 ## v1.4.8-rc.32 — 18 August 2026
 
 Corrected the remaining **left-edge clipping** in the embedded official YouTube view. The provider view no longer relies on a second Android dialog window, which could be measured or positioned incorrectly on an edge-to-edge device. It is now an app-owned overlay rendered above the main Spiritual Companion screen, so it uses the same real activity bounds as the rest of the interface.
