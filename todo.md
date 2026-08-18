@@ -124,3 +124,5 @@
 - [x] Implement an in-app official YouTube player window with explicit provider notice, loading and failure states, and an accessible return to the local synchronized player.
 - [x] Add deterministic coverage for embedded-player URL validation, provider-boundary messaging, and local-player coexistence.
 - [x] Validate and publish a signed native Android candidate for the in-app embedded YouTube player.
+- [x] Correct the embedded YouTube window’s centring, width, and inset handling on portrait Android devices without changing local lyrics playback.
+- [ ] Validate and publish a signed native Android layout-fix candidate for the embedded YouTube window.

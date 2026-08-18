@@ -2,6 +2,12 @@
 
 All notable user-facing changes are documented here.
 
+## v1.4.7-rc.31 — 18 August 2026
+
+Corrected the embedded official YouTube window on portrait Android devices. The dialog is now explicitly sized to the full application window and its YouTube card is centred, with consistent 3% side insets and 5% top-and-bottom insets. This prevents the one-sided, off-centre provider window shown in the prior candidate while keeping the full official YouTube experience comfortably within the screen.
+
+The correction changes only the window layout. It preserves YouTube’s own controls, branding, provider advertising, page navigation, and session-clearing behaviour. The independent offline local synchronized-lyrics player is unchanged. Native unit tests, Android lint, and debug APK packaging passed for this candidate.
+
 ## v1.4.6-rc.30 — 17 August 2026
 
 YouTube now opens **inside Spiritual Companion** instead of leaving the app for a browser or the YouTube app. The Aarti library, the Aarti reader’s contextual YouTube action, playlist guidance, and the Discover tab all use the same full-screen in-app official YouTube window. The window has a clear **Close YouTube** action; Android Back first follows YouTube’s own page history and then returns to the spiritual-practice screen.
