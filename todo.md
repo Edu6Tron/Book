@@ -131,4 +131,4 @@
 - [x] Correct the embedded YouTube WebView’s horizontal viewport and responsive rendering on portrait Android devices without changing the provider page or local lyrics playback.
 - [x] Validate and publish a signed native Android candidate for the WebView viewport-rendering correction.
 - [x] Diagnose and correct alarm, playback, and routine reliability while the app is backgrounded or the screen is off.
-- [ ] Add background-reliability regression coverage and publish a signed Android candidate for the screen-off fix.
+- [x] Add background-reliability regression coverage and publish a signed Android candidate for the screen-off fix.
