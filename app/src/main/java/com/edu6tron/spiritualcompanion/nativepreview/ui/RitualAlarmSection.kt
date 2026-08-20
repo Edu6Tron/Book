@@ -2,6 +2,7 @@ package com.edu6tron.spiritualcompanion.nativepreview.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -103,6 +104,26 @@ fun RitualAlarmSection(
           val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${context.packageName}"))
           if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
         }, modifier = Modifier.fillMaxWidth()) { Text("Allow exact alarms") }
+      }
+      val batteryOptimizationsIgnored = remember(context) {
+        context.getSystemService(PowerManager::class.java)
+          .isIgnoringBatteryOptimizations(context.packageName)
+      }
+      if (!batteryOptimizationsIgnored) {
+        Text(
+          "For reliable screen-off alarms, allow Spiritual Companion to run without battery restriction. This does not enable background internet activity.",
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.error,
+        )
+        OutlinedButton(onClick = {
+          val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+          if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
+        }, modifier = Modifier.fillMaxWidth()) { Text("Open battery settings") }
+        Text(
+          "On Realme devices, also set Battery usage to Unrestricted or allow background activity for Spiritual Companion.",
+          style = MaterialTheme.typography.labelSmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
       }
       if (alarms.isEmpty()) {
         Text("No ritual alarm yet. Add a Brahma Muhurta reminder and choose a local tone if you prefer one.", color = MaterialTheme.colorScheme.onSurfaceVariant)

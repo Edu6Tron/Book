@@ -45,6 +45,32 @@ class RitualAlarmReadinessTest {
     assertEquals(1, readiness.scheduledAlarmCount)
   }
 
+  @Test
+  fun reportsBatteryRestrictionRecoveryAfterExactAlarmPermissionIsAvailable() {
+    val readiness = RitualAlarmReadiness.evaluate(
+      alarms = listOf(alarm()),
+      exactAlarmAllowed = true,
+      batteryOptimizationsIgnored = false,
+      nowMillis = now,
+    )
+
+    assertEquals(RitualAlarmReadiness.Status.BACKGROUND_RESTRICTION_MAY_DELAY, readiness.status)
+    assertEquals(1, readiness.scheduledAlarmCount)
+    assertEquals(false, readiness.detail.contains("Private devotional label"))
+  }
+
+  @Test
+  fun prioritizesExactAlarmRecoveryOverBatteryRestrictionGuidance() {
+    val readiness = RitualAlarmReadiness.evaluate(
+      alarms = listOf(alarm()),
+      exactAlarmAllowed = false,
+      batteryOptimizationsIgnored = false,
+      nowMillis = now,
+    )
+
+    assertEquals(RitualAlarmReadiness.Status.EXACT_ALARM_PERMISSION_NEEDED, readiness.status)
+  }
+
   private fun alarm(
     enabled: Boolean = true,
     pauseUntilMillis: Long? = null,

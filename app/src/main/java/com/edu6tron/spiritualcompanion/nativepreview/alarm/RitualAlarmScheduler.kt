@@ -5,6 +5,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
+import com.edu6tron.spiritualcompanion.nativepreview.MainActivity
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
 import com.edu6tron.spiritualcompanion.nativepreview.data.days
 
@@ -52,17 +54,39 @@ object RitualAlarmScheduler {
   fun canScheduleExactAlarms(context: Context): Boolean =
     Build.VERSION.SDK_INT < Build.VERSION_CODES.S || manager(context).canScheduleExactAlarms()
 
+  /**
+   * Battery restrictions are device-controlled and can delay an otherwise valid alarm on some
+   * Android builds. The app never requests an exemption automatically; this only informs the
+   * person about the current prerequisite.
+   */
+  fun isIgnoringBatteryOptimizations(context: Context): Boolean =
+    context.getSystemService(PowerManager::class.java)
+      .isIgnoringBatteryOptimizations(context.packageName)
+
   fun serviceIntent(context: Context, action: String, alarm: RitualAlarmEntity): Intent =
     Intent(context, RitualAlarmService::class.java).setAction(action).apply { putAlarmExtras(alarm) }
 
   private fun scheduleAt(context: Context, alarm: RitualAlarmEntity, triggerAt: Long, action: String) {
     val pending = pendingIntent(context, alarm.id, action, alarm)
-    if (canScheduleExactAlarms(context)) {
+    if (canScheduleExactAlarms(context) && (action == ACTION_FIRE || action == ACTION_SNOOZED_FIRE)) {
+      manager(context).setAlarmClock(
+        AlarmManager.AlarmClockInfo(triggerAt, appOpenIntent(context, alarm.id)),
+        pending,
+      )
+    } else if (canScheduleExactAlarms(context)) {
       manager(context).setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
     } else {
       manager(context).setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
     }
   }
+
+  private fun appOpenIntent(context: Context, id: String): PendingIntent =
+    PendingIntent.getActivity(
+      context,
+      17 * id.hashCode(),
+      Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    )
 
   private fun manager(context: Context) = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 

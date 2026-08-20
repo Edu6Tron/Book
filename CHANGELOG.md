@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.5.0-rc.34 — 20 August 2026
+
+Improved **screen-off and background alarm reliability** for scheduled devotional routines. When an enabled alarm is due, Android now uses the strongest lawful scheduling path available on the device, hands the event directly to the dedicated alarm foreground service, and uses a short wake-lock only while that hand-off begins. This helps the scheduled alarm reach its offline playback path even when Spiritual Companion is not open and the display is off.
+
+An active alarm foreground service now requests Android to redeliver its start command if the system recreates the service, and it keeps an active alarm running if the task is removed. The service still stops promptly when a person dismisses or snoozes the alarm. Local selected media remains preferred when readable; the bundled offline devotional chime remains the fallback when no local media can play.
+
+The Alarm area now refreshes exact-alarm and battery-restriction readiness whenever the app returns to the foreground. It gives a person a clear, user-controlled path to the relevant Android settings when battery restrictions may delay alarms. The app does not request a battery exemption silently, does not send user data, and does not log routine labels or media paths. Focused unit tests cover exact-alarm priority and battery-restriction readiness; native unit tests, Android lint, and debug APK assembly passed for this candidate.
+
 ## v1.4.9-rc.33 — 18 August 2026
 
 Corrected the **provider-page viewport** that remained broken after the previous layout correction. The in-app YouTube experience now uses the full application width and height rather than placing YouTube inside an inset card. The app’s root surface is also explicitly measured to the full activity size, ensuring that the provider surface is not constrained by an intermediate Compose container.

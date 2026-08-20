@@ -126,6 +126,8 @@ class DashboardViewModel @Inject constructor(
       }
       if (alarm.enabled && !exactAvailable) {
         notice.value = "Alarm saved. Allow Alarms & reminders for exact timing."
+      } else if (alarm.enabled && !RitualAlarmScheduler.isIgnoringBatteryOptimizations(context)) {
+        notice.value = "Alarm saved. Allow unrestricted battery use to reduce screen-off delays."
       }
     }
   }

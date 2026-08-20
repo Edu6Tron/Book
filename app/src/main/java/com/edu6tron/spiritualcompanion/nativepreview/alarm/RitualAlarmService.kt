@@ -23,15 +23,24 @@ class RitualAlarmService : Service() {
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     val alarm = intent?.let(RitualAlarmScheduler::alarmFrom) ?: return START_NOT_STICKY
-    when (intent.action) {
-      RitualAlarmScheduler.ACTION_FIRE -> startAlarm(alarm)
+    return when (intent.action) {
+      RitualAlarmScheduler.ACTION_FIRE -> {
+        startAlarm(alarm)
+        // Keep an active alarm recoverable if the process is reclaimed while the display is off.
+        // Explicit Stop and Snooze actions call stopSelf(), so they are never resurrected.
+        START_REDELIVER_INTENT
+      }
       RitualAlarmScheduler.ACTION_SNOOZE -> {
         stopAlarm()
         RitualAlarmScheduler.snooze(this, alarm, intent.getIntExtra("ritual_alarm_snooze_minutes", 5))
+        START_NOT_STICKY
       }
-      RitualAlarmScheduler.ACTION_STOP -> stopAlarm()
+      RitualAlarmScheduler.ACTION_STOP -> {
+        stopAlarm()
+        START_NOT_STICKY
+      }
+      else -> START_NOT_STICKY
     }
-    return START_NOT_STICKY
   }
 
   private fun startAlarm(alarm: RitualAlarmEntity) {
@@ -146,6 +155,16 @@ class RitualAlarmService : Service() {
     player?.release()
     player = null
     super.onDestroy()
+  }
+
+  override fun onTaskRemoved(rootIntent: Intent?) {
+    // The alarm belongs to its foreground service, not to the visible activity task. Reasserting
+    // the foreground notification keeps an already-ringing alarm active if the main app task is
+    // dismissed while the screen is off.
+    activeAlarm?.takeIf { player?.isPlaying == true }?.let { alarm ->
+      startForeground(NOTIFICATION_ID, buildNotification(alarm))
+    }
+    super.onTaskRemoved(rootIntent)
   }
 
   companion object {

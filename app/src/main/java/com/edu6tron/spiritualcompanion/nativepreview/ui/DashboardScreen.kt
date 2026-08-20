@@ -161,6 +161,9 @@ private fun RitualAlarmReadinessCard(
   var exactAlarmAllowed by remember(context) {
     mutableStateOf(RitualAlarmScheduler.canScheduleExactAlarms(context))
   }
+  var batteryOptimizationsIgnored by remember(context) {
+    mutableStateOf(RitualAlarmScheduler.isIgnoringBatteryOptimizations(context))
+  }
   val nowMillis by produceState(initialValue = System.currentTimeMillis()) {
     while (true) {
       delay(60_000L)
@@ -171,13 +174,19 @@ private fun RitualAlarmReadinessCard(
     val observer = LifecycleEventObserver { _, event ->
       if (event == Lifecycle.Event.ON_RESUME) {
         exactAlarmAllowed = RitualAlarmScheduler.canScheduleExactAlarms(context)
+        batteryOptimizationsIgnored = RitualAlarmScheduler.isIgnoringBatteryOptimizations(context)
       }
     }
     lifecycleOwner.lifecycle.addObserver(observer)
     onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
   }
-  val readiness = remember(alarms, exactAlarmAllowed, nowMillis) {
-    RitualAlarmReadiness.evaluate(alarms, exactAlarmAllowed, nowMillis)
+  val readiness = remember(alarms, exactAlarmAllowed, batteryOptimizationsIgnored, nowMillis) {
+    RitualAlarmReadiness.evaluate(
+      alarms = alarms,
+      exactAlarmAllowed = exactAlarmAllowed,
+      batteryOptimizationsIgnored = batteryOptimizationsIgnored,
+      nowMillis = nowMillis,
+    )
   }
   Card(
     modifier = Modifier.fillMaxWidth(),
