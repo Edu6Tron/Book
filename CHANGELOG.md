@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.5.1-rc.35 — 22 August 2026
+
+Added a compact **Last alarm check** card to Ritual alarms so a person can inspect the most recent on-device delivery stage after a locked-screen test. It distinguishes Android delivering the alarm broadcast, foreground-service startup, successful selected-local-tone playback, bundled offline fallback playback, and the bounded failure branches. The result is intentionally overwritten by the latest stage and can be cleared in the interface.
+
+This diagnostic is strictly local and privacy-safe. It stores only a fixed stage token and timestamp: never an alarm ID or label, city or location, media URI or path, account information, provider query, arbitrary user text, or exception message. It does not make network requests or report diagnostic data remotely.
+
+Enabled alarms are also rescheduled when Android grants Alarms & reminders access, following Android's exact-alarm permission guidance. The new release adds deterministic stage-codec and privacy tests; native unit tests, Android lint, and debug APK assembly passed. The diagnostic does not replace physical-device testing, but it identifies whether a future failure occurred before receiver delivery, during service start, or during audio playback.
+
 ## v1.5.0-rc.34 — 20 August 2026
 
 Improved **screen-off and background alarm reliability** for scheduled devotional routines. When an enabled alarm is due, Android now uses the strongest lawful scheduling path available on the device, hands the event directly to the dedicated alarm foreground service, and uses a short wake-lock only while that hand-off begins. This helps the scheduled alarm reach its offline playback path even when Spiritual Companion is not open and the display is off.

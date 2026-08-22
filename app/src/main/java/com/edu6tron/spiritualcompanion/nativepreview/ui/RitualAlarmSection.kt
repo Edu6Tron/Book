@@ -34,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -48,6 +49,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.edu6tron.spiritualcompanion.nativepreview.alarm.AlarmDeliveryDiagnostics
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmTiming
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
@@ -79,6 +84,17 @@ fun RitualAlarmSection(
   var suggestionFor by remember { mutableStateOf<RoutineAlarmSuggestion?>(null) }
   var pausing by remember { mutableStateOf<RitualAlarmEntity?>(null) }
   val context = LocalContext.current
+  val lifecycleOwner = LocalLifecycleOwner.current
+  var lastDelivery by remember(context) { mutableStateOf(AlarmDeliveryDiagnostics.read(context)) }
+  DisposableEffect(lifecycleOwner, context) {
+    val observer = LifecycleEventObserver { _, event ->
+      if (event == Lifecycle.Event.ON_RESUME) {
+        lastDelivery = AlarmDeliveryDiagnostics.read(context)
+      }
+    }
+    lifecycleOwner.lifecycle.addObserver(observer)
+    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+  }
   LaunchedEffect(routineAlarmSuggestion) {
     routineAlarmSuggestion?.let { suggestion ->
       editorFor = null
@@ -125,6 +141,13 @@ fun RitualAlarmSection(
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
+      LastAlarmCheckCard(
+        diagnostic = lastDelivery,
+        onClear = {
+          AlarmDeliveryDiagnostics.clear(context)
+          lastDelivery = null
+        },
+      )
       if (alarms.isEmpty()) {
         Text("No ritual alarm yet. Add a Brahma Muhurta reminder and choose a local tone if you prefer one.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Button(onClick = { creating = true }, modifier = Modifier.fillMaxWidth()) { Text("Add Brahma Muhurta alarm") }

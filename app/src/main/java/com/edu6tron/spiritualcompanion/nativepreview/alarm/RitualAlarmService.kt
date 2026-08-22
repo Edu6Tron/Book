@@ -14,6 +14,7 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.edu6tron.spiritualcompanion.nativepreview.R
 import com.edu6tron.spiritualcompanion.nativepreview.data.RitualAlarmEntity
+import com.edu6tron.spiritualcompanion.nativepreview.diagnostics.NativeDiagnostics
 
 class RitualAlarmService : Service() {
   private var player: MediaPlayer? = null
@@ -25,7 +26,7 @@ class RitualAlarmService : Service() {
     val alarm = intent?.let(RitualAlarmScheduler::alarmFrom) ?: return START_NOT_STICKY
     return when (intent.action) {
       RitualAlarmScheduler.ACTION_FIRE -> {
-        startAlarm(alarm)
+        if (!startAlarm(alarm)) return START_NOT_STICKY
         // Keep an active alarm recoverable if the process is reclaimed while the display is off.
         // Explicit Stop and Snooze actions call stopSelf(), so they are never resurrected.
         START_REDELIVER_INTENT
@@ -43,32 +44,42 @@ class RitualAlarmService : Service() {
     }
   }
 
-  private fun startAlarm(alarm: RitualAlarmEntity) {
+  private fun startAlarm(alarm: RitualAlarmEntity): Boolean {
     activeAlarm = alarm
     createChannel()
-    startForeground(NOTIFICATION_ID, buildNotification(alarm))
+    try {
+      startForeground(NOTIFICATION_ID, buildNotification(alarm))
+      AlarmDeliveryDiagnostics.record(this, AlarmDeliveryStage.FOREGROUND_SERVICE_STARTED)
+    } catch (error: Exception) {
+      AlarmDeliveryDiagnostics.record(this, AlarmDeliveryStage.FOREGROUND_SERVICE_FAILED)
+      NativeDiagnostics.recordFailure("alarm_foreground_service", error)
+      activeAlarm = null
+      stopSelf()
+      return false
+    }
     player?.release()
-    player = createAlarmPlayer(alarm.toneUri).also { alarmPlayer ->
+    val preparedPlayer = try {
+      createAlarmPlayer(alarm.toneUri)
+    } catch (error: Exception) {
+      AlarmDeliveryDiagnostics.record(this, AlarmDeliveryStage.PLAYBACK_FAILED)
+      NativeDiagnostics.recordFailure("alarm_player_prepare", error)
+      activeAlarm = null
+      stopForeground(STOP_FOREGROUND_REMOVE)
+      stopSelf()
+      return false
+    }
+    player = preparedPlayer.player.also { alarmPlayer ->
       alarmPlayer.setOnErrorListener { _, _, _ ->
-        runCatching {
-          alarmPlayer.reset()
-          prepareBundledFallback(alarmPlayer)
-          alarmPlayer.start()
-        }
+        startBundledFallback(alarmPlayer)
         true
       }
-      runCatching { alarmPlayer.start() }.onFailure {
-        runCatching {
-          alarmPlayer.reset()
-          prepareBundledFallback(alarmPlayer)
-          alarmPlayer.start()
-        }
-      }
+      startPreparedTone(alarmPlayer, preparedPlayer.source)
     }
+    return true
   }
 
-  private fun createAlarmPlayer(toneUri: String?): MediaPlayer {
-    val result = MediaPlayer().apply {
+  private fun createAlarmPlayer(toneUri: String?): PreparedAlarmPlayer {
+    val player = MediaPlayer().apply {
       setAudioAttributes(
         AudioAttributes.Builder()
           .setUsage(AudioAttributes.USAGE_ALARM)
@@ -78,15 +89,40 @@ class RitualAlarmService : Service() {
       isLooping = true
       setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
     }
-    try {
-      if (toneUri.isNullOrBlank()) throw IllegalArgumentException("Use offline devotional fallback")
-      result.setDataSource(this, Uri.parse(toneUri))
-      result.prepare()
-    } catch (_: Exception) {
-      result.reset()
-      prepareBundledFallback(result)
+    if (!toneUri.isNullOrBlank()) {
+      try {
+        player.setDataSource(this, Uri.parse(toneUri))
+        player.prepare()
+        return PreparedAlarmPlayer(player, ToneSource.LOCAL)
+      } catch (_: Exception) {
+        player.reset()
+      }
     }
-    return result
+    prepareBundledFallback(player)
+    return PreparedAlarmPlayer(player, ToneSource.FALLBACK)
+  }
+
+  private fun startPreparedTone(player: MediaPlayer, source: ToneSource) {
+    try {
+      player.start()
+      AlarmDeliveryDiagnostics.record(this, source.startedStage)
+    } catch (error: Exception) {
+      NativeDiagnostics.recordFailure("alarm_tone_start", error)
+      startBundledFallback(player)
+    }
+  }
+
+  private fun startBundledFallback(player: MediaPlayer) {
+    try {
+      player.reset()
+      prepareBundledFallback(player)
+      player.start()
+      AlarmDeliveryDiagnostics.record(this, AlarmDeliveryStage.FALLBACK_TONE_STARTED)
+    } catch (error: Exception) {
+      AlarmDeliveryDiagnostics.record(this, AlarmDeliveryStage.PLAYBACK_FAILED)
+      NativeDiagnostics.recordFailure("alarm_fallback_start", error)
+      stopAlarm()
+    }
   }
 
   private fun prepareBundledFallback(target: MediaPlayer) {
@@ -170,5 +206,15 @@ class RitualAlarmService : Service() {
   companion object {
     private const val CHANNEL_ID = "ritual-alarms-native-v1"
     private const val NOTIFICATION_ID = 9034
+  }
+
+  private data class PreparedAlarmPlayer(
+    val player: MediaPlayer,
+    val source: ToneSource,
+  )
+
+  private enum class ToneSource(val startedStage: AlarmDeliveryStage) {
+    LOCAL(AlarmDeliveryStage.LOCAL_TONE_STARTED),
+    FALLBACK(AlarmDeliveryStage.FALLBACK_TONE_STARTED),
   }
 }

@@ -20,6 +20,14 @@ The `SCHEDULE_EXACT_ALARM` access can change over time. When it is granted, Andr
 4. Keep an offline bundled chime as the fallback if a chosen local URI cannot be opened. Never depend on network access or online provider media at trigger time.
 5. Treat device-specific battery managers as a final user-controlled reliability aid rather than silently changing battery-optimization policy. The app should explain that an alarm must be enabled, Alarms & reminders must be allowed, and device battery restrictions may need an explicit user choice.
 
+## On-device delivery diagnostic
+
+The Ritual alarms screen presents only the most recent local alarm-delivery stage and its timestamp. The record is replaced when a later stage occurs and remains on the device; this feature does not upload, synchronize, or include the record in network requests.
+
+The stored value is limited to one of these stage tokens: receiver delivered, service start rejected, foreground service started, foreground service failed, selected local tone started, bundled fallback tone started, or playback failed. It deliberately excludes alarm IDs and labels, media URIs or file paths, location, account information, provider queries, arbitrary user text, and exception messages.
+
+The diagnostic is **evidence of the reached stage on that device**, not a claim that every scheduled alarm will always fire. In particular, a receiver-delivered marker without an audio-start marker narrows a test failure to service or playback; no receiver-delivered marker calls for checking the enabled alarm, Alarms & reminders access, and device battery policy.
+
 ## Sources
 
 1. Android Developers, [Schedule alarms](https://developer.android.com/develop/background-work/services/alarms), accessed 20 August 2026.
