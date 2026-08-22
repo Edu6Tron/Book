@@ -134,4 +134,4 @@
 - [x] Add background-reliability regression coverage and publish a signed Android candidate for the screen-off fix.
 - [x] Inspect available exact-alarm receiver and foreground-playback diagnostics for the reported background test, and document any evidence limits.
 - [x] Add privacy-safe in-app status for exact-alarm receipt, foreground playback start, fallback selection, and delivery failures without recording alarm labels, city names, media paths, or user input.
-- [ ] Add deterministic coverage and publish a signed native Android diagnostic release for verifiable screen-off alarm delivery.
+- [x] Add deterministic coverage and publish a signed native Android diagnostic release for verifiable screen-off alarm delivery.
