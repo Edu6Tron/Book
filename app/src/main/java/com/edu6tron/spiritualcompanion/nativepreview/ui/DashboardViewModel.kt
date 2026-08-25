@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.compose.runtime.Immutable
 import com.edu6tron.spiritualcompanion.nativepreview.alarm.RitualAlarmScheduler
+import com.edu6tron.spiritualcompanion.nativepreview.media.AartiAudioAssociation
 import com.edu6tron.spiritualcompanion.nativepreview.data.DailyPractice
 import com.edu6tron.spiritualcompanion.nativepreview.data.DevotionalTheme
 import com.edu6tron.spiritualcompanion.nativepreview.data.ReadingComfort
@@ -50,6 +51,7 @@ data class DashboardContentState(
   val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val onlineAstronomyCache: OnlineAstronomyCache? = null,
   val personalLyricTimingByAarti: Map<String, List<Long>> = emptyMap(),
+  val aartiAudioByAarti: Map<String, AartiAudioAssociation> = emptyMap(),
 )
 
 @Immutable
@@ -89,6 +91,7 @@ class DashboardViewModel @Inject constructor(
         brahmaMuhurtaRoutineProgress = stored.brahmaMuhurtaRoutineProgress,
         onlineAstronomyCache = stored.onlineAstronomyCache,
         personalLyricTimingByAarti = stored.personalLyricTimingByAarti,
+        aartiAudioByAarti = stored.aartiAudioByAarti,
       )
     }
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardContentState())
@@ -167,6 +170,14 @@ class DashboardViewModel @Inject constructor(
   fun clearSelectedMedia() {
     launchSafely("clear-local-media") { repository.clearSelectedMedia() }
     player.stop()
+  }
+
+  fun assignSelectedMediaToAarti(aartiId: String, uri: String, label: String) {
+    launchSafely("assign-aarti-audio") { repository.assignAudioToAarti(aartiId, uri, label) }
+  }
+
+  fun clearSelectedMediaForAarti(aartiId: String) {
+    launchSafely("clear-aarti-audio") { repository.clearAudioForAarti(aartiId) }
   }
 
   fun playSelectedMedia(uri: String, label: String) = player.play(uri, label)

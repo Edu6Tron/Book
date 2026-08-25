@@ -135,3 +135,10 @@
 - [x] Inspect available exact-alarm receiver and foreground-playback diagnostics for the reported background test, and document any evidence limits.
 - [x] Add privacy-safe in-app status for exact-alarm receipt, foreground playback start, fallback selection, and delivery failures without recording alarm labels, city names, media paths, or user input.
 - [x] Add deterministic coverage and publish a signed native Android diagnostic release for verifiable screen-off alarm delivery.
+- [x] Audit every core devotional journey—daily timing, routines, ritual alarms, offline playback, local lyrics, calendar, and in-app provider media—for release-blocking defects and incomplete flows.
+- [x] Harden the highest-impact offline-first alarm and playback failure paths without weakening privacy, local media boundaries, or exact-alarm controls.
+- [x] Close the highest-impact user-experience gaps found in the core devotional routine, calendar, library, and ritual-alarm flows.
+- [ ] Add regression coverage, run native Android quality validation, and publish an independently verified signed hardening release.
+- [x] Correct calendar month navigation so the selected Panchang day, event list, and displayed month always remain synchronized.
+- [x] Eliminate false local-lyrics linkage by requiring a deliberate per-Aarti association before a chosen audio file can drive that Aarti’s playback controls or personal lyric-sync markers.
+- [x] Make foreground alarm audio startup report a truthful failure to Android instead of retaining a redelivery result after terminal playback setup failure, while preserving the offline fallback.

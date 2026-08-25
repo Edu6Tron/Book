@@ -62,6 +62,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.edu6tron.spiritualcompanion.nativepreview.data.AartiItem
 import com.edu6tron.spiritualcompanion.nativepreview.data.NativeCatalogue
+import com.edu6tron.spiritualcompanion.nativepreview.media.AartiAudioAssociation
 import com.edu6tron.spiritualcompanion.nativepreview.media.DevotionalPlaybackState
 import com.edu6tron.spiritualcompanion.nativepreview.media.LyricTiming
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.PanchangCalculator
@@ -75,6 +76,9 @@ fun AartiLibraryScreen(
   selectedMediaLabel: String?,
   onSaveSelectedMedia: (String, String) -> Unit,
   onClearSelectedMedia: () -> Unit,
+  aartiAudioByAarti: Map<String, AartiAudioAssociation>,
+  onAssignSelectedMediaToAarti: (String, String, String) -> Unit,
+  onClearSelectedMediaForAarti: (String) -> Unit,
   onPlaySelectedMedia: (String, String) -> Unit,
   onStopPlayback: () -> Unit,
   onTogglePlayback: () -> Unit,
@@ -157,7 +161,7 @@ fun AartiLibraryScreen(
           Text("YOUR LOCAL PLAYER", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
           Text("Devotional player", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
           Text(
-            selectedMediaLabel ?: "Choose an audio file already stored on your device. Its access is retained for offline playback.",
+            selectedMediaLabel ?: "Choose an audio file already stored on your device. Then explicitly connect it to the Aarti it belongs to before using lyric sync.",
             color = MaterialTheme.colorScheme.onSecondaryContainer,
           )
           Button(onClick = { mediaPicker.launch(arrayOf("audio/*")) }) {
@@ -315,6 +319,9 @@ fun AartiLibraryScreen(
       aarti = aarti,
       selectedMediaUri = selectedMediaUri,
       selectedMediaLabel = selectedMediaLabel,
+        aartiAudioAssociation = aartiAudioByAarti[aarti.id],
+        onAssignSelectedMedia = { uri, label -> onAssignSelectedMediaToAarti(aarti.id, uri, label) },
+        onClearAartiAudio = { onClearSelectedMediaForAarti(aarti.id) },
         playback = playback,
         onPlaySelectedMedia = onPlaySelectedMedia,
         onStopPlayback = onStopPlayback,
@@ -391,6 +398,9 @@ private fun AartiLyricsDialog(
   aarti: AartiItem,
   selectedMediaUri: String?,
   selectedMediaLabel: String?,
+  aartiAudioAssociation: AartiAudioAssociation?,
+  onAssignSelectedMedia: (String, String) -> Unit,
+  onClearAartiAudio: () -> Unit,
   playback: DevotionalPlaybackState,
   onPlaySelectedMedia: (String, String) -> Unit,
   onStopPlayback: () -> Unit,
@@ -409,8 +419,9 @@ private fun AartiLyricsDialog(
   var readingLineIndex by rememberSaveable(aarti.id) { mutableStateOf(0) }
   var personalOffsetsMs by remember(aarti.id, savedPersonalOffsetsMs) { mutableStateOf(savedPersonalOffsetsMs) }
   val hasPersonalTiming = LyricTiming.isValidProfile(personalOffsetsMs, aarti.verses.size)
-  val selectedAudioLabel = selectedMediaLabel ?: "Selected devotional audio"
-  val isSelectedAartiAudio = selectedMediaUri != null && playback.sourceLabel == selectedAudioLabel
+  val associatedAudioUri = aartiAudioAssociation?.uri
+  val associatedAudioLabel = aartiAudioAssociation?.label
+  val isSelectedAartiAudio = associatedAudioUri != null && playback.sourceUri == associatedAudioUri
   val activeVerseIndex = if (isSelectedAartiAudio && playback.durationMs > 0L && !readingMode) {
     LyricTiming.activeLineIndex(
       positionMs = playback.positionMs,
@@ -482,8 +493,9 @@ private fun AartiLyricsDialog(
             Text(
               when {
                 hasPersonalTiming -> "Personal sync markers are active for this local recording."
-                playback.durationMs > 0L -> "Guided pace is proportional to this local recording; it is not a third-party transcript sync."
-                else -> "Reading mode is ready. Add local audio to enable guided pacing."
+                associatedAudioUri != null && isSelectedAartiAudio && playback.durationMs > 0L -> "Guided pace is proportional to this local recording; it is not a third-party transcript sync."
+                associatedAudioUri != null -> "Local audio is connected to this Aarti. Tap Play to begin guided pacing."
+                else -> "Reading mode is ready. Connect local audio to this Aarti before enabling guided pacing."
               },
               style = MaterialTheme.typography.bodySmall,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -502,13 +514,13 @@ private fun AartiLyricsDialog(
             }
           }
         }
-        if (selectedMediaUri != null) {
+        if (associatedAudioUri != null) {
           val isSelectedAudioPlaying = playback.isPlaying && isSelectedAartiAudio
           Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
             Column(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
               Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
-                Text(selectedMediaLabel ?: "Selected local audio", style = MaterialTheme.typography.titleSmall)
+                Text(associatedAudioLabel ?: "Local audio for this Aarti", style = MaterialTheme.typography.titleSmall)
                 Text(
                   if (isSelectedAudioPlaying) "Playing privately in this app" else playback.message ?: "Ready for offline playback",
                   style = MaterialTheme.typography.bodySmall,
@@ -516,7 +528,7 @@ private fun AartiLyricsDialog(
                 )
               }
                 TextButton(onClick = {
-                  onPlaySelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Selected devotional audio")
+                  onPlaySelectedMedia(associatedAudioUri, associatedAudioLabel ?: "Local audio for this Aarti")
                 }) { Text(if (isSelectedAudioPlaying) "Restart" else "Play") }
               }
               if (durationMs > 0L) {
@@ -548,6 +560,23 @@ private fun AartiLyricsDialog(
                   Icon(Icons.Outlined.Stop, contentDescription = "Stop local audio")
                 }
               }
+              TextButton(onClick = onClearAartiAudio, modifier = Modifier.align(Alignment.End)) {
+                Text("Disconnect this audio")
+              }
+            }
+          }
+        } else if (selectedMediaUri != null) {
+          Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+              Text("Connect local audio", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+              Text(
+                "Use ${selectedMediaLabel ?: "the currently selected local audio"} only if it is the recording for this Aarti. This keeps lyric timing separate from other recordings.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+              )
+              TextButton(onClick = {
+                onAssignSelectedMedia(selectedMediaUri, selectedMediaLabel ?: "Local audio for ${aarti.title}")
+              }) { Text("Connect to ${aarti.title}") }
             }
           }
         } else {
@@ -585,7 +614,9 @@ private fun AartiLyricsDialog(
               modifier = Modifier.clickable {
                 readingMode = true
                 readingLineIndex = index
-                LyricTiming.offsetForLine(personalOffsetsMs, index, aarti.verses.size)?.let(onSeekTo)
+                if (isSelectedAartiAudio) {
+                  LyricTiming.offsetForLine(personalOffsetsMs, index, aarti.verses.size)?.let(onSeekTo)
+                }
               },
               colors = CardDefaults.cardColors(
                 containerColor = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,

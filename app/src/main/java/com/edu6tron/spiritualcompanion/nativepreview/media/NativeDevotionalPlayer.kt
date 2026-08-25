@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 data class DevotionalPlaybackState(
   val isPlaying: Boolean = false,
+  val sourceUri: String? = null,
   val sourceLabel: String? = null,
   val message: String? = null,
   val positionMs: Long = 0L,
@@ -89,7 +90,7 @@ class NativeDevotionalPlayer @Inject constructor(
       )
       return
     }
-    _playback.value = DevotionalPlaybackState(sourceLabel = label, message = "Preparing audio…")
+    _playback.value = DevotionalPlaybackState(sourceUri = uri, sourceLabel = label, message = "Preparing audio…")
     runCatching {
       player.setMediaItem(MediaItem.fromUri(uri))
       player.prepare()
@@ -97,6 +98,7 @@ class NativeDevotionalPlayer @Inject constructor(
     }.onFailure { error ->
       NativeDiagnostics.recordFailure("local-playback", error)
       _playback.value = DevotionalPlaybackState(
+        sourceUri = uri,
         sourceLabel = label,
         message = "This audio file could not be opened. Choose another local audio file.",
       )

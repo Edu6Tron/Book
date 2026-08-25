@@ -68,13 +68,13 @@ class RitualAlarmService : Service() {
       stopSelf()
       return false
     }
-    player = preparedPlayer.player.also { alarmPlayer ->
-      alarmPlayer.setOnErrorListener { _, _, _ ->
-        startBundledFallback(alarmPlayer)
-        true
-      }
-      startPreparedTone(alarmPlayer, preparedPlayer.source)
+    val alarmPlayer = preparedPlayer.player
+    player = alarmPlayer
+    alarmPlayer.setOnErrorListener { _, _, _ ->
+      startBundledFallback(alarmPlayer)
+      true
     }
+    if (!startPreparedTone(alarmPlayer, preparedPlayer.source)) return false
     return true
   }
 
@@ -102,26 +102,29 @@ class RitualAlarmService : Service() {
     return PreparedAlarmPlayer(player, ToneSource.FALLBACK)
   }
 
-  private fun startPreparedTone(player: MediaPlayer, source: ToneSource) {
+  private fun startPreparedTone(player: MediaPlayer, source: ToneSource): Boolean {
     try {
       player.start()
       AlarmDeliveryDiagnostics.record(this, source.startedStage)
+      return true
     } catch (error: Exception) {
       NativeDiagnostics.recordFailure("alarm_tone_start", error)
-      startBundledFallback(player)
+      return startBundledFallback(player)
     }
   }
 
-  private fun startBundledFallback(player: MediaPlayer) {
+  private fun startBundledFallback(player: MediaPlayer): Boolean {
     try {
       player.reset()
       prepareBundledFallback(player)
       player.start()
       AlarmDeliveryDiagnostics.record(this, AlarmDeliveryStage.FALLBACK_TONE_STARTED)
+      return true
     } catch (error: Exception) {
       AlarmDeliveryDiagnostics.record(this, AlarmDeliveryStage.PLAYBACK_FAILED)
       NativeDiagnostics.recordFailure("alarm_fallback_start", error)
       stopAlarm()
+      return false
     }
   }
 

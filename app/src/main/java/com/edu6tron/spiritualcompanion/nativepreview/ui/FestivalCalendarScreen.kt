@@ -143,16 +143,22 @@ fun FestivalCalendarScreen(
           savedLocation = savedLocation,
           onlineAstronomyCache = onlineAstronomyCache,
           onPreviousMonth = {
-            displayedMonth = displayedMonth.minusMonths(1)
-            selectedDate = displayedMonth.atDay(1)
+            CalendarMonthNavigator.previous(displayedMonth).also { selection ->
+              displayedMonth = selection.month
+              selectedDate = selection.selectedDate
+            }
           },
           onNextMonth = {
-            displayedMonth = displayedMonth.plusMonths(1)
-            selectedDate = displayedMonth.atDay(1)
+            CalendarMonthNavigator.next(displayedMonth).also { selection ->
+              displayedMonth = selection.month
+              selectedDate = selection.selectedDate
+            }
           },
           onSelectDate = { date ->
-            selectedDate = date
-            displayedMonth = YearMonth.from(date)
+            CalendarMonthNavigator.select(date).also { selection ->
+              selectedDate = selection.selectedDate
+              displayedMonth = selection.month
+            }
           },
         )
       }

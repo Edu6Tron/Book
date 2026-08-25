@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## v1.5.2-rc.36 — 22 August 2026
+
+This reliability-focused update corrects a core **calendar consistency** defect. When moving between months, the selected Panchang day, rich-event list, and displayed month now change together. The first day of the newly selected month is intentionally selected, including across December/January boundaries, so a displayed month can no longer show timing and festival content from a different month.
+
+The local lyrics experience now requires an explicit, device-local audio connection for each Aarti. A chosen audio file cannot appear to be the recording for an unrelated Aarti, cannot drive that Aarti’s playback controls, and cannot be used to capture its personal lyric-sync markers until the person deliberately connects it. The local association retains only the already user-selected document URI and its label in the private on-device database; it is not uploaded, logged, or applied to online provider media.
+
+The foreground alarm service also now reports a terminal audio-start failure accurately when both selected local playback and the bundled offline fallback fail, rather than returning a redelivery outcome after stopping itself. The normal local-first, bundled-offline-fallback behavior remains unchanged when audio can start. Focused new tests cover calendar transitions and local audio-association encoding; the complete native unit suite, Android lint, debug APK assembly, and whitespace validation passed.
+
 ## v1.5.1-rc.35 — 22 August 2026
 
 Added a compact **Last alarm check** card to Ritual alarms so a person can inspect the most recent on-device delivery stage after a locked-screen test. It distinguishes Android delivering the alarm broadcast, foreground-service startup, successful selected-local-tone playback, bundled offline fallback playback, and the bounded failure branches. The result is intentionally overwritten by the latest stage and can be cleared in the interface.

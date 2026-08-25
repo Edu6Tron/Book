@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCache
 import com.edu6tron.spiritualcompanion.nativepreview.panchang.OnlineAstronomyCacheCodec
+import com.edu6tron.spiritualcompanion.nativepreview.media.AartiAudioAssociation
+import com.edu6tron.spiritualcompanion.nativepreview.media.AartiAudioAssociationCodec
 import com.edu6tron.spiritualcompanion.nativepreview.media.PersonalLyricTimingCodec
 import java.time.LocalDate
 import javax.inject.Inject
@@ -34,6 +36,7 @@ data class StoredSpiritualState(
   val brahmaMuhurtaRoutineProgress: RoutineDailyProgress = RoutineDailyProgress(),
   val onlineAstronomyCache: OnlineAstronomyCache? = null,
   val personalLyricTimingByAarti: Map<String, List<Long>> = emptyMap(),
+  val aartiAudioByAarti: Map<String, AartiAudioAssociation> = emptyMap(),
 )
 
 @Singleton
@@ -61,6 +64,7 @@ class SpiritualRepository @Inject constructor(
   private val brahmaMuhurtaRoutineProgressKey = "brahma_muhurta_routine_progress"
   private val onlineAstronomyCacheKey = "online_astronomy_cache_v1"
   private val personalLyricTimingKey = "personal_lyric_timing_v1"
+  private val aartiAudioAssociationKey = "aarti_audio_associations_v1"
 
   fun observeDailyPractices(): Flow<List<DailyPractice>> =
     dailyPracticeDao.observeAll().map { stored ->
@@ -106,6 +110,8 @@ class SpiritualRepository @Inject constructor(
     state.copy(onlineAstronomyCache = OnlineAstronomyCacheCodec.decode(cache))
   }.combine(appStateDao.observeString(personalLyricTimingKey)) { state, markers ->
     state.copy(personalLyricTimingByAarti = PersonalLyricTimingCodec.decode(markers))
+  }.combine(appStateDao.observeString(aartiAudioAssociationKey)) { state, associations ->
+    state.copy(aartiAudioByAarti = AartiAudioAssociationCodec.decode(associations))
   }
 
   suspend fun togglePractice(id: String) {
@@ -154,7 +160,22 @@ class SpiritualRepository @Inject constructor(
 
   suspend fun clearSelectedMedia() {
     mediaSelectionDao.clear(selectedMediaId)
-    appStateDao.deleteStringPreference(personalLyricTimingKey)
+  }
+
+  suspend fun assignAudioToAarti(aartiId: String, uri: String, label: String) {
+    val association = AartiAudioAssociation(uri = uri, label = label.trim())
+    if (!AartiAudioAssociationCodec.isValid(aartiId, association)) return
+    val current = AartiAudioAssociationCodec.decode(appStateDao.getString(aartiAudioAssociationKey)).toMutableMap()
+    val previous = current.put(aartiId, association)
+    saveAartiAudioAssociations(current)
+    if (previous?.uri != association.uri) clearPersonalLyricTiming(aartiId)
+  }
+
+  suspend fun clearAudioForAarti(aartiId: String) {
+    val current = AartiAudioAssociationCodec.decode(appStateDao.getString(aartiAudioAssociationKey)).toMutableMap()
+    if (current.remove(aartiId) == null) return
+    saveAartiAudioAssociations(current)
+    clearPersonalLyricTiming(aartiId)
   }
 
   suspend fun savePersonalLyricTiming(aartiId: String, offsetsMs: List<Long>) {
@@ -240,6 +261,12 @@ class SpiritualRepository @Inject constructor(
     NativeDevotionalRoutines.eveningPrarthana.id -> eveningRoutineProgressKey
     NativeDevotionalRoutines.brahmaMuhurta.id -> brahmaMuhurtaRoutineProgressKey
     else -> null
+  }
+
+  private suspend fun saveAartiAudioAssociations(associations: Map<String, AartiAudioAssociation>) {
+    val encoded = AartiAudioAssociationCodec.encode(associations)
+    if (encoded == null) appStateDao.deleteStringPreference(aartiAudioAssociationKey)
+    else appStateDao.saveStringPreference(StringPreferenceEntity(aartiAudioAssociationKey, encoded))
   }
 
   private fun String?.toStoredBoolean(): Boolean = equals("true", ignoreCase = true)
